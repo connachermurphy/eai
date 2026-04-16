@@ -1,3 +1,12 @@
+[project]
+name = "eai"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "pandas>=2.2",
+    "openpyxl>=3.1",
+]
+
 [tool.ruff]
 # Standard linting rules
 lint.select = ["E", "F", "I", "W"]
