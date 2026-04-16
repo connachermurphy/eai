@@ -1,6 +1,13 @@
 # eai
 Combining various data sources related to the economics of AI
 
+## Data sources
+
+- Anthropic Economic Index: https://huggingface.co/datasets/Anthropic/EconomicIndex
+  - Download: `uv run anthropic/download.py` (update `RELEASE` in the script when a new release drops).
+  - Inspect: `uv run anthropic/clean.py` prints the head of each downloaded CSV.
+- O*NET task statements: https://www.onetcenter.org/dictionary/20.1/excel/task_statements.html
+
 ## Development
 
 ### Linting
