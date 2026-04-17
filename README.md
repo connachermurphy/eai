@@ -4,8 +4,9 @@ Combining various data sources related to the economics of AI
 ## Data sources
 
 - Anthropic Economic Index: https://huggingface.co/datasets/Anthropic/EconomicIndex
+  - Reference code: https://huggingface.co/datasets/Anthropic/EconomicIndex/tree/main/release_2025_09_15
   - Download: `uv run anthropic/download.py` (update `RELEASE` in the script when a new release drops).
-  - Inspect: `uv run anthropic/clean.py` prints the head of each downloaded CSV.
+  - Clean: `uv run anthropic/clean.py` filters to GLOBAL + `onet_task::collaboration`, pivots wide (one column per collaboration type), and merges onto O*NET task statements. Outputs `data/<release>/aei_cleaned_claude_ai.csv`.
 - O*NET task statements: https://www.onetcenter.org/dictionary/20.1/excel/task_statements.html
 
 ## Development
