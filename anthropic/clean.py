@@ -1,4 +1,4 @@
-"""Clean the AEI Claude.ai data: filter, pivot wide, and merge onto O*NET tasks."""
+"""Clean the AEI Claude.ai data: filter and pivot wide."""
 
 from pathlib import Path
 
@@ -8,7 +8,6 @@ import pandas as pd
 RELEASE = "release_2026_03_24"
 BASE = Path(__file__).resolve().parent.parent
 RAW_CSV = BASE / "data" / RELEASE / "aei_raw_claude_ai_2026-02-05_to_2026-02-12.csv"
-ONET_CSV = BASE / "data" / "onet" / "task_statements.csv"
 OUT_CSV = BASE / "data" / RELEASE / "aei_cleaned_claude_ai.csv"
 
 # --- Load & Filter ---
@@ -62,40 +61,13 @@ wide = (
     .reset_index()
 )
 
-# --- Merge O*NET ---
-onet = pd.read_csv(ONET_CSV)
-onet["task_merge_key"] = onet["Task"].str.lower().str.strip()
-onet = onet[["task_merge_key", "O*NET-SOC Code", "Title", "Task ID"]].drop_duplicates()
-onet = onet.rename(
-    columns={
-        "O*NET-SOC Code": "onet_soc_code",
-        "Title": "onet_title",
-        "Task ID": "onet_task_id",
-    }
-)
-
-wide["task_merge_key"] = wide["task"].str.lower().str.strip()
-onet_keys = set(onet["task_merge_key"])
-wide_keys = set(wide["task_merge_key"])
-onet_unmatched = onet_keys - wide_keys
-print("\n--- O*NET merge ---")
-print(f"  O*NET tasks: {len(onet_keys)}")
-print(f"  AEI tasks: {len(wide_keys)}")
-print(f"  O*NET tasks not in AEI (dropped from right): {len(onet_unmatched)}")
-aei_unmatched_onet = wide_keys - onet_keys
-# TODO: handle tasks with no O*NET match (currently just the literal "none" task)
-if aei_unmatched_onet:
-    print(f"  AEI tasks not in O*NET (null onet columns): {len(aei_unmatched_onet)}")
-    for t in sorted(aei_unmatched_onet):
-        print(f"    - {t!r}")
-
-wide = wide.merge(onet, on="task_merge_key", how="left")
-
 # --- Merge task usage totals ---
 usage_wide["task_merge_key"] = usage_wide["task"].str.lower().str.strip()
+wide["task_merge_key"] = wide["task"].str.lower().str.strip()
+wide_keys = set(wide["task_merge_key"])
 usage_keys = set(usage_wide["task_merge_key"])
 usage_unmatched = usage_keys - wide_keys
-print("\n--- Task usage merge ---")
+print(f"\n--- Task usage merge ---")
 print(f"  Usage tasks: {len(usage_keys)}")
 print(f"  AEI tasks: {len(wide_keys)}")
 print(f"  Usage tasks not in AEI (dropped from right): {len(usage_unmatched)}")
@@ -119,7 +91,7 @@ wide = wide.merge(
 wide = wide.drop(columns=["task_merge_key"])
 print()
 
-# --- Order columns: task, counts, pcts, onet ---
+# --- Order columns: task, counts, pcts ---
 collab_types = [
     "directive",
     "feedback_loop",
@@ -131,8 +103,7 @@ collab_types = [
 ]
 count_cols = [f"{t}_count" for t in collab_types]
 pct_cols = [f"{t}_pct" for t in collab_types]
-onet_cols = ["onet_soc_code", "onet_title", "onet_task_id"]
-wide = wide[["task", "task_count", "task_pct"] + count_cols + pct_cols + onet_cols]
+wide = wide[["task", "task_count", "task_pct"] + count_cols + pct_cols]
 
 # --- Write ---
 wide.to_csv(OUT_CSV, index=False)
