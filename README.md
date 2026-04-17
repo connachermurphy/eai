@@ -8,6 +8,8 @@ Combining various data sources related to the economics of AI
   - Download: `uv run anthropic/download.py` (update `RELEASE` in the script when a new release drops).
   - Clean: `uv run anthropic/clean.py` filters to GLOBAL + `onet_task::collaboration`, pivots wide (one column per collaboration type), and merges onto O*NET task statements. Outputs `data/<release>/aei_cleaned_claude_ai.csv`.
 - O*NET task statements: https://www.onetcenter.org/dictionary/20.1/excel/task_statements.html
+- SOC 2010→2018 crosswalk: https://www.bls.gov/soc/2018/home.htm
+- OEWS (Occupational Employment and Wage Statistics): https://www.bls.gov/oes/tables.htm
 
 ## Development
 
