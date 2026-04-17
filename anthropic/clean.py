@@ -67,7 +67,7 @@ wide["task_merge_key"] = wide["task"].str.lower().str.strip()
 wide_keys = set(wide["task_merge_key"])
 usage_keys = set(usage_wide["task_merge_key"])
 usage_unmatched = usage_keys - wide_keys
-print(f"\n--- Task usage merge ---")
+print("\n--- Task usage merge ---")
 print(f"  Usage tasks: {len(usage_keys)}")
 print(f"  AEI tasks: {len(wide_keys)}")
 print(f"  Usage tasks not in AEI (dropped from right): {len(usage_unmatched)}")

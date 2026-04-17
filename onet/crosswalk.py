@@ -32,9 +32,13 @@ for group_id, component in enumerate(components):
     for vintage, code in component:
         title = G.nodes[(vintage, code)]["title"]
         if vintage == "2010":
-            rows_2010.append({"soc_2010": code, "title_2010": title, "group_id": group_id})
+            rows_2010.append(
+                {"soc_2010": code, "title_2010": title, "group_id": group_id}
+            )
         else:
-            rows_2018.append({"soc_2018": code, "title_2018": title, "group_id": group_id})
+            rows_2018.append(
+                {"soc_2018": code, "title_2018": title, "group_id": group_id}
+            )
 
 df_2010 = pd.DataFrame(rows_2010).sort_values("soc_2010").reset_index(drop=True)
 df_2018 = pd.DataFrame(rows_2018).sort_values("soc_2018").reset_index(drop=True)
