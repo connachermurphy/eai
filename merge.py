@@ -84,7 +84,11 @@ oews = pd.read_csv(OEWS_CSV)
 
 # Filter to detailed occupations only
 oews = oews[oews["o_group"] == "detailed"].copy()
-oews = oews[["occ_code", "occ_title", "tot_emp", "a_mean", "a_median"]].copy()
+oews = oews[["occ_code", "occ_title", "tot_emp", "a_mean"]].copy()
+
+# Clean numeric columns (* = not available, leave as NaN)
+oews["tot_emp"] = pd.to_numeric(oews["tot_emp"], errors="coerce")
+oews["a_mean"] = pd.to_numeric(oews["a_mean"], errors="coerce")
 
 # Join group_id onto OEWS
 oews = oews.merge(g2018[["soc_2018", "group_id"]], left_on="occ_code", right_on="soc_2018", how="left")
@@ -99,12 +103,33 @@ if n_oews_ungrouped > 0:
         print(f"    - {row['occ_code']} {row['occ_title']}")
 
 # ==========================================================================
-# Step 4: Aggregate OEWS by group and merge onto task frame
+# Step 4: Aggregate OEWS by group_id (sum employment, employment-weighted mean wage)
 # ==========================================================================
-# TODO: In progress. Need to decide:
-#   - How to aggregate wages within groups (employment-weighted mean vs simple mean)
-#   - How to apportion group employment across O*NET occupations
-#   - How to handle the 12 ungrouped OEWS codes and 22 ungrouped tasks
+oews_grouped = oews.dropna(subset=["group_id"]).copy()
+oews_grouped["group_id"] = oews_grouped["group_id"].astype(int)
+
+# Employment-weighted mean wage
+oews_grouped["aggregate_comp"] = oews_grouped["a_mean"] * oews_grouped["tot_emp"]
+
+oews_by_group = (
+    oews_grouped.groupby("group_id")
+    .agg(
+        group_tot_emp=("tot_emp", "sum"),
+        group_n_occ=("occ_code", "nunique"),
+        _aggregate_comp=("aggregate_comp", "sum"),
+    )
+    .reset_index()
+)
+oews_by_group["group_a_mean"] = (
+    oews_by_group["_aggregate_comp"] / oews_by_group["group_tot_emp"]
+)
+oews_by_group = oews_by_group.drop(columns=["_aggregate_comp"])
+
+print(f"\n--- OEWS aggregation by group ---")
+print(f"  Groups with employment: {len(oews_by_group)}")
+print(f"  Total employment: {oews_by_group['group_tot_emp'].sum():,.0f}")
+
+# TODO: Merge onto task frame and apportion employment across O*NET occupations
 
 # ==========================================================================
 # Write
