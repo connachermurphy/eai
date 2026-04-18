@@ -1,4 +1,4 @@
-"""Merge O*NET task frame with AEI usage data, filling zeros for unmatched tasks."""
+"""Merge O*NET task frame with AEI usage and OEWS employment data."""
 
 from pathlib import Path
 
@@ -10,6 +10,9 @@ BASE = Path(__file__).resolve().parent
 RELEASE = "release_2026_03_24"
 ONET_CSV = BASE / "data" / "onet" / "task_statements.csv"
 AEI_CSV = BASE / "data" / RELEASE / "aei_cleaned_claude_ai.csv"
+GROUP_2010_CSV = BASE / "data" / "onet" / "soc_2010_to_group.csv"
+GROUP_2018_CSV = BASE / "data" / "onet" / "soc_2018_to_group.csv"
+OEWS_CSV = BASE / "data" / "oews" / "national_M2024_dl.csv"
 OUT_CSV = BASE / "data" / "merged.csv"
 
 # --- Load ---
@@ -54,5 +57,57 @@ n_matched = merged["task_count"].gt(0).sum()
 n_zero = merged["task_count"].eq(0).sum()
 print(f"\nMerged: {len(merged)} rows ({n_matched} with AEI data, {n_zero} zero-filled)")
 
+# ==========================================================================
+# Step 2: Add group_id via SOC 2010 crosswalk
+# ==========================================================================
+g2010 = pd.read_csv(GROUP_2010_CSV)
+
+# O*NET-SOC "11-1011.00" -> SOC 2010 "11-1011"
+merged["soc_2010"] = merged["O*NET-SOC Code"].str[:7]
+
+merged = merged.merge(g2010[["soc_2010", "group_id"]], on="soc_2010", how="left")
+
+n_grouped = merged["group_id"].notna().sum()
+n_ungrouped = merged["group_id"].isna().sum()
+print(f"\n--- Group ID assignment ---")
+print(f"  Grouped: {n_grouped}, ungrouped: {n_ungrouped}")
+if n_ungrouped > 0:
+    ungrouped_socs = merged.loc[merged["group_id"].isna(), "soc_2010"].unique()
+    for s in sorted(ungrouped_socs):
+        print(f"    - {s}")
+
+# ==========================================================================
+# Step 3: Merge OEWS employment via group_id
+# ==========================================================================
+g2018 = pd.read_csv(GROUP_2018_CSV)
+oews = pd.read_csv(OEWS_CSV)
+
+# Filter to detailed occupations only
+oews = oews[oews["o_group"] == "detailed"].copy()
+oews = oews[["occ_code", "occ_title", "tot_emp", "a_mean", "a_median"]].copy()
+
+# Join group_id onto OEWS
+oews = oews.merge(g2018[["soc_2018", "group_id"]], left_on="occ_code", right_on="soc_2018", how="left")
+
+n_oews_grouped = oews["group_id"].notna().sum()
+n_oews_ungrouped = oews["group_id"].isna().sum()
+print(f"\n--- OEWS ← group_id ---")
+print(f"  Grouped: {n_oews_grouped}, ungrouped: {n_oews_ungrouped}")
+if n_oews_ungrouped > 0:
+    print("  Ungrouped OEWS codes (no SOC 2010 equivalent):")
+    for _, row in oews[oews["group_id"].isna()].iterrows():
+        print(f"    - {row['occ_code']} {row['occ_title']}")
+
+# ==========================================================================
+# Step 4: Aggregate OEWS by group and merge onto task frame
+# ==========================================================================
+# TODO: In progress. Need to decide:
+#   - How to aggregate wages within groups (employment-weighted mean vs simple mean)
+#   - How to apportion group employment across O*NET occupations
+#   - How to handle the 12 ungrouped OEWS codes and 22 ungrouped tasks
+
+# ==========================================================================
+# Write
+# ==========================================================================
 merged.to_csv(OUT_CSV, index=False)
-print(f"Wrote {len(merged)} rows -> {OUT_CSV}")
+print(f"\nWrote {len(merged)} rows -> {OUT_CSV}")
