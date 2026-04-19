@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 BASE = Path(__file__).resolve().parent
@@ -108,22 +109,25 @@ if n_oews_ungrouped > 0:
 oews_grouped = oews.dropna(subset=["group_id"]).copy()
 oews_grouped["group_id"] = oews_grouped["group_id"].astype(int)
 
-# Employment-weighted mean wage
-oews_grouped["aggregate_comp"] = oews_grouped["a_mean"] * oews_grouped["tot_emp"]
+# Employment-weighted mean wage (skip NaN wages, return NaN if all wages missing)
+def emp_weighted_mean(df):
+    mask = df["a_mean"].notna()
+    if not mask.any():
+        return np.nan
+    return np.average(df.loc[mask, "a_mean"], weights=df.loc[mask, "tot_emp"])
+
 
 oews_by_group = (
     oews_grouped.groupby("group_id")
     .agg(
         group_tot_emp=("tot_emp", "sum"),
         group_n_occ=("occ_code", "nunique"),
-        _aggregate_comp=("aggregate_comp", "sum"),
     )
     .reset_index()
 )
 oews_by_group["group_a_mean"] = (
-    oews_by_group["_aggregate_comp"] / oews_by_group["group_tot_emp"]
+    oews_grouped.groupby("group_id").apply(emp_weighted_mean).values
 )
-oews_by_group = oews_by_group.drop(columns=["_aggregate_comp"])
 
 print(f"\n--- OEWS aggregation by group ---")
 print(f"  Groups with employment: {len(oews_by_group)}")
