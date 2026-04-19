@@ -243,38 +243,105 @@ def emp_weighted_mean(df):
 oews_by_group = (
     oews_with_group.groupby("group_id_coarsened")
     .agg(
-        group_tot_emp=("tot_emp", "sum"),
-        group_n_occ=("occ_code", "nunique"),
+        coarsened_group_tot_emp=("tot_emp", "sum"),
+        coarsened_group_n_occ=("occ_code", "nunique"),
     )
     .reset_index()
 )
-oews_by_group["group_a_mean"] = (
+oews_by_group["coarsened_group_a_mean"] = (
     oews_with_group.groupby("group_id_coarsened").apply(emp_weighted_mean).values
 )
 
-print(f"\n--- Step 4: OEWS aggregation by group ---")
+print(f"\n--- Step 4: OEWS aggregation by coarsened group ---")
 print(f"  Groups with employment: {len(oews_by_group)}")
-print(f"  Total employment: {oews_by_group['group_tot_emp'].sum():,.0f}")
-print(f"  Groups with wage data: {oews_by_group['group_a_mean'].notna().sum()}")
-print(f"  Groups without wage data: {oews_by_group['group_a_mean'].isna().sum()}")
+print(f"  Total employment: {oews_by_group['coarsened_group_tot_emp'].sum():,.0f}")
+print(f"  Groups with wage data: {oews_by_group['coarsened_group_a_mean'].notna().sum()}")
+print(f"  Groups without wage data: {oews_by_group['coarsened_group_a_mean'].isna().sum()}")
 
 # ==========================================================================
 # Step 5: Merge OEWS groups onto task frame
 # ==========================================================================
 tasks = tasks.merge(oews_by_group, on="group_id_coarsened", how="left")
 
-n_with_emp = tasks["group_tot_emp"].notna().sum()
-n_without_emp = tasks["group_tot_emp"].isna().sum()
-emp_covered = tasks.loc[tasks["group_tot_emp"].notna(), "group_tot_emp"].drop_duplicates().sum()
+n_with_emp = tasks["coarsened_group_tot_emp"].notna().sum()
+n_without_emp = tasks["coarsened_group_tot_emp"].isna().sum()
+emp_covered = (
+    tasks.loc[tasks["coarsened_group_tot_emp"].notna(), "coarsened_group_tot_emp"]
+    .drop_duplicates()
+    .sum()
+)
 print(f"\n--- Step 5: Tasks ← OEWS groups ---")
 print(f"  Tasks with employment data: {n_with_emp}")
 print(f"  Tasks without employment data: {n_without_emp}")
 print(f"  Total employment covered: {emp_covered:,.0f}")
 if n_without_emp > 0:
-    no_emp = tasks.loc[tasks["group_tot_emp"].isna()]
+    no_emp = tasks.loc[tasks["coarsened_group_tot_emp"].isna()]
     n_with_aei_no_emp = no_emp["task_count"].gt(0).sum()
     n_occ_no_emp = no_emp["O*NET-SOC Code"].nunique()
-    print(f"  Of which have AEI data but no employment: {n_with_aei_no_emp} tasks across {n_occ_no_emp} occupations")
+    print(
+        f"  Of which have AEI data but no employment: "
+        f"{n_with_aei_no_emp} tasks across {n_occ_no_emp} occupations"
+    )
+
+# ==========================================================================
+# Step 6: Apportion employment to occupations
+# ==========================================================================
+# Count unique SOC 2010 codes per coarsened group, then divide equally.
+n_occ_per_group = (
+    tasks[tasks["group_id_coarsened"].notna()]
+    .groupby("group_id_coarsened")["soc_2010"]
+    .nunique()
+    .rename("n_soc_2010_in_group")
+)
+tasks = tasks.merge(n_occ_per_group, on="group_id_coarsened", how="left")
+tasks["apportioned_occ_emp"] = (
+    tasks["coarsened_group_tot_emp"] / tasks["n_soc_2010_in_group"]
+)
+
+print(f"\n--- Step 6: Apportion employment to occupations ---")
+n_occs_with_emp = tasks.loc[
+    tasks["apportioned_occ_emp"].notna(), "soc_2010"
+].nunique()
+total_apportioned = (
+    tasks[tasks["apportioned_occ_emp"].notna()]
+    .drop_duplicates("soc_2010")["apportioned_occ_emp"]
+    .sum()
+)
+print(f"  SOC 2010 occupations with employment: {n_occs_with_emp}")
+print(f"  Total apportioned employment: {total_apportioned:,.0f}")
+
+# ==========================================================================
+# Step 7: Apportion usage counts across task-occupations
+# ==========================================================================
+# task_count is per unique task text. When a task appears under multiple
+# occupations, split its count proportional to occupation employment.
+# For tasks with no employment data, count stays undivided.
+
+tasks["_task_key"] = tasks["Task"].str.lower().str.strip()
+
+# Total employment across all occupations sharing each task text
+task_total_emp = (
+    tasks[tasks["apportioned_occ_emp"].notna()]
+    .groupby("_task_key")["apportioned_occ_emp"]
+    .transform("sum")
+)
+
+tasks["apportioned_task_count"] = tasks["task_count"]  # default: undivided
+mask = tasks["apportioned_occ_emp"].notna() & (task_total_emp > 0)
+tasks.loc[mask, "apportioned_task_count"] = (
+    tasks.loc[mask, "task_count"]
+    * tasks.loc[mask, "apportioned_occ_emp"]
+    / task_total_emp[mask]
+)
+tasks = tasks.drop(columns=["_task_key"])
+
+print(f"\n--- Step 7: Apportion usage counts across task-occupations ---")
+orig_sum = tasks.drop_duplicates("Task")["task_count"].sum()
+apportioned_sum = tasks["apportioned_task_count"].sum()
+print(f"  Original task_count sum (unique tasks): {orig_sum:,.0f}")
+print(f"  Apportioned task_count sum (all rows): {apportioned_sum:,.0f}")
+n_split = (tasks["apportioned_task_count"] != tasks["task_count"]).sum()
+print(f"  Task-occupation pairs with split count: {n_split}")
 
 # ==========================================================================
 # Write
