@@ -1,5 +1,6 @@
-import pandas as pd
 import matplotlib
+import pandas as pd
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
@@ -31,7 +32,9 @@ print("Saved to anthropic/scatter.png")
 # Filtered version: clip to 95th percentile on both axes
 p95_aug = df["augmentation_scaled"].quantile(0.95)
 p95_aut = df["automation_scaled"].quantile(0.95)
-df_filt = df[(df["augmentation_scaled"] <= p95_aug) & (df["automation_scaled"] <= p95_aut)]
+df_filt = df[
+    (df["augmentation_scaled"] <= p95_aug) & (df["automation_scaled"] <= p95_aut)
+]
 
 fig2, ax2 = plt.subplots(figsize=(10, 8))
 sc2 = ax2.scatter(
@@ -68,7 +71,9 @@ plt.colorbar(sc3, label="augmentation_weighted_ratio")
 ax3.plot([0, max_val], [0, max_val], "k--", alpha=0.4, linewidth=1)
 ax3.set_xlabel("augmentation_weighted_ratio × pct_occ_scaled")
 ax3.set_ylabel("automation_weighted_ratio × pct_occ_scaled")
-ax3.set_title("Occupation Automation vs Augmentation (usage-weighted, colored by augmentation)")
+ax3.set_title(
+    "Occupation Automation vs Augmentation (usage-weighted, colored by augmentation)"
+)
 plt.tight_layout()
 plt.savefig("anthropic/scatter_aug.png", dpi=150)
 print("Saved to anthropic/scatter_aug.png")
@@ -87,7 +92,10 @@ plt.colorbar(sc4, label="augmentation_weighted_ratio")
 ax4.plot([0, max_val2], [0, max_val2], "k--", alpha=0.4, linewidth=1)
 ax4.set_xlabel("augmentation_weighted_ratio × pct_occ_scaled")
 ax4.set_ylabel("automation_weighted_ratio × pct_occ_scaled")
-ax4.set_title("Occupation Automation vs Augmentation (usage-weighted, filtered, colored by augmentation)")
+ax4.set_title(
+    "Occupation Automation vs Augmentation"
+    " (usage-weighted, filtered, colored by augmentation)"
+)
 plt.tight_layout()
 plt.savefig("anthropic/scatter_aug_filtered.png", dpi=150)
 print("Saved to anthropic/scatter_aug_filtered.png")
