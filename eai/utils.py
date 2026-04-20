@@ -43,6 +43,7 @@ def log_merge_diagnostics(
     right_label: str = "right",
     labels: pd.DataFrame | None = None,
     key_col: str | None = None,
+    max_keys: int = 20,
     logger: logging.Logger | None = None,
 ) -> None:
     """Log unmatched keys from a merge.
@@ -53,6 +54,7 @@ def log_merge_diagnostics(
     left_label, right_label : Human-readable names for each side.
     labels : Optional DataFrame mapping keys to descriptive titles.
     key_col : Column in `labels` containing the keys (required if labels is set).
+    max_keys : Max unmatched keys to print per side. 0 for unlimited.
     """
     log = logger or get_logger("merge")
 
@@ -65,19 +67,17 @@ def log_merge_diagnostics(
                     return f"{code}  {matches.iloc[0]}"
         return str(code)
 
-    matched = (
-        len(left_only | right_only)  # total unique unmatched
-        # can't compute matched count without original sets, so just report unmatched
-    )
+    def _format_section(unmatched: set[Any], src_label: str, dst_label: str) -> None:
+        header = f"In {src_label} but not {dst_label} ({len(unmatched)}):"
+        if not unmatched:
+            log.info("%s\n  (none)", header)
+            return
+        sorted_keys = sorted(unmatched)
+        show = sorted_keys if max_keys == 0 else sorted_keys[:max_keys]
+        lines = [f"  {_format_code(c)}" for c in show]
+        if max_keys and len(sorted_keys) > max_keys:
+            lines.append(f"  ... and {len(sorted_keys) - max_keys} more")
+        log.info("%s\n%s", header, "\n".join(lines))
 
-    header = (
-        f"In {left_label} but not {right_label} ({len(left_only)}):"
-    )
-    lines = [f"  {_format_code(c)}" for c in sorted(left_only)]
-    log.info("%s\n%s", header, "\n".join(lines) if lines else "  (none)")
-
-    header = (
-        f"In {right_label} but not {left_label} ({len(right_only)}):"
-    )
-    lines = [f"  {_format_code(c)}" for c in sorted(right_only)]
-    log.info("%s\n%s", header, "\n".join(lines) if lines else "  (none)")
+    _format_section(left_only, left_label, right_label)
+    _format_section(right_only, right_label, left_label)

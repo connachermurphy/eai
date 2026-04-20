@@ -18,11 +18,14 @@ Source: #link("https://github.com/openai/GPTs-are-GPTs/blob/main/data/occ_level.
 
 == SOC 2010 $<==>$ 2018 Crosswalk
 
-Source: #link("https://www.bls.gov/soc/2018/home.htm")[Bureau of Labor Statistics]. The AEI and O\*NET use SOC 2010 while OEWS uses SOC 2018, so a crosswalk is required for joining. The mapping is many-to-many: some 2010 codes split into multiple 2018 codes, and some merge.
+Source: #link("https://www.bls.gov/soc/2018/home.htm")[Bureau of Labor Statistics]. The AEI and O\*NET use SOC 2010 while OEWS uses SOC 2018, so a crosswalk is required for joining. The mapping is many-to-many: some 2010 codes split into multiple 2018 codes, and some 2018 codes map to multiple 2010 codes.
+
+We represent the crosswalk as a bipartite graph and take the connected components to create a common occupation group identifier (`group_id`).
 
 = Occupational Characteristics Datasets
 
 Exposure is defined and measured in a variety of ways. I adopt the term 'occupational characteristics' to mitigate confusion about the various definitions of exposure in the literature. I construct some datasets that combine these sources in the `occupations` folder.
+
 
 == Data Sources Based on 2018 SOC Codes
 
@@ -32,10 +35,20 @@ I first merge the Eloundou et al. data onto the 2018 occupation universe. Since 
 
 I next merge the 2022 OEWS data onto the 2018 occupation unvierse, using 2018 SOC codes. I use the 2022 OEWS to represent pre-ChatGPT employment.
 
-In some cases, the OEWS aggregates to broader SOC codes. We apportion employment evenly across 6-digit SOC codes and assume compensation is distributed identically for each of the 6-digit SOC codes.
+In some cases, the OEWS aggregates to broader SOC codes. I apportion employment evenly across 6-digit SOC codes and assume compensation is distributed identically for each of the 6-digit SOC codes.
+
+If we are missing OEWS employment data for an occupation, we replace it with the median employment value across all occupations with OEWS employment data.
 
 == Data Sourced Based on 2010 SOC Codes
 
 I use the 2010 half of the SOC 2010 $<==>$ 2018 Crosswalk to form our universe of 2018 occupations.
 
-We merge the ...
+I first aggregate the Anthropic Economic Index task-level usage counts for Claude.ai and the first party API for the September 2025, January 2026, and March 2026 releases. Since all of these releases categorize a random sample of one million conversations, I am weighting all releases and both platforms equally.
+
+I merge the task-level usage counts onto the O\*NET task statements. I fill in all tasks missing queries with zero usage. 
+
+We next need to apportion usage across occupations where multiple occupations share a task.
+
+We first collapse the 2022 OEWS by `group_id`, summing employment and taking employment-weighted averages of `a_mean` (average yearly compensation). We then merge this `group_id` level data onto the task-occupation.
+
+We apportion a task's usage counts with (a) equal weights and (b) employment weights across the occupations that share that task.
