@@ -64,29 +64,11 @@ def clean_aei(raw_path: Path, release: str, platform: str) -> pd.DataFrame:
     raw = raw[raw["geo_id"] == "GLOBAL"]
     logger.info("  After GLOBAL filter: %d rows", len(raw))
 
-    # --- Validation: total conversation count ---
-    usage_all = raw[raw["facet"] == "onet_task"]
-    if not usage_all.empty:
-        total_count = usage_all.loc[
-            usage_all["variable"] == "onet_task_count", "value"
-        ].sum()
-        logger.info("  Total onet_task count (all usage): %s", f"{int(total_count):,}")
-    else:
-        logger.warning("  No onet_task facet found — cannot validate total count")
-
     # --- Collaboration data ---
     df = raw[raw["facet"] == "onet_task::collaboration"].copy()
     if df.empty:
         logger.warning("  No onet_task::collaboration rows — skipping")
         return pd.DataFrame()
-
-    collab_total = df.loc[
-        df["variable"] == "onet_task_collaboration_count", "value"
-    ].sum()
-    logger.info(
-        "  Collaboration sample: %s conversation-type pairs",
-        f"{int(collab_total):,}",
-    )
 
     # --- Task usage totals (from onet_task facet) ---
     usage = raw[raw["facet"] == "onet_task"].copy()
@@ -109,8 +91,6 @@ def clean_aei(raw_path: Path, release: str, platform: str) -> pd.DataFrame:
         .reset_index()
         .rename(columns={"cluster_name": "task"})
     )
-    sample_size = int(usage_wide["task_count"].sum())
-    logger.info("  Sample size: %s conversations", f"{sample_size:,}")
 
     # --- Parse cluster_name ---
     df["task"] = df["cluster_name"].str.rsplit("::", n=1).str[0]
@@ -164,6 +144,17 @@ def clean_aei(raw_path: Path, release: str, platform: str) -> pd.DataFrame:
     available_count = [c for c in COUNT_COLS if c in wide.columns]
     available_pct = [c for c in PCT_COLS if c in wide.columns]
     wide = wide[["task", "task_count", "task_pct"] + available_count + available_pct]
+
+    # --- Validation ---
+    total_count = int(wide["task_count"].sum())
+    logger.info("  Total conversations (after facet filter): %s", f"{total_count:,}")
+    top = wide.nlargest(3, "task_count")[["task", "task_count"]]
+    for _, row in top.iterrows():
+        logger.info(
+            "    max: %s (%s)",
+            f"{int(row['task_count']):,}",
+            row["task"][:80],
+        )
 
     logger.info("  Output: %d tasks", len(wide))
     return wide
