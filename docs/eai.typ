@@ -16,16 +16,14 @@ Source: #link("https://www.bls.gov/oes/tables.htm")[Bureau of Labor Statistics],
 
 Source: #link("https://github.com/openai/GPTs-are-GPTs/blob/main/data/occ_level.csv")[GitHub]. Uses O\*NET-SOC 2019 codes (8-digit, e.g. `11-1011.00`), built on the SOC 2018 taxonomy. Contains 923 occupations with human and GPT-4 exposure ratings at alpha, beta, and gamma thresholds.
 
-== SOC 2010→2018 Crosswalk
+== SOC 2010 $<==>$ 2018 Crosswalk
 
 Source: #link("https://www.bls.gov/soc/2018/home.htm")[Bureau of Labor Statistics]. The AEI and O\*NET use SOC 2010 while OEWS uses SOC 2018, so a crosswalk is required for joining. The mapping is many-to-many: some 2010 codes split into multiple 2018 codes, and some merge.
 
 = Occupational Characteristics Datasets
 
-Exposure is defined and measured in a variety of ways. I adopt the terminology 'occupational characteristics' to mitigate confusion about the various definitions of exposure in the literature. I construct some datasets that combine these sources in the `occupations` folder.
+Exposure is defined and measured in a variety of ways. I adopt the term 'occupational characteristics' to mitigate confusion about the various definitions of exposure in the literature. I construct some datasets that combine these sources in the `occupations` folder.
 
-I begin with a combination of the Eloundou et al. and AEI data.
+== Data Sources Based on 2018 SOC Codes
 
-== Eloundou et al.
-
-We first merge the Eloundou et al. data with the 2022 OEWS.
+We use the 2018 half of the SOC 2010 $<==>$ 2018 Crosswalk to form our universe of 2018 occupations.
