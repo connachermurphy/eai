@@ -14,6 +14,21 @@ FILES = [
         "dest": BASE / "data" / "oesm24all" / "all_data_M_2024.csv",
     },
     {
+        "src": OEWS_DIR / "national_M2021_dl.xlsx",
+        "sheet": "national_M2021_dl",
+        "dest": BASE / "data" / "oews" / "national_M2021_dl.csv",
+    },
+    {
+        "src": OEWS_DIR / "national_M2022_dl.xlsx",
+        "sheet": "national_M2022_dl",
+        "dest": BASE / "data" / "oews" / "national_M2022_dl.csv",
+    },
+    {
+        "src": OEWS_DIR / "national_M2023_dl.xlsx",
+        "sheet": "national_M2023_dl",
+        "dest": BASE / "data" / "oews" / "national_M2023_dl.csv",
+    },
+    {
         "src": OEWS_DIR / "national_M2024_dl.xlsx",
         "sheet": "national_M2024_dl",
         "dest": BASE / "data" / "oews" / "national_M2024_dl.csv",
