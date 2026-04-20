@@ -1,4 +1,4 @@
-= Economics of AI
+= Data Sources
 
 == Anthropic Economic Index
 
@@ -19,3 +19,13 @@ Source: #link("https://github.com/openai/GPTs-are-GPTs/blob/main/data/occ_level.
 == SOC 2010→2018 Crosswalk
 
 Source: #link("https://www.bls.gov/soc/2018/home.htm")[Bureau of Labor Statistics]. The AEI and O\*NET use SOC 2010 while OEWS uses SOC 2018, so a crosswalk is required for joining. The mapping is many-to-many: some 2010 codes split into multiple 2018 codes, and some merge.
+
+= Occupational Characteristics Datasets
+
+Exposure is defined and measured in a variety of ways. I adopt the terminology 'occupational characteristics' to mitigate confusion about the various definitions of exposure in the literature. I construct some datasets that combine these sources in the `occupations` folder.
+
+I begin with a combination of the Eloundou et al. and AEI data.
+
+== Eloundou et al.
+
+We first merge the Eloundou et al. data with the 2022 OEWS.
