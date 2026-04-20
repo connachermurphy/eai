@@ -137,7 +137,10 @@ if n_oews_ungrouped > 0:
     logger.info("  OEWS codes not in crosswalk:")
     for _, row in oews[oews["group_id"].isna()].iterrows():
         logger.info(
-            "    - %s %s (emp: %s)", row["occ_code"], row["occ_title"], f"{row['tot_emp']:,.0f}"
+            "    - %s %s (emp: %s)",
+            row["occ_code"],
+            row["occ_title"],
+            f"{row['tot_emp']:,.0f}",
         )
 
 # --- Step 3b: Coarsened crosswalk for broad codes on either side ---
@@ -231,7 +234,11 @@ for mc in merged_coarsenings:
 
     label_str = " + ".join(mc["labels"])
     logger.info(
-        "  %s -> group %d (merged %s; %s)", label_str, new_gid, child_groups, mc["detail"]
+        "  %s -> group %d (merged %s; %s)",
+        label_str,
+        new_gid,
+        child_groups,
+        mc["detail"],
     )
     coarsened_count += 1
 

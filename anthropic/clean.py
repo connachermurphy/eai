@@ -108,7 +108,9 @@ def clean_aei(raw_path: Path, release: str, platform: str) -> pd.DataFrame:
         return pd.DataFrame()
 
     wide = (
-        df.pivot_table(index="task", columns="col_name", values="value", aggfunc="first")
+        df.pivot_table(
+            index="task", columns="col_name", values="value", aggfunc="first"
+        )
         .fillna(0)
         .reset_index()
     )
