@@ -1,10 +1,14 @@
 """Merge O*NET task frame with AEI usage and OEWS employment data."""
 
+import logging
 from pathlib import Path
 
 import networkx as nx
 import numpy as np
 import pandas as pd
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logger = logging.getLogger(__name__)
 
 BASE = Path(__file__).resolve().parent
 
@@ -29,19 +33,19 @@ aei["task_merge_key"] = aei["task"].str.lower().str.strip()
 aei_keys = set(aei["task_merge_key"])
 onet_keys = set(onet["task_merge_key"])
 
-print("--- Step 1: O*NET ← AEI ---")
-print(f"  O*NET tasks (unique text): {len(onet_keys)}")
-print(f"  AEI tasks (unique text): {len(aei_keys)}")
-print(f"  Matched: {len(onet_keys & aei_keys)}")
+logger.info("--- Step 1: O*NET ← AEI ---")
+logger.info("  O*NET tasks (unique text): %d", len(onet_keys))
+logger.info("  AEI tasks (unique text): %d", len(aei_keys))
+logger.info("  Matched: %d", len(onet_keys & aei_keys))
 
 aei_only = aei_keys - onet_keys
 if aei_only:
-    print(f"  AEI tasks not in O*NET (dropped): {len(aei_only)}")
+    logger.info("  AEI tasks not in O*NET (dropped): %d", len(aei_only))
     for t in sorted(aei_only):
-        print(f"    - {t!r}")
+        logger.info("    - %r", t)
 
 onet_only = onet_keys - aei_keys
-print(f"  O*NET tasks not in AEI (zero-filled): {len(onet_only)}")
+logger.info("  O*NET tasks not in AEI (zero-filled): %d", len(onet_only))
 
 aei = aei.drop(columns=["task"])
 tasks = onet.merge(aei, on="task_merge_key", how="left")
@@ -54,9 +58,11 @@ tasks[fill_cols] = tasks[fill_cols].fillna(0)
 
 n_with_aei = tasks["task_count"].gt(0).sum()
 n_without_aei = tasks["task_count"].eq(0).sum()
-print(
-    f"  Result: {len(tasks)} rows "
-    f"({n_with_aei} with AEI data, {n_without_aei} zero-filled)"
+logger.info(
+    "  Result: %d rows (%d with AEI data, %d zero-filled)",
+    len(tasks),
+    n_with_aei,
+    n_without_aei,
 )
 
 # ==========================================================================
@@ -69,8 +75,8 @@ tasks = tasks.merge(g2010[["soc_2010", "group_id"]], on="soc_2010", how="left")
 
 n_grouped = tasks["group_id"].notna().sum()
 n_ungrouped = tasks["group_id"].isna().sum()
-print("\n--- Step 2: SOC 2010 → group_id ---")
-print(f"  Tasks grouped: {n_grouped}, ungrouped: {n_ungrouped}")
+logger.info("--- Step 2: SOC 2010 → group_id ---")
+logger.info("  Tasks grouped: %d, ungrouped: %d", n_grouped, n_ungrouped)
 
 # For ungrouped tasks, try prefix match (broad SOC codes like 19-1020).
 # Store broad-code child groups for coarsening in step 3b.
@@ -86,14 +92,18 @@ if n_ungrouped > 0:
             # Temporarily assign first child group; step 3b will coarsen if needed
             tasks.loc[tasks["soc_2010"] == s, "group_id"] = child_groups[0]
             task_broad_codes[s] = child_groups
-            print(
-                f"    - {s} ({title}) -> prefix {prefix}*, child groups: {child_groups}"
+            logger.info(
+                "    - %s (%s) -> prefix %s*, child groups: %s",
+                s,
+                title,
+                prefix,
+                child_groups,
             )
         else:
-            print(f"    - {s} ({title}) -> no match")
+            logger.info("    - %s (%s) -> no match", s, title)
 
 task_group_ids = set(tasks.loc[tasks["group_id"].notna(), "group_id"].astype(int))
-print(f"  Unique groups represented: {len(task_group_ids)}")
+logger.info("  Unique groups represented: %d", len(task_group_ids))
 
 # ==========================================================================
 # Step 3: OEWS ← group_id via SOC 2018 crosswalk
@@ -117,17 +127,20 @@ oews = oews.merge(
 oews_group_ids = set(oews.loc[oews["group_id"].notna(), "group_id"].astype(int))
 n_oews_grouped = oews["group_id"].notna().sum()
 n_oews_ungrouped = oews["group_id"].isna().sum()
-print("\n--- Step 3: OEWS ← group_id ---")
-print(f"  OEWS detailed occupations: {len(oews)}")
-print(f"  Grouped: {n_oews_grouped}, ungrouped: {n_oews_ungrouped}")
-print(f"  Unique groups represented: {len(oews_group_ids)}")
+logger.info("--- Step 3: OEWS ← group_id ---")
+logger.info("  OEWS detailed occupations: %d", len(oews))
+logger.info("  Grouped: %d, ungrouped: %d", n_oews_grouped, n_oews_ungrouped)
+logger.info("  Unique groups represented: %d", len(oews_group_ids))
 if n_oews_ungrouped > 0:
     ungrouped_emp = oews.loc[oews["group_id"].isna(), "tot_emp"].sum()
-    print(f"  Ungrouped employment: {ungrouped_emp:,.0f}")
-    print("  OEWS codes not in crosswalk:")
+    logger.info("  Ungrouped employment: %s", f"{ungrouped_emp:,.0f}")
+    logger.info("  OEWS codes not in crosswalk:")
     for _, row in oews[oews["group_id"].isna()].iterrows():
-        print(
-            f"    - {row['occ_code']} {row['occ_title']} (emp: {row['tot_emp']:,.0f})"
+        logger.info(
+            "    - %s %s (emp: %s)",
+            row["occ_code"],
+            row["occ_title"],
+            f"{row['tot_emp']:,.0f}",
         )
 
 # --- Step 3b: Coarsened crosswalk for broad codes on either side ---
@@ -137,7 +150,7 @@ if n_oews_ungrouped > 0:
 tasks["group_id_coarsened"] = tasks["group_id"].copy()
 oews["group_id_coarsened"] = oews["group_id"].copy()
 
-print("\n--- Step 3b: Coarsened crosswalk for broad codes ---")
+logger.info("--- Step 3b: Coarsened crosswalk for broad codes ---")
 next_group_id = int(max(g2010["group_id"].max(), g2018["group_id"].max())) + 1
 coarsened_count = 0
 
@@ -150,7 +163,7 @@ for _, row in oews[oews["group_id_coarsened"].isna()].iterrows():
     prefix = code[:6]
     children = g2018[g2018["soc_2018"].str.startswith(prefix)]
     if children.empty:
-        print(f"  {code}: no children found with prefix {prefix}, skipping")
+        logger.info("  %s: no children found with prefix %s, skipping", code, prefix)
         continue
     child_groups = set(int(g) for g in children["group_id"].unique())
     child_codes = ", ".join(children["soc_2018"].tolist())
@@ -220,10 +233,16 @@ for mc in merged_coarsenings:
     oews.loc[oews["group_id"].isin(child_groups), "group_id_coarsened"] = new_gid
 
     label_str = " + ".join(mc["labels"])
-    print(f"  {label_str} -> group {new_gid} (merged {child_groups}; {mc['detail']})")
+    logger.info(
+        "  %s -> group %d (merged %s; %s)",
+        label_str,
+        new_gid,
+        child_groups,
+        mc["detail"],
+    )
     coarsened_count += 1
 
-print(f"  Coarsened {coarsened_count} OEWS codes")
+logger.info("  Coarsened %d OEWS codes", coarsened_count)
 
 # Recompute group overlap after coarsening
 task_coarsened_ids = set(
@@ -235,10 +254,10 @@ oews_coarsened_ids = set(
 shared_groups = task_coarsened_ids & oews_coarsened_ids
 tasks_only_groups = task_coarsened_ids - oews_coarsened_ids
 oews_only_groups = oews_coarsened_ids - task_coarsened_ids
-print("\n  Group overlap (after coarsening):")
-print(f"    Shared: {len(shared_groups)}")
-print(f"    Task-side only (no OEWS employment): {len(tasks_only_groups)}")
-print(f"    OEWS-side only (no O*NET tasks): {len(oews_only_groups)}")
+logger.info("  Group overlap (after coarsening):")
+logger.info("    Shared: %d", len(shared_groups))
+logger.info("    Task-side only (no OEWS employment): %d", len(tasks_only_groups))
+logger.info("    OEWS-side only (no O*NET tasks): %d", len(oews_only_groups))
 
 # ==========================================================================
 # Step 4: Aggregate OEWS by group_id_coarsened
@@ -269,13 +288,15 @@ oews_by_group["coarsened_group_a_mean"] = (
     oews_with_group.groupby("group_id_coarsened").apply(emp_weighted_mean).values
 )
 
-print("\n--- Step 4: OEWS aggregation by coarsened group ---")
-print(f"  Groups with employment: {len(oews_by_group)}")
-print(f"  Total employment: {oews_by_group['coarsened_group_tot_emp'].sum():,.0f}")
+logger.info("--- Step 4: OEWS aggregation by coarsened group ---")
+logger.info("  Groups with employment: %d", len(oews_by_group))
+logger.info(
+    "  Total employment: %s", f"{oews_by_group['coarsened_group_tot_emp'].sum():,.0f}"
+)
 n_with_wage = oews_by_group["coarsened_group_a_mean"].notna().sum()
 n_without_wage = oews_by_group["coarsened_group_a_mean"].isna().sum()
-print(f"  Groups with wage data: {n_with_wage}")
-print(f"  Groups without wage data: {n_without_wage}")
+logger.info("  Groups with wage data: %d", n_with_wage)
+logger.info("  Groups without wage data: %d", n_without_wage)
 
 # ==========================================================================
 # Step 5: Merge OEWS groups onto task frame
@@ -289,17 +310,18 @@ emp_covered = (
     .drop_duplicates()
     .sum()
 )
-print("\n--- Step 5: Tasks ← OEWS groups ---")
-print(f"  Tasks with employment data: {n_with_emp}")
-print(f"  Tasks without employment data: {n_without_emp}")
-print(f"  Total employment covered: {emp_covered:,.0f}")
+logger.info("--- Step 5: Tasks ← OEWS groups ---")
+logger.info("  Tasks with employment data: %d", n_with_emp)
+logger.info("  Tasks without employment data: %d", n_without_emp)
+logger.info("  Total employment covered: %s", f"{emp_covered:,.0f}")
 if n_without_emp > 0:
     no_emp = tasks.loc[tasks["coarsened_group_tot_emp"].isna()]
     n_with_aei_no_emp = no_emp["task_count"].gt(0).sum()
     n_occ_no_emp = no_emp["O*NET-SOC Code"].nunique()
-    print(
-        f"  Of which have AEI data but no employment: "
-        f"{n_with_aei_no_emp} tasks across {n_occ_no_emp} occupations"
+    logger.info(
+        "  Of which have AEI data but no employment: %d tasks across %d occupations",
+        n_with_aei_no_emp,
+        n_occ_no_emp,
     )
 
 # ==========================================================================
@@ -317,15 +339,15 @@ tasks["apportioned_occ_emp"] = (
     tasks["coarsened_group_tot_emp"] / tasks["n_soc_2010_in_group"]
 )
 
-print("\n--- Step 6: Apportion employment to occupations ---")
+logger.info("--- Step 6: Apportion employment to occupations ---")
 n_occs_with_emp = tasks.loc[tasks["apportioned_occ_emp"].notna(), "soc_2010"].nunique()
 total_apportioned = (
     tasks[tasks["apportioned_occ_emp"].notna()]
     .drop_duplicates("soc_2010")["apportioned_occ_emp"]
     .sum()
 )
-print(f"  SOC 2010 occupations with employment: {n_occs_with_emp}")
-print(f"  Total apportioned employment: {total_apportioned:,.0f}")
+logger.info("  SOC 2010 occupations with employment: %d", n_occs_with_emp)
+logger.info("  Total apportioned employment: %s", f"{total_apportioned:,.0f}")
 
 # ==========================================================================
 # Step 7: Apportion usage counts across task-occupations
@@ -352,16 +374,16 @@ tasks.loc[mask, "apportioned_task_count"] = (
 )
 tasks = tasks.drop(columns=["_task_key"])
 
-print("\n--- Step 7: Apportion usage counts across task-occupations ---")
+logger.info("--- Step 7: Apportion usage counts across task-occupations ---")
 orig_sum = tasks.drop_duplicates("Task")["task_count"].sum()
 apportioned_sum = tasks["apportioned_task_count"].sum()
-print(f"  Original task_count sum (unique tasks): {orig_sum:,.0f}")
-print(f"  Apportioned task_count sum (all rows): {apportioned_sum:,.0f}")
+logger.info("  Original task_count sum (unique tasks): %s", f"{orig_sum:,.0f}")
+logger.info("  Apportioned task_count sum (all rows): %s", f"{apportioned_sum:,.0f}")
 n_split = (tasks["apportioned_task_count"] != tasks["task_count"]).sum()
-print(f"  Task-occupation pairs with split count: {n_split}")
+logger.info("  Task-occupation pairs with split count: %d", n_split)
 
 # ==========================================================================
 # Write
 # ==========================================================================
 tasks.to_csv(OUT_CSV, index=False)
-print(f"\nWrote {len(tasks)} rows -> {OUT_CSV}")
+logger.info("Wrote %d rows -> %s", len(tasks), OUT_CSV)

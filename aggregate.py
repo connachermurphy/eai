@@ -8,9 +8,13 @@ apportionment approaches:
 Saves checkpoints at each stage.
 """
 
+import logging
 from pathlib import Path
 
 import pandas as pd
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logger = logging.getLogger(__name__)
 
 BASE = Path(__file__).resolve().parent
 MERGED_CSV = BASE / "data" / "merged.csv"
@@ -32,14 +36,14 @@ COUNT_COLS = [f"{t}_count" for t in COLLAB_TYPES]
 # ==========================================================================
 df = pd.read_csv(MERGED_CSV)
 df["task_key"] = df["Task"].str.lower().str.strip()
-print(f"Loaded {len(df)} task-occupation rows")
-print(f"  Unique tasks: {df['task_key'].nunique()}")
-print(f"  Unique SOC 2010 occupations: {df['soc_2010'].nunique()}")
+logger.info("Loaded %d task-occupation rows", len(df))
+logger.info("  Unique tasks: %d", df["task_key"].nunique())
+logger.info("  Unique SOC 2010 occupations: %d", df["soc_2010"].nunique())
 
 # ==========================================================================
 # Approach 1: Equal weighting
 # ==========================================================================
-print("\n--- Approach 1: Equal weighting ---")
+logger.info("--- Approach 1: Equal weighting ---")
 
 # Count how many occupations each task maps to
 n_occs_per_task = df.groupby("task_key")["soc_2010"].nunique().rename("n_occs_per_task")
@@ -74,18 +78,18 @@ emp_cols = ["soc_2010", "apportioned_occ_emp", "coarsened_group_a_mean"]
 emp = df[emp_cols].drop_duplicates("soc_2010")
 occ_equal = occ_equal.merge(emp, on="soc_2010", how="left")
 
-print(f"  Occupations: {len(occ_equal)}")
-print(f"  With AEI data: {(occ_equal['equal_task_count'] > 0).sum()}")
+logger.info("  Occupations: %d", len(occ_equal))
+logger.info("  With AEI data: %d", (occ_equal["equal_task_count"] > 0).sum())
 total_equal = occ_equal["equal_task_count"].sum()
-print(f"  Total apportioned task_count: {total_equal:,.0f}")
+logger.info("  Total apportioned task_count: %s", f"{total_equal:,.0f}")
 
 occ_equal.to_csv(OUT_DIR / "occ_equal_weighted.csv", index=False)
-print(f"  Saved to {OUT_DIR / 'occ_equal_weighted.csv'}")
+logger.info("  Saved to %s", OUT_DIR / "occ_equal_weighted.csv")
 
 # ==========================================================================
 # Approach 2: Employment weighting
 # ==========================================================================
-print("\n--- Approach 2: Employment weighting ---")
+logger.info("--- Approach 2: Employment weighting ---")
 
 # Total employment across all occupations sharing each task
 task_total_emp = (
@@ -127,18 +131,18 @@ occ_emp["automation_ratio"] = (
 # Add employment and wage data
 occ_emp = occ_emp.merge(emp, on="soc_2010", how="left")
 
-print(f"  Occupations: {len(occ_emp)}")
-print(f"  With AEI data: {(occ_emp['emp_task_count'] > 0).sum()}")
+logger.info("  Occupations: %d", len(occ_emp))
+logger.info("  With AEI data: %d", (occ_emp["emp_task_count"] > 0).sum())
 total_emp_weighted = occ_emp["emp_task_count"].sum()
-print(f"  Total apportioned task_count: {total_emp_weighted:,.0f}")
+logger.info("  Total apportioned task_count: %s", f"{total_emp_weighted:,.0f}")
 
 occ_emp.to_csv(OUT_DIR / "occ_emp_weighted.csv", index=False)
-print(f"  Saved to {OUT_DIR / 'occ_emp_weighted.csv'}")
+logger.info("  Saved to %s", OUT_DIR / "occ_emp_weighted.csv")
 
 # ==========================================================================
 # Comparison
 # ==========================================================================
-print("\n--- Comparison ---")
+logger.info("--- Comparison ---")
 equal_compare_cols = [
     "soc_2010",
     "equal_task_count",
@@ -159,6 +163,6 @@ both = occ_equal[equal_compare_cols].merge(
 has_data = both[(both["equal_task_count"] > 0) & (both["emp_task_count"] > 0)]
 auto_corr = has_data["automation_ratio_equal"].corr(has_data["automation_ratio_emp"])
 aug_corr = has_data["augmentation_ratio_equal"].corr(has_data["augmentation_ratio_emp"])
-print(f"  Occupations with data in both: {len(has_data)}")
-print(f"  Automation ratio correlation: {auto_corr:.4f}")
-print(f"  Augmentation ratio correlation: {aug_corr:.4f}")
+logger.info("  Occupations with data in both: %d", len(has_data))
+logger.info("  Automation ratio correlation: %.4f", auto_corr)
+logger.info("  Augmentation ratio correlation: %.4f", aug_corr)
