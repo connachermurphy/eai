@@ -26,4 +26,16 @@ Exposure is defined and measured in a variety of ways. I adopt the term 'occupat
 
 == Data Sources Based on 2018 SOC Codes
 
-We use the 2018 half of the SOC 2010 $<==>$ 2018 Crosswalk to form our universe of 2018 occupations.
+I use the 2018 half of the SOC 2010 $<==>$ 2018 Crosswalk to form our universe of 2018 occupations.
+
+I first merge the Eloundou et al. data onto the 2018 occupation universe. Since Eloundou et al. use 8-digit SOC codes, I first take the mean of `dv_rating_alpha`, `dv_rating_beta`, and `dv_rating_gamma` within 6-digit SOC code. I treat missing values in the Eloundou data as true missing values.
+
+I next merge the 2022 OEWS data onto the 2018 occupation unvierse, using 2018 SOC codes. I use the 2022 OEWS to represent pre-ChatGPT employment.
+
+In some cases, the OEWS aggregates to broader SOC codes. We apportion employment evenly across 6-digit SOC codes and assume compensation is distributed identically for each of the 6-digit SOC codes.
+
+== Data Sourced Based on 2010 SOC Codes
+
+I use the 2010 half of the SOC 2010 $<==>$ 2018 Crosswalk to form our universe of 2018 occupations.
+
+We merge the ...

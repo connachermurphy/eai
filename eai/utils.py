@@ -1,6 +1,19 @@
 """Shared helper functions."""
 
+import logging
+from typing import Any
+
 import pandas as pd
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(name)s | %(levelname)s | %(message)s",
+)
+
+
+def get_logger(name: str) -> logging.Logger:
+    """Return a logger with the given name."""
+    return logging.getLogger(name)
 
 
 def merge_with_diagnostics(
@@ -8,36 +21,63 @@ def merge_with_diagnostics(
     right: pd.DataFrame,
     on: str,
     how: str = "left",
+) -> tuple[pd.DataFrame, set[Any], set[Any]]:
+    """Merge two DataFrames and return unmatched keys from each side.
+
+    Returns
+    -------
+    result : The merged DataFrame.
+    left_only : Keys in left but not right.
+    right_only : Keys in right but not left.
+    """
+    result = left.merge(right, on=on, how=how)
+    left_only = set(left[on]) - set(right[on])
+    right_only = set(right[on]) - set(left[on])
+    return result, left_only, right_only
+
+
+def log_merge_diagnostics(
+    left_only: set[Any],
+    right_only: set[Any],
     left_label: str = "left",
     right_label: str = "right",
-) -> pd.DataFrame:
-    """Merge two DataFrames and print diagnostics about unmatched keys."""
-    result = left.merge(right, on=on, how=how)
+    labels: pd.DataFrame | None = None,
+    key_col: str | None = None,
+    logger: logging.Logger | None = None,
+) -> None:
+    """Log unmatched keys from a merge.
 
-    left_keys = set(left[on])
-    right_keys = set(right[on])
-    in_left_not_right = sorted(left_keys - right_keys)
-    in_right_not_left = sorted(right_keys - left_keys)
+    Parameters
+    ----------
+    left_only, right_only : Sets of unmatched keys.
+    left_label, right_label : Human-readable names for each side.
+    labels : Optional DataFrame mapping keys to descriptive titles.
+    key_col : Column in `labels` containing the keys (required if labels is set).
+    """
+    log = logger or get_logger("merge")
 
-    print(f"\nMerge diagnostics ({left_label} x {right_label} on '{on}'):")
-    print(f"  {left_label}: {len(left_keys)} keys")
-    print(f"  {right_label}: {len(right_keys)} keys")
-    print(f"  Matched: {len(left_keys & right_keys)}")
+    def _format_code(code: Any) -> str:
+        if labels is not None and key_col:
+            title_cols = [c for c in labels.columns if "title" in c.lower()]
+            if title_cols:
+                matches = labels.loc[labels[key_col] == code, title_cols[0]]
+                if not matches.empty:
+                    return f"{code}  {matches.iloc[0]}"
+        return str(code)
 
-    if in_left_not_right:
-        print(
-            f"\n  In {left_label} but not {right_label}"
-            f" ({len(in_left_not_right)}):"
-        )
-        for code in in_left_not_right:
-            print(f"    {code}")
+    matched = (
+        len(left_only | right_only)  # total unique unmatched
+        # can't compute matched count without original sets, so just report unmatched
+    )
 
-    if in_right_not_left:
-        print(
-            f"\n  In {right_label} but not {left_label}"
-            f" ({len(in_right_not_left)}):"
-        )
-        for code in in_right_not_left:
-            print(f"    {code}")
+    header = (
+        f"In {left_label} but not {right_label} ({len(left_only)}):"
+    )
+    lines = [f"  {_format_code(c)}" for c in sorted(left_only)]
+    log.info("%s\n%s", header, "\n".join(lines) if lines else "  (none)")
 
-    return result
+    header = (
+        f"In {right_label} but not {left_label} ({len(right_only)}):"
+    )
+    lines = [f"  {_format_code(c)}" for c in sorted(right_only)]
+    log.info("%s\n%s", header, "\n".join(lines) if lines else "  (none)")
