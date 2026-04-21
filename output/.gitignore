@@ -1,0 +1,4 @@
+# Generated intermediate data — regenerate with conversion/build scripts
+*
+!.gitignore
+!occupations_*.csv

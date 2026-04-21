@@ -33,7 +33,7 @@ RELEASES = {
     },
 }
 
-DATA = Path("data")
+DATA = Path("output")
 
 
 def load_aei_tasks(

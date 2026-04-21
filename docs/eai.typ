@@ -24,7 +24,7 @@ We represent the crosswalk as a bipartite graph and take the connected component
 
 = Occupational Characteristics Datasets
 
-Exposure is defined and measured in a variety of ways. I adopt the term 'occupational characteristics' to mitigate confusion about the various definitions of exposure in the literature. I construct some datasets that combine these sources in the `occupations` folder.
+Exposure is defined and measured in a variety of ways. I try adopt the term 'occupational characteristics' to mitigate confusion about the various definitions of exposure in the literature. I construct some datasets that combine these sources in the `occupational_characteristics.py` script.
 
 
 == Data Sources Based on 2018 SOC Codes

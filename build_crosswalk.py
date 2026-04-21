@@ -5,9 +5,8 @@ from pathlib import Path
 import networkx as nx
 import pandas as pd
 
-BASE = Path(__file__).resolve().parent.parent
-XWALK_CSV = BASE / "data" / "onet" / "soc_2010_to_2018_crosswalk.csv"
-OUT = BASE / "data" / "onet"
+OUT = Path("output") / "onet"
+XWALK_CSV = OUT / "soc_2010_to_2018_crosswalk.csv"
 
 # --- Load crosswalk, drop stray header row ---
 xwalk = pd.read_csv(XWALK_CSV)

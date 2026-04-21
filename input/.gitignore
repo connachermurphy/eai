@@ -1,0 +1,5 @@
+# Raw AEI data (large CSVs downloaded from Hugging Face)
+release_*/aei_raw_*.csv
+
+# Large OEWS file
+all_data_M_2024.xlsx
