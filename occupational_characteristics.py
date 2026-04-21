@@ -552,9 +552,7 @@ _occ_ratios = (
     .apply(_pct_weighted_mean, include_groups=False)
     .reset_index()
 )
-_occ_pct = (
-    aei_occ_raw.groupby("soc_2010")["pct_occ_scaled"].sum().reset_index()
-)
+_occ_pct = aei_occ_raw.groupby("soc_2010")["pct_occ_scaled"].sum().reset_index()
 aei_occ_agg = _occ_ratios.merge(_occ_pct, on="soc_2010", how="left")
 log.info(
     "AEI occupation auto/aug: %d raw rows -> %d SOC 2010 codes",
