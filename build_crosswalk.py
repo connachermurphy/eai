@@ -1,4 +1,4 @@
-"""Build SOC 2010→2018 group lookups via connected components."""
+"""Build SOC 2010→2018 crosswalk artifacts."""
 
 from pathlib import Path
 
@@ -7,14 +7,23 @@ import pandas as pd
 
 OUT = Path("output") / "onet"
 XWALK_CSV = OUT / "soc_2010_to_2018_crosswalk.csv"
+EDGES_CSV = OUT / "soc_crosswalk_edges.csv"
 
 # --- Load crosswalk, drop stray header row ---
 xwalk = pd.read_csv(XWALK_CSV)
 xwalk = xwalk[xwalk["soc_2010"] != "2010 SOC Code"].copy()
 
+# --- Build clean edge list ---
+xwalk_edges = (
+    xwalk[["soc_2010", "title_2010", "soc_2018", "title_2018"]]
+    .drop_duplicates()
+    .sort_values(["soc_2018", "soc_2010"])
+    .reset_index(drop=True)
+)
+
 # --- Build bipartite graph and find connected components ---
 G = nx.Graph()
-for _, row in xwalk.iterrows():
+for _, row in xwalk_edges.iterrows():
     node_2010 = ("2010", row["soc_2010"])
     node_2018 = ("2018", row["soc_2018"])
     G.add_node(node_2010, title=row["title_2010"])
@@ -56,7 +65,9 @@ for group_id, component in enumerate(components):
 # --- Write ---
 dest_2010 = OUT / "soc_2010_to_group.csv"
 dest_2018 = OUT / "soc_2018_to_group.csv"
+xwalk_edges.to_csv(EDGES_CSV, index=False)
 df_2010.to_csv(dest_2010, index=False)
 df_2018.to_csv(dest_2018, index=False)
+print(f"wrote {len(xwalk_edges)} rows -> {EDGES_CSV}")
 print(f"\nwrote {len(df_2010)} rows -> {dest_2010}")
 print(f"wrote {len(df_2018)} rows -> {dest_2018}")
