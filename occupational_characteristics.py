@@ -157,9 +157,13 @@ oews_by_group = (
     )
     .reset_index()
 )
-oews_by_group["oews_group_a_mean"] = (
-    oews_lookup.groupby("group_id").apply(_emp_weighted_mean).values
+_group_a_mean = (
+    oews_lookup.groupby("group_id")
+    .apply(_emp_weighted_mean, include_groups=False)
+    .rename("oews_group_a_mean")
+    .reset_index()
 )
+oews_by_group = oews_by_group.merge(_group_a_mean, on="group_id", how="left")
 log.info("OEWS by group: %d groups with employment data", len(oews_by_group))
 
 # Apportion OEWS from SOC 2018 to SOC 2010 across direct crosswalk edges
@@ -193,9 +197,13 @@ oews_by_soc_2010 = (
     )
     .reset_index()
 )
-oews_by_soc_2010["oews_a_mean"] = (
-    oews_edges.groupby("soc_2010").apply(_allocated_emp_weighted_mean).values
+_soc_2010_a_mean = (
+    oews_edges.groupby("soc_2010")
+    .apply(_allocated_emp_weighted_mean, include_groups=False)
+    .rename("oews_a_mean")
+    .reset_index()
 )
+oews_by_soc_2010 = oews_by_soc_2010.merge(_soc_2010_a_mean, on="soc_2010", how="left")
 oews_by_soc_2010 = oews_by_soc_2010.merge(
     soc_2010[["soc_2010", "group_id"]], on="soc_2010", how="left"
 )
@@ -532,10 +540,15 @@ def _pct_weighted_mean(sub):
     )
 
 
-aei_occ_agg = aei_occ_raw.groupby("soc_2010").apply(_pct_weighted_mean).reset_index()
-aei_occ_agg["pct_occ_scaled"] = (
-    aei_occ_raw.groupby("soc_2010")["pct_occ_scaled"].sum().values
+_occ_ratios = (
+    aei_occ_raw.groupby("soc_2010")
+    .apply(_pct_weighted_mean, include_groups=False)
+    .reset_index()
 )
+_occ_pct = (
+    aei_occ_raw.groupby("soc_2010")["pct_occ_scaled"].sum().reset_index()
+)
+aei_occ_agg = _occ_ratios.merge(_occ_pct, on="soc_2010", how="left")
 log.info(
     "AEI occupation auto/aug: %d raw rows -> %d SOC 2010 codes",
     len(aei_occ_raw),
