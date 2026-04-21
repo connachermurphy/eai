@@ -28,6 +28,7 @@ log.info(
 )
 
 soc_2010 = pd.read_csv(DATA / "onet" / "soc_2010_to_group.csv")
+xwalk_edges = pd.read_csv(DATA / "onet" / "soc_crosswalk_edges.csv")
 broad_codes_2010 = soc_2010[soc_2010["soc_2010"].str[-1] == "0"]
 assert broad_codes_2010.empty, (
     f"Universe contains {len(broad_codes_2010)} broad codes (ending in 0): "
@@ -38,6 +39,7 @@ log.info(
     len(soc_2010),
     soc_2010["group_id"].nunique(),
 )
+log.info("Crosswalk edges: %d direct SOC 2010<->2018 mappings", len(xwalk_edges))
 
 # O*NET task statements: shared dependency for SOC 2010 side.
 # Truncate 8-digit O*NET-SOC codes to 6-digit SOC 2010. This implicitly collapses
@@ -134,7 +136,7 @@ log.info(
     len(oews_lookup),
 )
 
-# Aggregate OEWS to group level
+# Aggregate OEWS to group level for diagnostics and grouped outputs
 
 
 def _emp_weighted_mean(sub):
@@ -159,6 +161,85 @@ oews_by_group["oews_group_a_mean"] = (
     oews_lookup.groupby("group_id").apply(_emp_weighted_mean).values
 )
 log.info("OEWS by group: %d groups with employment data", len(oews_by_group))
+
+# Apportion OEWS from SOC 2018 to SOC 2010 across direct crosswalk edges
+oews_2018 = oews_lookup[
+    ["soc_2018", "group_id", "tot_emp_adjusted", "a_mean", "a_median"]
+].drop_duplicates()
+
+oews_edges = xwalk_edges.merge(oews_2018, on="soc_2018", how="left")
+n_soc_2010_per_2018 = oews_edges.groupby("soc_2018")["soc_2010"].nunique()
+oews_edges["n_soc_2010_per_2018"] = oews_edges["soc_2018"].map(n_soc_2010_per_2018)
+oews_edges["oews_tot_emp_allocated"] = (
+    oews_edges["tot_emp_adjusted"] / oews_edges["n_soc_2010_per_2018"]
+)
+
+
+def _allocated_emp_weighted_mean(sub):
+    """Employment-weighted mean wage using direct-edge allocated employment."""
+    mask = sub["a_mean"].notna() & sub["oews_tot_emp_allocated"].notna()
+    if not mask.any():
+        return np.nan
+    return np.average(
+        sub.loc[mask, "a_mean"], weights=sub.loc[mask, "oews_tot_emp_allocated"]
+    )
+
+
+oews_by_soc_2010 = (
+    oews_edges.groupby("soc_2010")
+    .agg(
+        oews_tot_emp_allocated=("oews_tot_emp_allocated", "sum"),
+        oews_n_soc_2018=("soc_2018", "nunique"),
+    )
+    .reset_index()
+)
+oews_by_soc_2010["oews_a_mean"] = (
+    oews_edges.groupby("soc_2010").apply(_allocated_emp_weighted_mean).values
+)
+oews_by_soc_2010 = oews_by_soc_2010.merge(
+    soc_2010[["soc_2010", "group_id"]], on="soc_2010", how="left"
+)
+assert not oews_by_soc_2010["soc_2010"].duplicated().any(), (
+    "Expected one allocated OEWS row per SOC 2010 occupation"
+)
+log.info("OEWS apportioned to SOC 2010: %d occupations", len(oews_by_soc_2010))
+
+
+def add_task_weights(df):
+    """Add equal and employment-based task weights with explicit fallback rules."""
+    df = df.copy()
+
+    n_occs_per_task = df.groupby("task_key")["soc_2010"].transform("nunique")
+    df["n_occs_per_task"] = n_occs_per_task
+    df["equal_task_weight"] = np.where(
+        df["n_occs_per_task"] > 0,
+        1.0 / df["n_occs_per_task"],
+        np.nan,
+    )
+
+    task_total_emp = df.groupby("task_key")["oews_tot_emp_imputed"].transform("sum")
+    has_positive_emp = task_total_emp > 0
+    df["emp_task_weight"] = np.where(
+        has_positive_emp,
+        df["oews_tot_emp_imputed"] / task_total_emp,
+        df["equal_task_weight"],
+    )
+
+    equal_weight_sums = df.groupby("task_key")["equal_task_weight"].sum(min_count=1)
+    bad_equal = equal_weight_sums[~np.isclose(equal_weight_sums, 1.0, atol=1e-9)]
+    assert bad_equal.empty, (
+        f"Equal task weights do not sum to 1 for tasks: {bad_equal.index.tolist()[:10]}"
+    )
+
+    emp_weight_sums = df.groupby("task_key")["emp_task_weight"].sum(min_count=1)
+    bad_emp = emp_weight_sums[~np.isclose(emp_weight_sums, 1.0, atol=1e-9)]
+    assert bad_emp.empty, (
+        "Employment task weights do not sum to 1 for tasks: "
+        f"{bad_emp.index.tolist()[:10]}"
+    )
+
+    return df
+
 
 no_oews = soc_2018[~soc_2018["soc_2018"].isin(oews_lookup["soc_2018"])]
 log.info(
@@ -216,10 +297,10 @@ df_eloundou = df_eloundou.drop(columns=["broad_match"])
 
 # Impute missing employment for occupations that have exposure data
 has_exposure = df_eloundou["dv_rating_alpha"].notna()
-mean_emp = df_eloundou.loc[has_exposure, "oews_tot_emp_adjusted"].mean()
-median_emp = df_eloundou.loc[has_exposure, "oews_tot_emp_adjusted"].median()
+mean_emp = df_eloundou["oews_tot_emp_adjusted"].mean()
+median_emp = df_eloundou["oews_tot_emp_adjusted"].median()
 log.info(
-    "Employment stats (occupations with exposure): mean=%.0f, median=%.0f",
+    "Employment stats (occupations with OEWS employment): mean=%.0f, median=%.0f",
     mean_emp,
     median_emp,
 )
@@ -324,20 +405,19 @@ log_merge_diagnostics(
 )
 
 # ======================================================================================
-# Step 6: Merge OEWS group-level data onto SOC 2010 universe and apportion
+# Step 6: Merge direct-edge apportioned OEWS onto SOC 2010 universe
 # ======================================================================================
-df_2010 = df_2010.merge(oews_by_group, on="group_id", how="left")
-
-# Apportion group employment across SOC 2010 codes in each group
-n_soc_2010_per_group = soc_2010.groupby("group_id")["soc_2010"].nunique()
-df_2010["_n_soc_2010_in_group"] = df_2010["group_id"].map(n_soc_2010_per_group)
-df_2010["oews_tot_emp_adjusted"] = (
-    df_2010["oews_group_tot_emp"] / df_2010["_n_soc_2010_in_group"]
+df_2010 = df_2010.merge(
+    oews_by_soc_2010[["soc_2010", "oews_tot_emp_allocated", "oews_a_mean"]],
+    on="soc_2010",
+    how="left",
 )
 
-n_occ_with = df_2010.loc[df_2010["oews_tot_emp_adjusted"].notna(), "soc_2010"].nunique()
+n_occ_with = df_2010.loc[
+    df_2010["oews_tot_emp_allocated"].notna(), "soc_2010"
+].nunique()
 n_occ_without = df_2010.loc[
-    df_2010["oews_tot_emp_adjusted"].isna(), "soc_2010"
+    df_2010["oews_tot_emp_allocated"].isna(), "soc_2010"
 ].nunique()
 log.info(
     "SOC 2010 OEWS coverage: %d occupations with employment, %d without",
@@ -347,11 +427,11 @@ log.info(
 
 # Impute missing employment with median (for employment-weighted apportionment)
 median_emp_2010 = df_2010.loc[
-    df_2010["oews_tot_emp_adjusted"].notna(), "oews_tot_emp_adjusted"
+    df_2010["oews_tot_emp_allocated"].notna(), "oews_tot_emp_allocated"
 ].median()
 log.info("SOC 2010 median employment: %.0f", median_emp_2010)
 
-df_2010["oews_tot_emp_imputed"] = df_2010["oews_tot_emp_adjusted"].fillna(
+df_2010["oews_tot_emp_imputed"] = df_2010["oews_tot_emp_allocated"].fillna(
     median_emp_2010
 )
 log.info(
@@ -363,20 +443,13 @@ log.info(
 # Step 7: Apportion task counts across occupations and aggregate
 # ======================================================================================
 count_cols = [c for c in df_2010.columns if c.endswith("_count")]
-
-# Equal weight: divide by number of occupations sharing each task
-n_occs_per_task = df_2010.groupby("task_key")["soc_2010"].nunique()
-df_2010["n_occs_per_task"] = df_2010["task_key"].map(n_occs_per_task)
+df_2010 = add_task_weights(df_2010)
 
 for col in count_cols:
-    df_2010[f"equal_{col}"] = df_2010[col] / df_2010["n_occs_per_task"]
-
-# Employment weight: divide proportional to occupation employment
-task_total_emp = df_2010.groupby("task_key")["oews_tot_emp_imputed"].transform("sum")
-df_2010["_emp_share"] = df_2010["oews_tot_emp_imputed"] / task_total_emp
+    df_2010[f"equal_{col}"] = df_2010[col] * df_2010["equal_task_weight"]
 
 for col in count_cols:
-    df_2010[f"emp_{col}"] = df_2010[col] * df_2010["_emp_share"]
+    df_2010[f"emp_{col}"] = df_2010[col] * df_2010["emp_task_weight"]
 
 # Aggregate to occupation level
 equal_cols = [f"equal_{col}" for col in count_cols]
@@ -387,7 +460,7 @@ occ_emp = df_2010.groupby("soc_2010")[emp_cols].sum(min_count=1).reset_index()
 
 # Merge both approaches together with metadata
 oews_per_occ = df_2010[
-    ["soc_2010", "oews_tot_emp_adjusted", "oews_tot_emp_imputed", "oews_group_a_mean"]
+    ["soc_2010", "oews_tot_emp_allocated", "oews_tot_emp_imputed", "oews_a_mean"]
 ].drop_duplicates("soc_2010")
 
 df_aei = (
@@ -408,7 +481,7 @@ for col in emp_cols:
 pc_cols = [f"{col}_pc" for col in emp_cols]
 df_aei = df_aei[
     ["soc_2010", "title_2010", "group_id"]
-    + ["oews_tot_emp_adjusted", "oews_tot_emp_imputed", "oews_group_a_mean"]
+    + ["oews_tot_emp_allocated", "oews_tot_emp_imputed", "oews_a_mean"]
     + equal_cols
     + emp_cols
     + pc_cols
@@ -483,13 +556,13 @@ log_merge_diagnostics(
     logger=log,
 )
 
-# Add OEWS group-level employment data
-df_aei_occ = df_aei_occ.merge(oews_by_group, on="group_id", how="left")
-df_aei_occ["_n_soc_2010_in_group"] = df_aei_occ["group_id"].map(n_soc_2010_per_group)
-df_aei_occ["oews_tot_emp_adjusted"] = (
-    df_aei_occ["oews_group_tot_emp"] / df_aei_occ["_n_soc_2010_in_group"]
+# Add direct-edge apportioned OEWS data
+df_aei_occ = df_aei_occ.merge(
+    oews_by_soc_2010[["soc_2010", "oews_tot_emp_allocated", "oews_a_mean"]],
+    on="soc_2010",
+    how="left",
 )
-df_aei_occ["oews_tot_emp_imputed"] = df_aei_occ["oews_tot_emp_adjusted"].fillna(
+df_aei_occ["oews_tot_emp_imputed"] = df_aei_occ["oews_tot_emp_allocated"].fillna(
     median_emp_2010
 )
 
@@ -516,7 +589,7 @@ df_aei_occ["pct_occ_scaled_pc"] = (
 # Order columns: identifiers, OEWS, ratios, per-capita
 df_aei_occ = df_aei_occ[
     ["soc_2010", "title_2010", "group_id"]
-    + ["oews_tot_emp_adjusted", "oews_tot_emp_imputed", "oews_group_a_mean"]
+    + ["oews_tot_emp_allocated", "oews_tot_emp_imputed", "oews_a_mean"]
     + aei_occ_cols
     + ["pct_occ_scaled_pc"]
 ]
