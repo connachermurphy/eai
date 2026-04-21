@@ -1,0 +1,52 @@
+state,working_age_pop,state_code
+Alabama,3262439,AL
+Alaska,464424,AK
+Arizona,4787742,AZ
+Arkansas,1948947,AR
+California,25927814,CA
+Colorado,3958343,CO
+Connecticut,2366950,CT
+Delaware,644810,DE
+District of Columbia,496883,DC
+Florida,14540563,FL
+Georgia,7302240,GA
+Hawaii,850928,HI
+Idaho,1264612,ID
+Illinois,8234916,IL
+Indiana,4412999,IN
+Iowa,2033214,IA
+Kansas,1857837,KS
+Kentucky,2905378,KY
+Louisiana,2894382,LA
+Maine,874202,ME
+Maryland,4009368,MD
+Massachusetts,4691965,MA
+Michigan,6433974,MI
+Minnesota,3674398,MN
+Mississippi,1858512,MS
+Missouri,3939611,MO
+Montana,705291,MT
+Nebraska,1252815,NE
+Nevada,2119118,NV
+New Hampshire,903744,NH
+New Jersey,6112451,NJ
+New Mexico,1326681,NM
+New York,12815913,NY
+North Carolina,7047991,NC
+North Dakota,497728,ND
+Ohio,7502858,OH
+Oklahoma,2594338,OK
+Oregon,2751203,OR
+Pennsylvania,8265190,PA
+Rhode Island,722897,RI
+South Carolina,3427308,SC
+South Dakota,566060,SD
+Tennessee,4634205,TN
+Texas,20531428,TX
+Utah,2310503,UT
+Vermont,409700,VT
+Virginia,5620883,VA
+Washington,5172793,WA
+West Virginia,1099978,WV
+Wisconsin,3785250,WI
+Wyoming,366535,WY

@@ -10,8 +10,8 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 URL = "https://raw.githubusercontent.com/openai/GPTs-are-GPTs/main/data/occ_level.csv"
-OUT_DIR = Path(__file__).resolve().parent
-FILENAME = "occ_level.csv"
+OUT_DIR = Path("input")
+FILENAME = "eloundou_occ_level.csv"
 
 
 def download() -> None:

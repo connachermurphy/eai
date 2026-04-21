@@ -1,0 +1,9 @@
+{
+  "release": "release_2026_01_15",
+  "data_subpath": "data/intermediate",
+  "fetched_at": "2026-04-21T14:00:57.079176+00:00",
+  "files": [
+    "aei_raw_1p_api_2025-11-13_to_2025-11-20.csv",
+    "aei_raw_claude_ai_2025-11-13_to_2025-11-20.csv"
+  ]
+}

@@ -11,8 +11,8 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-BASE = Path(__file__).resolve().parent.parent
-DATA = BASE / "data"
+INPUT = Path("input")
+OUTPUT = Path("output")
 
 COLLAB_TYPES = [
     "directive",
@@ -166,7 +166,7 @@ def clean_all() -> None:
     """Process all releases and platforms."""
     for release, platforms in RELEASES.items():
         for platform, filename in platforms.items():
-            raw_path = DATA / release / filename
+            raw_path = INPUT / release / filename
             if not raw_path.exists():
                 logger.warning(
                     "[%s / %s] Raw file not found: %s — skipping",
@@ -180,7 +180,8 @@ def clean_all() -> None:
             if wide.empty:
                 continue
 
-            out_path = DATA / release / f"aei_cleaned_{platform}.csv"
+            out_path = OUTPUT / release / f"aei_cleaned_{platform}.csv"
+            out_path.parent.mkdir(parents=True, exist_ok=True)
             wide.to_csv(out_path, index=False)
             logger.info("[%s / %s] Wrote %s", release, platform, out_path)
 
