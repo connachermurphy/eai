@@ -162,10 +162,10 @@ soc_2010,title_2010,group_id,oews_tot_emp_allocated,oews_tot_emp_imputed,oews_a_
 19-4092,Forensic Science Technicians,153,17590.0,17590.0,69260.0,0.004705690434586,0.4000000000000062,0.0,2.6752077513280276e-07
 19-4093,Forest and Conservation Technicians,152,29120.0,29120.0,45000.0,0.0973555065466612,0.5649838882921587,0.4146079484425349,3.3432522852562222e-06
 19-4099,"Life, Physical, and Social Science Technicians, All Other (#)",149,72230.0,72230.0,57968.88688910425,0.11481884660390299,0.4945355191256833,0.3342440801457197,1.5896282237837877e-06
-21-1011,Substance Abuse and Behavioral Disorder Counselors,156,0.0,0.0,,0.0580891341425026,0.6120612061206129,0.1440144014401444,inf
+21-1011,Substance Abuse and Behavioral Disorder Counselors,156,,66060.0,,0.0580891341425026,0.6120612061206129,0.1440144014401444,8.793389970103331e-07
 21-1012,"Educational, Guidance, School, and Vocational Counselors",157,308000.0,308000.0,64200.0,0.4491155766868444,0.6594187713503575,0.2770532099960419,1.4581674567754688e-06
 21-1013,Marriage and Family Therapists,158,62080.0,62080.0,63300.0,0.1030023350681643,0.6487309644670054,0.1969543147208124,1.6591870983918217e-06
-21-1014,Mental Health Counselors,159,0.0,0.0,,0.4612099480387209,0.7561500963609574,0.1666477723614101,inf
+21-1014,Mental Health Counselors,159,,66060.0,,0.4612099480387209,0.7561500963609574,0.1666477723614101,6.981682531618542e-06
 21-1015,Rehabilitation Counselors,160,82420.0,82420.0,46020.0,0.0024051306665662,0.0,0.0,2.9181396100050958e-08
 21-1019,"Counselors, All Other",161,37270.0,37270.0,49770.0,,,,
 21-1021,"Child, Family, and School Social Workers",162,344770.0,344770.0,56680.0,0.0075291046953377,0.3888888888888901,0.0,2.1838050570924674e-08
@@ -235,7 +235,7 @@ soc_2010,title_2010,group_id,oews_tot_emp_allocated,oews_tot_emp_imputed,oews_a_
 25-2031,"Secondary School Teachers, Except Special and Career/Technical Education",224,1042090.0,1042090.0,69480.0,0.0548549773130417,0.5390397547262296,0.3649705844913524,5.263938557422267e-08
 25-2032,"Career/Technical Education Teachers, Secondary School",225,88280.0,88280.0,67610.0,0.0416587108659273,0.5526963661872117,0.3082168850593444,4.7189296404539306e-07
 25-2051,"Special Education Teachers, Preschool",226,22970.0,22970.0,69620.0,0.0390374783262287,0.3891303053753204,0.4219298767783807,1.6994984034056898e-06
-25-2052,"Special Education Teachers, Kindergarten and Elementary School (#)",227,0.0,0.0,,0.061206508818057,0.3301947682144357,0.4587493830441553,inf
+25-2052,"Special Education Teachers, Kindergarten and Elementary School (#)",227,,66060.0,,0.061206508818057,0.3301947682144357,0.4587493830441553,9.265290465948682e-07
 25-2053,"Special Education Teachers, Middle School",228,82970.0,82970.0,69530.0,0.0365675604803105,0.420604635088644,0.4043183799369687,4.407323186731409e-07
 25-2054,"Special Education Teachers, Secondary School",229,152490.0,152490.0,71290.0,0.0529387155971796,0.5558850922492928,0.3444695674605239,3.471618833836947e-07
 25-2059,"Special Education Teachers, All Other",230,42780.0,42780.0,74310.0,0.0181953363470665,0.3793103448275859,0.4425287356321837,4.253234302727092e-07
@@ -250,7 +250,7 @@ soc_2010,title_2010,group_id,oews_tot_emp_allocated,oews_tot_emp_imputed,oews_a_
 25-9011,Audio-Visual and Multimedia Collections Specialists,237,65840.0,65840.0,64770.0,0.0715264946057099,0.4042397660818724,0.3684210526315801,1.0863683870855087e-06
 25-9021,Farm and Home Management Advisors,239,8220.0,8220.0,58450.0,0.0574094233019514,0.5482695810564668,0.258652094717669,6.984114756928394e-06
 25-9031,Instructional Coordinators,240,198660.0,198660.0,73080.0,1.7027279410303804,0.5804827120309526,0.3786157342013143,8.57106584632226e-06
-25-9041,Teacher Assistants (#),241,0.0,0.0,,0.071022653003623,0.5097041895328611,0.3721054745014052,inf
+25-9041,Teacher Assistants (#),241,,66060.0,,0.071022653003623,0.5097041895328611,0.3721054745014052,1.0751234181595972e-06
 25-9099,"Education, Training, and Library Workers, All Other",243,129170.0,129170.0,52250.0,,,,
 27-1011,Art Directors,244,54470.0,54470.0,124310.0,0.3098435723928646,0.5278434019574754,0.439757003037462,5.688334356395531e-06
 27-1012,Craft Artists,245,4760.0,4760.0,49180.0,0.3562730513474487,0.4282359847373056,0.4986791899031406,7.484727969484217e-05
@@ -297,7 +297,7 @@ soc_2010,title_2010,group_id,oews_tot_emp_allocated,oews_tot_emp_imputed,oews_a_
 29-1021,"Dentists, General",284,120740.0,120740.0,172290.0,0.0398415123461629,0.6062992125984272,0.162729658792651,3.2997774015374273e-07
 29-1022,Oral and Maxillofacial Surgeons,285,4290.0,4290.0,309410.0,0.0015685634781953,0.0,0.0,3.6563251239983685e-07
 29-1023,Orthodontists,286,6310.0,6310.0,216320.0,0.0039736941447616,0.0,0.0,6.29745506301363e-07
-29-1024,Prosthodontists,287,0.0,0.0,,0.0020914179709271,0.0,0.0,inf
+29-1024,Prosthodontists,287,,66060.0,,0.0020914179709271,0.0,0.0,3.165936982935362e-08
 29-1029,"Dentists, All Other Specialists",288,5250.0,5250.0,233430.0,,,,
 29-1031,Dietitians and Nutritionists,289,69880.0,69880.0,69350.0,0.404898519171506,0.7365702479338843,0.2316632231404957,5.794197469540727e-06
 29-1041,Optometrists,290,40640.0,40640.0,133100.0,0.012234795129924,0.6324786324786318,0.23076923076923156,3.01053029771752e-07
@@ -540,8 +540,8 @@ soc_2010,title_2010,group_id,oews_tot_emp_allocated,oews_tot_emp_imputed,oews_a_
 45-2092,"Farmworkers and Laborers, Crop, Nursery, and Greenhouse",519,284000.0,284000.0,34300.0,0.0675528004609484,0.5696594427244591,0.36996904024767796,2.3786197345404367e-07
 45-2093,"Farmworkers, Farm, Ranch, and Aquacultural Animals",520,33020.0,33020.0,36290.0,0.0019868470723808,0.0,0.0,6.017101975714113e-08
 45-2099,"Agricultural Workers, All Other",521,6100.0,6100.0,39180.0,,,,
-45-3011,Fishers and Related Fishing Workers,522,0.0,0.0,,0.0,0.0,0.0,
-45-3021,Hunters and Trappers,522,0.0,0.0,,0.0,0.0,0.0,
+45-3011,Fishers and Related Fishing Workers,522,,66060.0,,0.0,0.0,0.0,0.0
+45-3021,Hunters and Trappers,522,,66060.0,,0.0,0.0,0.0,0.0
 45-4011,Forest and Conservation Workers,523,6080.0,6080.0,36010.0,0.0,0.0,0.0,0.0
 45-4021,Fallers,524,4530.0,4530.0,58130.0,0.0,0.0,0.0,0.0
 45-4022,Logging Equipment Operators,525,24780.0,24780.0,46570.0,0.0,0.0,0.0,0.0
@@ -662,8 +662,8 @@ soc_2010,title_2010,group_id,oews_tot_emp_allocated,oews_tot_emp_imputed,oews_a_
 51-1011,First-Line Supervisors of Production and Operating Workers,638,659930.0,659930.0,69100.0,0.0033462687534833,0.0,0.0,5.0706419673045626e-09
 51-2011,"Aircraft Structure, Surfaces, Rigging, and Systems Assemblers",639,32140.0,32140.0,60110.0,0.0020914179709271,0.0,0.0,6.507212106182638e-08
 51-2021,"Coil Winders, Tapers, and Finishers",640,10860.0,10860.0,44850.0,0.0,0.0,0.0,0.0
-51-2022,Electrical and Electronic Equipment Assemblers,641,0.0,0.0,,0.0051239740287714,0.0,0.0,inf
-51-2023,Electromechanical Equipment Assemblers,642,0.0,0.0,,0.0015685634781953,0.0,0.0,inf
+51-2022,Electrical and Electronic Equipment Assemblers,641,,66060.0,,0.0051239740287714,0.0,0.0,7.756545608191644e-08
+51-2023,Electromechanical Equipment Assemblers,642,,66060.0,,0.0015685634781953,0.0,0.0,2.3744527372014836e-08
 51-2031,Engine and Other Machine Assemblers,643,50120.0,50120.0,51980.0,0.0077382464924305,0.0,0.0,1.543943833286213e-07
 51-2041,Structural Metal Fabricators and Fitters,644,58870.0,58870.0,48870.0,0.0,0.0,0.0,0.0
 51-2091,Fiberglass Laminators and Fabricators,645,21910.0,21910.0,41280.0,0.0,0.0,0.0,0.0
@@ -768,8 +768,8 @@ soc_2010,title_2010,group_id,oews_tot_emp_allocated,oews_tot_emp_imputed,oews_a_
 51-9198,Helpers--Production Workers,742,190680.0,190680.0,35740.0,0.0197638998252619,0.5026455026455027,0.3174603174603174,1.0364956904374816e-07
 51-9199,"Production Workers, All Other (#)",734,356400.0,356400.0,42159.432098765436,0.0,0.0,0.0,0.0
 53-1011,Aircraft Cargo Handling Supervisors,743,7950.0,7950.0,61150.0,0.0,0.0,0.0,0.0
-53-1021,"First-Line Supervisors of Helpers, Laborers, and Material Movers, Hand",744,0.0,0.0,,0.03618153089704,0.34682080924855874,0.30346820809248704,inf
-53-1031,First-Line Supervisors of Transportation and Material-Moving Machine and Vehicle Operators (#),408,0.0,0.0,,0.0139079295066656,0.0,0.0,inf
+53-1021,"First-Line Supervisors of Helpers, Laborers, and Material Movers, Hand",744,,66060.0,,0.03618153089704,0.34682080924855874,0.30346820809248704,5.477070980478353e-07
+53-1031,First-Line Supervisors of Transportation and Material-Moving Machine and Vehicle Operators (#),408,,66060.0,,0.0139079295066656,0.0,0.0,2.1053480936520738e-07
 53-2011,"Airline Pilots, Copilots, and Flight Engineers",745,89580.0,89580.0,225740.0,0.0015162780289221,0.0,0.0,1.6926524100492297e-08
 53-2012,Commercial Pilots,746,48750.0,48750.0,123250.0,0.0015162780289221,0.0,0.0,3.110313905481231e-08
 53-2021,Air Traffic Controllers,747,21250.0,21250.0,130840.0,0.0086793845793477,0.2771084337349405,0.3253012048192781,4.0844162726342115e-07
@@ -819,23 +819,23 @@ soc_2010,title_2010,group_id,oews_tot_emp_allocated,oews_tot_emp_imputed,oews_a_
 53-7111,Mine Shuttle Car Operators,582,2605.0,2605.0,62420.0,0.0,0.0,0.0,0.0
 53-7121,"Tank Car, Truck, and Ship Loaders",788,12470.0,12470.0,58680.0,0.0,0.0,0.0,0.0
 53-7199,"Material Moving Workers, All Other",578,12440.0,12440.0,43290.0,,,,
-55-1011,Air Crew Officers,789,0.0,0.0,,,,,
-55-1012,Aircraft Launch and Recovery Officers,790,0.0,0.0,,,,,
-55-1013,Armored Assault Vehicle Officers,791,0.0,0.0,,,,,
-55-1014,Artillery and Missile Officers,792,0.0,0.0,,,,,
-55-1015,Command and Control Center Officers,793,0.0,0.0,,,,,
-55-1016,Infantry Officers,794,0.0,0.0,,,,,
-55-1017,Special Forces Officers,795,0.0,0.0,,,,,
-55-1019,"Military Officer Special and Tactical Operations Leaders, All Other",796,0.0,0.0,,,,,
-55-2011,First-Line Supervisors of Air Crew Members,797,0.0,0.0,,,,,
-55-2012,First-Line Supervisors of Weapons Specialists/Crew Members,798,0.0,0.0,,,,,
-55-2013,First-Line Supervisors of All Other Tactical Operations Specialists,799,0.0,0.0,,,,,
-55-3011,Air Crew Members,800,0.0,0.0,,,,,
-55-3012,Aircraft Launch and Recovery Specialists,801,0.0,0.0,,,,,
-55-3013,Armored Assault Vehicle Crew Members,802,0.0,0.0,,,,,
-55-3014,Artillery and Missile Crew Members,803,0.0,0.0,,,,,
-55-3015,Command and Control Center Specialists,804,0.0,0.0,,,,,
-55-3016,Infantry,805,0.0,0.0,,,,,
+55-1011,Air Crew Officers,789,,66060.0,,,,,
+55-1012,Aircraft Launch and Recovery Officers,790,,66060.0,,,,,
+55-1013,Armored Assault Vehicle Officers,791,,66060.0,,,,,
+55-1014,Artillery and Missile Officers,792,,66060.0,,,,,
+55-1015,Command and Control Center Officers,793,,66060.0,,,,,
+55-1016,Infantry Officers,794,,66060.0,,,,,
+55-1017,Special Forces Officers,795,,66060.0,,,,,
+55-1019,"Military Officer Special and Tactical Operations Leaders, All Other",796,,66060.0,,,,,
+55-2011,First-Line Supervisors of Air Crew Members,797,,66060.0,,,,,
+55-2012,First-Line Supervisors of Weapons Specialists/Crew Members,798,,66060.0,,,,,
+55-2013,First-Line Supervisors of All Other Tactical Operations Specialists,799,,66060.0,,,,,
+55-3011,Air Crew Members,800,,66060.0,,,,,
+55-3012,Aircraft Launch and Recovery Specialists,801,,66060.0,,,,,
+55-3013,Armored Assault Vehicle Crew Members,802,,66060.0,,,,,
+55-3014,Artillery and Missile Crew Members,803,,66060.0,,,,,
+55-3015,Command and Control Center Specialists,804,,66060.0,,,,,
+55-3016,Infantry,805,,66060.0,,,,,
 55-3017,Radar and Sonar Technicians,110,35125.0,35125.0,70550.0,,,,
-55-3018,Special Forces,806,0.0,0.0,,,,,
-55-3019,"Military Enlisted Tactical Operations and Air/Weapons Specialists and Crew Members, All Other",807,0.0,0.0,,,,,
+55-3018,Special Forces,806,,66060.0,,,,,
+55-3019,"Military Enlisted Tactical Operations and Air/Weapons Specialists and Crew Members, All Other",807,,66060.0,,,,,
