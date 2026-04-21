@@ -228,8 +228,7 @@ def add_task_weights(df):
     equal_weight_sums = df.groupby("task_key")["equal_task_weight"].sum(min_count=1)
     bad_equal = equal_weight_sums[~np.isclose(equal_weight_sums, 1.0, atol=1e-9)]
     assert bad_equal.empty, (
-        "Equal task weights do not sum to 1 for tasks: "
-        f"{bad_equal.index.tolist()[:10]}"
+        f"Equal task weights do not sum to 1 for tasks: {bad_equal.index.tolist()[:10]}"
     )
 
     emp_weight_sums = df.groupby("task_key")["emp_task_weight"].sum(min_count=1)
@@ -240,6 +239,7 @@ def add_task_weights(df):
     )
 
     return df
+
 
 no_oews = soc_2018[~soc_2018["soc_2018"].isin(oews_lookup["soc_2018"])]
 log.info(
@@ -413,7 +413,9 @@ df_2010 = df_2010.merge(
     how="left",
 )
 
-n_occ_with = df_2010.loc[df_2010["oews_tot_emp_allocated"].notna(), "soc_2010"].nunique()
+n_occ_with = df_2010.loc[
+    df_2010["oews_tot_emp_allocated"].notna(), "soc_2010"
+].nunique()
 n_occ_without = df_2010.loc[
     df_2010["oews_tot_emp_allocated"].isna(), "soc_2010"
 ].nunique()
