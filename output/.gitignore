@@ -3,5 +3,4 @@
 !.gitignore
 !occupations_*.csv
 !onet/
-!onet/soc_*_crosswalk.csv
-!onet/soc_crosswalk_edges.csv
+!onet/soc_*.csv
