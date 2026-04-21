@@ -2,17 +2,19 @@
 
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
+from eai.aei import load_aei_tasks
 from eai.utils import get_logger, log_merge_diagnostics, merge_with_diagnostics
 
 log = get_logger(__name__)
 DATA = Path("output")
 OUT = Path("output")
 
-# ========================================================================================
+# ======================================================================================
 # Step 1: Load both SOC universes from the connected-component crosswalk
-# ========================================================================================
+# ======================================================================================
 soc_2018 = pd.read_csv(DATA / "onet" / "soc_2018_to_group.csv")
 broad_codes = soc_2018[soc_2018["soc_2018"].str[-1] == "0"]
 assert broad_codes.empty, (
@@ -51,16 +53,17 @@ occs_per_task = task_occ.groupby("task_key")["soc_2010"].nunique()
 n_shared = (occs_per_task > 1).sum()
 n_unique = (occs_per_task == 1).sum()
 log.info(
-    "O*NET task statements: %d unique tasks (%d shared across occupations, %d unique to one), %d occupations",
+    "O*NET task statements: %d unique tasks"
+    " (%d shared, %d unique to one), %d occupations",
     task_occ["task_key"].nunique(),
     n_shared,
     n_unique,
     len(task_occ_occupations),
 )
 
-# ========================================================================================
+# ======================================================================================
 # Step 2: Load 2022 OEWS and build lookup keyed on SOC 2018 (exact + broad)
-# ========================================================================================
+# ======================================================================================
 oews_raw = pd.read_csv(DATA / "oews" / "national_M2022_dl.csv")
 oews = oews_raw[oews_raw["o_group"] == "detailed"][
     ["occ_code", "occ_title", "tot_emp", "a_mean", "a_median"]
@@ -110,7 +113,16 @@ broad_matched["tot_emp_adjusted"] = broad_matched["tot_emp"] / (
 
 # Combine exact + broad into a single OEWS lookup, with group_id
 exact["tot_emp_adjusted"] = exact["tot_emp"]
-lookup_cols = ["soc_2018", "occ_title", "tot_emp", "a_mean", "a_median", "broad_match", "soc_2018_broad", "tot_emp_adjusted"]
+lookup_cols = [
+    "soc_2018",
+    "occ_title",
+    "tot_emp",
+    "a_mean",
+    "a_median",
+    "broad_match",
+    "soc_2018_broad",
+    "tot_emp_adjusted",
+]
 oews_lookup = pd.concat([exact[lookup_cols], broad_matched[lookup_cols]])
 oews_lookup = oews_lookup.merge(
     soc_2018[["soc_2018", "group_id"]], on="soc_2018", how="left"
@@ -123,7 +135,6 @@ log.info(
 )
 
 # Aggregate OEWS to group level
-import numpy as np
 
 
 def _emp_weighted_mean(sub):
@@ -131,7 +142,9 @@ def _emp_weighted_mean(sub):
     mask = sub["a_mean"].notna() & sub["tot_emp_adjusted"].notna()
     if not mask.any():
         return np.nan
-    return np.average(sub.loc[mask, "a_mean"], weights=sub.loc[mask, "tot_emp_adjusted"])
+    return np.average(
+        sub.loc[mask, "a_mean"], weights=sub.loc[mask, "tot_emp_adjusted"]
+    )
 
 
 oews_by_group = (
@@ -159,9 +172,9 @@ log.info(
 for _, row in no_oews.iterrows():
     log.info("  %s  %s", row["soc_2018"], row["title_2018"])
 
-# ========================================================================================
+# ======================================================================================
 # Step 3: Load Eloundou et al. and merge on SOC 2018
-# ========================================================================================
+# ======================================================================================
 eloundou = pd.read_csv(Path("input") / "eloundou_occ_level.csv")
 eloundou["soc_2018"] = eloundou["O*NET-SOC Code"].str[:7]
 eloundou_agg = eloundou.groupby("soc_2018").mean(numeric_only=True).reset_index()
@@ -189,14 +202,16 @@ df_eloundou = df_eloundou.merge(
     oews_lookup.drop(columns=["group_id"]), on="soc_2018", how="left"
 )
 df_eloundou["oews_broad_match"] = df_eloundou["broad_match"].fillna(False)
-df_eloundou = df_eloundou.rename(columns={
-    "occ_title": "oews_occ_title",
-    "tot_emp": "oews_tot_emp",
-    "a_mean": "oews_a_mean",
-    "a_median": "oews_a_median",
-    "soc_2018_broad": "oews_soc_2018_broad",
-    "tot_emp_adjusted": "oews_tot_emp_adjusted",
-})
+df_eloundou = df_eloundou.rename(
+    columns={
+        "occ_title": "oews_occ_title",
+        "tot_emp": "oews_tot_emp",
+        "a_mean": "oews_a_mean",
+        "a_median": "oews_a_median",
+        "soc_2018_broad": "oews_soc_2018_broad",
+        "tot_emp_adjusted": "oews_tot_emp_adjusted",
+    }
+)
 df_eloundou = df_eloundou.drop(columns=["broad_match"])
 
 # Impute missing employment for occupations that have exposure data
@@ -218,19 +233,25 @@ log.info(
 )
 
 # Order columns: identifiers, exposure scores, OEWS
-exposure_cols = [c for c in df_eloundou.columns if c.startswith("dv_") or c.startswith("human_")]
+exposure_cols = [
+    c for c in df_eloundou.columns if c.startswith("dv_") or c.startswith("human_")
+]
 oews_cols = [c for c in df_eloundou.columns if c.startswith("oews_")]
-df_eloundou = df_eloundou[["soc_2018", "title_2018", "group_id"] + exposure_cols + oews_cols]
+df_eloundou = df_eloundou[
+    ["soc_2018", "title_2018", "group_id"] + exposure_cols + oews_cols
+]
 
 # Save checkpoint
 df_eloundou.to_csv(OUT / "occupations_eloundou_et_al.csv", index=False)
-log.info("Saved checkpoint: %s (%d rows)", OUT / "occupations_eloundou_et_al.csv", len(df_eloundou))
+log.info(
+    "Saved checkpoint: %s (%d rows)",
+    OUT / "occupations_eloundou_et_al.csv",
+    len(df_eloundou),
+)
 
-# ========================================================================================
+# ======================================================================================
 # Step 4: Load AEI data and merge onto O*NET task statements
-# ========================================================================================
-from eai.aei import load_aei_tasks
-
+# ======================================================================================
 aei_stacked = load_aei_tasks(logger=log)
 
 # Compute automation and augmentation counts
@@ -286,9 +307,9 @@ log.info(
 )
 
 
-# ========================================================================================
+# ======================================================================================
 # Step 5: Merge AEI task-occupation data onto SOC 2010 universe
-# ========================================================================================
+# ======================================================================================
 df_2010, left_only_2010, right_only_2010 = merge_with_diagnostics(
     soc_2010, aei_task_occ, on="soc_2010"
 )
@@ -302,9 +323,9 @@ log_merge_diagnostics(
     logger=log,
 )
 
-# ========================================================================================
+# ======================================================================================
 # Step 6: Merge OEWS group-level data onto SOC 2010 universe and apportion
-# ========================================================================================
+# ======================================================================================
 df_2010 = df_2010.merge(oews_by_group, on="group_id", how="left")
 
 # Apportion group employment across SOC 2010 codes in each group
@@ -315,7 +336,9 @@ df_2010["oews_tot_emp_adjusted"] = (
 )
 
 n_occ_with = df_2010.loc[df_2010["oews_tot_emp_adjusted"].notna(), "soc_2010"].nunique()
-n_occ_without = df_2010.loc[df_2010["oews_tot_emp_adjusted"].isna(), "soc_2010"].nunique()
+n_occ_without = df_2010.loc[
+    df_2010["oews_tot_emp_adjusted"].isna(), "soc_2010"
+].nunique()
 log.info(
     "SOC 2010 OEWS coverage: %d occupations with employment, %d without",
     n_occ_with,
@@ -328,15 +351,17 @@ median_emp_2010 = df_2010.loc[
 ].median()
 log.info("SOC 2010 median employment: %.0f", median_emp_2010)
 
-df_2010["oews_tot_emp_imputed"] = df_2010["oews_tot_emp_adjusted"].fillna(median_emp_2010)
+df_2010["oews_tot_emp_imputed"] = df_2010["oews_tot_emp_adjusted"].fillna(
+    median_emp_2010
+)
 log.info(
     "Imputed employment for %d occupations",
     n_occ_without,
 )
 
-# ========================================================================================
+# ======================================================================================
 # Step 7: Apportion task counts across occupations and aggregate
-# ========================================================================================
+# ======================================================================================
 count_cols = [c for c in df_2010.columns if c.endswith("_count")]
 
 # Equal weight: divide by number of occupations sharing each task
@@ -365,12 +390,11 @@ oews_per_occ = df_2010[
     ["soc_2010", "oews_tot_emp_adjusted", "oews_tot_emp_imputed", "oews_group_a_mean"]
 ].drop_duplicates("soc_2010")
 
-df_aei = soc_2010[["soc_2010", "title_2010", "group_id"]].merge(
-    oews_per_occ, on="soc_2010", how="left"
-).merge(
-    occ_equal, on="soc_2010", how="left"
-).merge(
-    occ_emp, on="soc_2010", how="left"
+df_aei = (
+    soc_2010[["soc_2010", "title_2010", "group_id"]]
+    .merge(oews_per_occ, on="soc_2010", how="left")
+    .merge(occ_equal, on="soc_2010", how="left")
+    .merge(occ_emp, on="soc_2010", how="left")
 )
 assert len(df_aei) == len(soc_2010), (
     f"Expected {len(soc_2010)} rows after merge, got {len(df_aei)}"
@@ -380,7 +404,7 @@ assert len(df_aei) == len(soc_2010), (
 for col in emp_cols:
     df_aei[f"{col}_pc"] = df_aei[col] / df_aei["oews_tot_emp_imputed"]
 
-# Order columns: identifiers, OEWS, equal-weighted, emp-weighted, emp-weighted per-capita
+# Order columns: identifiers, OEWS, equal, emp, emp per-capita
 pc_cols = [f"{col}_pc" for col in emp_cols]
 df_aei = df_aei[
     ["soc_2010", "title_2010", "group_id"]
@@ -399,17 +423,23 @@ log.info(
 df_aei.to_csv(OUT / "occupations_aei.csv", index=False)
 log.info("Saved checkpoint: %s (%d rows)", OUT / "occupations_aei.csv", len(df_aei))
 
-# ========================================================================================
+# ======================================================================================
 # Step 8: Load AEI occupation automation/augmentation data (2025-03-27 release)
-# ========================================================================================
-aei_occ_raw = pd.read_csv(Path("input") / "aei_occupation_automation_augmentation_data.csv")
+# ======================================================================================
+aei_occ_raw = pd.read_csv(
+    Path("input") / "aei_occupation_automation_augmentation_data.csv"
+)
 aei_occ_raw["soc_2010"] = aei_occ_raw["O*NET-SOC Code"].str[:7]
 
 # Unlike task-level AEI data (where counts are additive and get summed in step 7),
 # the auto/aug data contains pre-computed ratios keyed on 8-digit O*NET-SOC codes.
 # pct_occ_scaled is additive (share of usage), so we sum it.
 # Ratios are weighted by pct_occ_scaled when collapsing to 6-digit SOC 2010.
-aei_occ_cols = ["pct_occ_scaled", "augmentation_weighted_ratio", "automation_weighted_ratio"]
+aei_occ_cols = [
+    "pct_occ_scaled",
+    "augmentation_weighted_ratio",
+    "automation_weighted_ratio",
+]
 
 
 def _pct_weighted_mean(sub):
@@ -417,17 +447,19 @@ def _pct_weighted_mean(sub):
     w = sub["pct_occ_scaled"]
     if w.sum() == 0:
         return sub[["augmentation_weighted_ratio", "automation_weighted_ratio"]].mean()
-    return pd.Series({
-        "augmentation_weighted_ratio": np.average(sub["augmentation_weighted_ratio"], weights=w),
-        "automation_weighted_ratio": np.average(sub["automation_weighted_ratio"], weights=w),
-    })
+    return pd.Series(
+        {
+            "augmentation_weighted_ratio": np.average(
+                sub["augmentation_weighted_ratio"], weights=w
+            ),
+            "automation_weighted_ratio": np.average(
+                sub["automation_weighted_ratio"], weights=w
+            ),
+        }
+    )
 
 
-aei_occ_agg = (
-    aei_occ_raw.groupby("soc_2010")
-    .apply(_pct_weighted_mean)
-    .reset_index()
-)
+aei_occ_agg = aei_occ_raw.groupby("soc_2010").apply(_pct_weighted_mean).reset_index()
 aei_occ_agg["pct_occ_scaled"] = (
     aei_occ_raw.groupby("soc_2010")["pct_occ_scaled"].sum().values
 )
@@ -476,11 +508,17 @@ log.info(
     n_na,
 )
 
-# Order columns: identifiers, OEWS, ratios
+# Per-capita usage: scale pct_occ_scaled by employment
+df_aei_occ["pct_occ_scaled_pc"] = (
+    df_aei_occ["pct_occ_scaled"] / df_aei_occ["oews_tot_emp_imputed"]
+)
+
+# Order columns: identifiers, OEWS, ratios, per-capita
 df_aei_occ = df_aei_occ[
     ["soc_2010", "title_2010", "group_id"]
     + ["oews_tot_emp_adjusted", "oews_tot_emp_imputed", "oews_group_a_mean"]
     + aei_occ_cols
+    + ["pct_occ_scaled_pc"]
 ]
 
 df_aei_occ.to_csv(OUT / "occupations_aei_auto_aug_2025_03_27.csv", index=False)

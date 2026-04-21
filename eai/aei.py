@@ -82,5 +82,3 @@ def load_aei_tasks(
     )
 
     return all_data
-
-
