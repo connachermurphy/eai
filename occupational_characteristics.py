@@ -157,9 +157,13 @@ oews_by_group = (
     )
     .reset_index()
 )
-oews_by_group["oews_group_a_mean"] = (
-    oews_lookup.groupby("group_id").apply(_emp_weighted_mean).values
+_group_a_mean = (
+    oews_lookup.groupby("group_id")
+    .apply(_emp_weighted_mean, include_groups=False)
+    .rename("oews_group_a_mean")
+    .reset_index()
 )
+oews_by_group = oews_by_group.merge(_group_a_mean, on="group_id", how="left")
 log.info("OEWS by group: %d groups with employment data", len(oews_by_group))
 
 # Apportion OEWS from SOC 2018 to SOC 2010 across direct crosswalk edges
@@ -188,14 +192,18 @@ def _allocated_emp_weighted_mean(sub):
 oews_by_soc_2010 = (
     oews_edges.groupby("soc_2010")
     .agg(
-        oews_tot_emp_allocated=("oews_tot_emp_allocated", "sum"),
+        oews_tot_emp_allocated=("oews_tot_emp_allocated", lambda x: x.sum(min_count=1)),
         oews_n_soc_2018=("soc_2018", "nunique"),
     )
     .reset_index()
 )
-oews_by_soc_2010["oews_a_mean"] = (
-    oews_edges.groupby("soc_2010").apply(_allocated_emp_weighted_mean).values
+_soc_2010_a_mean = (
+    oews_edges.groupby("soc_2010")
+    .apply(_allocated_emp_weighted_mean, include_groups=False)
+    .rename("oews_a_mean")
+    .reset_index()
 )
+oews_by_soc_2010 = oews_by_soc_2010.merge(_soc_2010_a_mean, on="soc_2010", how="left")
 oews_by_soc_2010 = oews_by_soc_2010.merge(
     soc_2010[["soc_2010", "group_id"]], on="soc_2010", how="left"
 )
@@ -474,8 +482,15 @@ assert len(df_aei) == len(soc_2010), (
 )
 
 # Per-capita: divide employment-weighted counts by total employment
+# Replace zero employment with NA to avoid assuming nonzero employment
+emp_for_pc = df_aei["oews_tot_emp_imputed"].replace(0, np.nan)
+n_zero_emp = (df_aei["oews_tot_emp_imputed"] == 0).sum()
+if n_zero_emp:
+    log.info(
+        "Per-capita: %d occupations with zero employment recoded to NA", n_zero_emp
+    )
 for col in emp_cols:
-    df_aei[f"{col}_pc"] = df_aei[col] / df_aei["oews_tot_emp_imputed"]
+    df_aei[f"{col}_pc"] = df_aei[col] / emp_for_pc
 
 # Order columns: identifiers, OEWS, equal, emp, emp per-capita
 pc_cols = [f"{col}_pc" for col in emp_cols]
@@ -517,7 +532,7 @@ aei_occ_cols = [
 
 def _pct_weighted_mean(sub):
     """Weighted mean of ratios using pct_occ_scaled as weights."""
-    w = sub["pct_occ_scaled"]
+    w = sub["pct_occ_scaled"].fillna(0)
     if w.sum() == 0:
         return sub[["augmentation_weighted_ratio", "automation_weighted_ratio"]].mean()
     return pd.Series(
@@ -532,10 +547,13 @@ def _pct_weighted_mean(sub):
     )
 
 
-aei_occ_agg = aei_occ_raw.groupby("soc_2010").apply(_pct_weighted_mean).reset_index()
-aei_occ_agg["pct_occ_scaled"] = (
-    aei_occ_raw.groupby("soc_2010")["pct_occ_scaled"].sum().values
+_occ_ratios = (
+    aei_occ_raw.groupby("soc_2010")
+    .apply(_pct_weighted_mean, include_groups=False)
+    .reset_index()
 )
+_occ_pct = aei_occ_raw.groupby("soc_2010")["pct_occ_scaled"].sum().reset_index()
+aei_occ_agg = _occ_ratios.merge(_occ_pct, on="soc_2010", how="left")
 log.info(
     "AEI occupation auto/aug: %d raw rows -> %d SOC 2010 codes",
     len(aei_occ_raw),
@@ -582,9 +600,15 @@ log.info(
 )
 
 # Per-capita usage: scale pct_occ_scaled by employment
-df_aei_occ["pct_occ_scaled_pc"] = (
-    df_aei_occ["pct_occ_scaled"] / df_aei_occ["oews_tot_emp_imputed"]
-)
+# Replace zero employment with NA to avoid assuming nonzero employment
+emp_for_pc_occ = df_aei_occ["oews_tot_emp_imputed"].replace(0, np.nan)
+n_zero_emp_occ = (df_aei_occ["oews_tot_emp_imputed"] == 0).sum()
+if n_zero_emp_occ:
+    log.info(
+        "Per-capita (auto/aug): %d occupations with zero employment recoded to NA",
+        n_zero_emp_occ,
+    )
+df_aei_occ["pct_occ_scaled_pc"] = df_aei_occ["pct_occ_scaled"] / emp_for_pc_occ
 
 # Order columns: identifiers, OEWS, ratios, per-capita
 df_aei_occ = df_aei_occ[

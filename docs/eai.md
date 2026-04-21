@@ -49,7 +49,7 @@ I use the 2010 half of the SOC 2010 <=> 2018 Crosswalk to form our universe of 2
 
 I first aggregate the Anthropic Economic Index task-level usage counts for Claude.ai and the first party API for the September 2025, January 2026, and March 2026 releases. Each release-platform file categorizes a random sample of one million conversations, so summing counts across files gives each release-platform file equal weight.
 
-I merge the task-level usage counts onto the O\*NET task statements. I fill in all tasks missing queries with zero usage.
+I merge the task-level usage counts onto the O\*NET task statements. I fill in all tasks missing queries with zero usage. AEI tasks that do not match any O\*NET task statement are excluded and logged.
 
 We next need to apportion usage across occupations where multiple occupations share a task.
 
