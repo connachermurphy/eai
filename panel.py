@@ -22,10 +22,17 @@ for path in OEWS_FILES:
     year = int(path.stem.split("_")[1].lstrip("M"))
     raw = pd.read_csv(path)
     KEEP_COLS = [
-        "occ_code", "occ_title",
-        "tot_emp", "emp_prse",
-        "a_mean", "mean_prse",
-        "a_pct10", "a_pct25", "a_median", "a_pct75", "a_pct90",
+        "occ_code",
+        "occ_title",
+        "tot_emp",
+        "emp_prse",
+        "a_mean",
+        "mean_prse",
+        "a_pct10",
+        "a_pct25",
+        "a_median",
+        "a_pct75",
+        "a_pct90",
     ]
     detailed = raw[raw["o_group"] == "detailed"][KEEP_COLS].copy()
     detailed["year"] = year
@@ -36,7 +43,12 @@ for path in OEWS_FILES:
     log.info("  %d: %d detailed occupations", year, len(detailed))
 
 panel = pd.concat(frames, ignore_index=True)
-log.info("Panel: %d rows (%d years x ~%d occupations)", len(panel), panel["year"].nunique(), len(panel) // panel["year"].nunique())
+log.info(
+    "Panel: %d rows (%d years x ~%d occupations)",
+    len(panel),
+    panel["year"].nunique(),
+    len(panel) // panel["year"].nunique(),
+)
 
 # ======================================================================================
 # Step 2: Balanced panel indicator and footprint changes
@@ -46,10 +58,14 @@ years_per_code = panel.groupby("occ_code")["year"].nunique()
 balanced_codes = set(years_per_code[years_per_code == len(years)].index)
 panel["balanced_panel"] = panel["occ_code"].isin(balanced_codes)
 
-unbalanced = panel.loc[~panel["balanced_panel"], ["occ_code", "occ_title", "year"]].drop_duplicates()
+unbalanced = panel.loc[
+    ~panel["balanced_panel"], ["occ_code", "occ_title", "year"]
+].drop_duplicates()
 log.info(
     "Balanced panel: %d codes in all %d years, %d unbalanced:",
-    len(balanced_codes), len(years), panel["occ_code"].nunique() - len(balanced_codes),
+    len(balanced_codes),
+    len(years),
+    panel["occ_code"].nunique() - len(balanced_codes),
 )
 for code, grp in unbalanced.groupby("occ_code"):
     title = grp["occ_title"].iloc[0]
