@@ -8,22 +8,29 @@ from eai.utils import get_logger
 
 log = get_logger(__name__)
 DATA = Path("output")
+OUT = Path("output")
 
 # ======================================================================================
 # Step 1: Load and stack OEWS files into a panel
 # ======================================================================================
-OEWS_FILES = sorted(DATA.glob("oews/national_M*_dl.csv"))
+OEWS_YEARS = range(2021, 2025)
+OEWS_FILES = [DATA / "oews" / f"national_M{y}_dl.csv" for y in OEWS_YEARS]
 log.info("Found %d OEWS files: %s", len(OEWS_FILES), [f.name for f in OEWS_FILES])
 
 frames = []
 for path in OEWS_FILES:
     year = int(path.stem.split("_")[1].lstrip("M"))
     raw = pd.read_csv(path)
-    detailed = raw[raw["o_group"] == "detailed"][
-        ["occ_code", "occ_title", "tot_emp", "a_mean", "a_median"]
-    ].copy()
+    KEEP_COLS = [
+        "occ_code", "occ_title",
+        "tot_emp", "emp_prse",
+        "a_mean", "mean_prse",
+        "a_pct10", "a_pct25", "a_median", "a_pct75", "a_pct90",
+    ]
+    detailed = raw[raw["o_group"] == "detailed"][KEEP_COLS].copy()
     detailed["year"] = year
-    for col in ["tot_emp", "a_mean", "a_median"]:
+    NUMERIC_COLS = [c for c in KEEP_COLS if c not in ("occ_code", "occ_title")]
+    for col in NUMERIC_COLS:
         detailed[col] = pd.to_numeric(detailed[col], errors="coerce")
     frames.append(detailed)
     log.info("  %d: %d detailed occupations", year, len(detailed))
@@ -48,3 +55,6 @@ for code, grp in unbalanced.groupby("occ_code"):
     title = grp["occ_title"].iloc[0]
     present_years = sorted(grp["year"])
     log.info("  %s  %s  (present: %s)", code, title, present_years)
+
+panel.to_csv(OUT / "oews_panel.csv", index=False)
+log.info("Saved: %s (%d rows)", OUT / "oews_panel.csv", len(panel))

@@ -14,6 +14,16 @@ FILES = [
         "dest": OUT / "oesm24all" / "all_data_M_2024.csv",
     },
     {
+        "src": INPUT / "national_M2019_dl.xlsx",
+        "sheet": "national_M2019_dl",
+        "dest": OUT / "oews" / "national_M2019_dl.csv",
+    },
+    {
+        "src": INPUT / "national_M2020_dl.xlsx",
+        "sheet": "national_M2020_dl",
+        "dest": OUT / "oews" / "national_M2020_dl.csv",
+    },
+    {
         "src": INPUT / "national_M2021_dl.xlsx",
         "sheet": "national_M2021_dl",
         "dest": OUT / "oews" / "national_M2021_dl.csv",
