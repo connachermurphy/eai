@@ -9,6 +9,10 @@ dependencies = [
     "matplotlib>=3.10.8",
 ]
 
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [tool.ruff]
 # Standard linting rules
 lint.select = ["E", "F", "I", "W"]

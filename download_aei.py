@@ -22,7 +22,7 @@ RELEASES = {
     "release_2026_03_24": "data",
 }
 
-OUT_BASE = Path(__file__).resolve().parent.parent / "data"
+OUT_BASE = Path("input")
 
 
 def download_release(release: str, data_subpath: str) -> None:

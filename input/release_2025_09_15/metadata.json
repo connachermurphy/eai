@@ -1,0 +1,16 @@
+{
+  "release": "release_2025_09_15",
+  "data_subpath": "data/intermediate",
+  "fetched_at": "2026-04-21T14:00:53.331032+00:00",
+  "files": [
+    "aei_raw_1p_api_2025-08-04_to_2025-08-11.csv",
+    "aei_raw_claude_ai_2025-08-04_to_2025-08-11.csv",
+    "gdp_2024_country.csv",
+    "gdp_2024_us_state.csv",
+    "iso_country_codes.csv",
+    "onet_task_statements.csv",
+    "soc_structure.csv",
+    "working_age_pop_2024_country.csv",
+    "working_age_pop_2024_us_state.csv"
+  ]
+}
