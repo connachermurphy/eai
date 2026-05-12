@@ -1,5 +1,6 @@
 """Create merged occupational characteristics datasets."""
 
+import argparse
 from pathlib import Path
 
 import numpy as np
@@ -11,6 +12,47 @@ from eai.utils import get_logger, log_merge_diagnostics, merge_with_diagnostics
 log = get_logger(__name__)
 DATA = Path("output")
 OUT = Path("output")
+DEFAULT_OEWS_YEAR = 2022
+
+
+def parse_args() -> argparse.Namespace:
+    """Parse command-line options."""
+    parser = argparse.ArgumentParser(
+        description="Create merged occupational characteristics datasets."
+    )
+    parser.add_argument(
+        "--oews-year",
+        type=int,
+        default=DEFAULT_OEWS_YEAR,
+        help=f"OEWS year to load from output/oews (default: {DEFAULT_OEWS_YEAR}).",
+    )
+    parser.add_argument(
+        "--output-tag",
+        help=(
+            "Suffix for output CSV stems, e.g. 'oews_2024'. "
+            "Defaults to no suffix for 2022 and 'oews_<year>' otherwise."
+        ),
+    )
+    parser.add_argument(
+        "--aei-only",
+        action="store_true",
+        help="Only write the main occupations_aei output file.",
+    )
+    return parser.parse_args()
+
+
+ARGS = parse_args()
+OUTPUT_TAG = ARGS.output_tag
+if OUTPUT_TAG is None and ARGS.oews_year != DEFAULT_OEWS_YEAR:
+    OUTPUT_TAG = f"oews_{ARGS.oews_year}"
+
+
+def output_csv(stem: str) -> Path:
+    """Build an output CSV path, applying the optional output tag."""
+    if OUTPUT_TAG:
+        return OUT / f"{stem}_{OUTPUT_TAG}.csv"
+    return OUT / f"{stem}.csv"
+
 
 # ======================================================================================
 # Step 1: Load both SOC universes from the connected-component crosswalk
@@ -64,16 +106,20 @@ log.info(
 )
 
 # ======================================================================================
-# Step 2: Load 2022 OEWS and build lookup keyed on SOC 2018 (exact + broad)
+# Step 2: Load OEWS and build lookup keyed on SOC 2018 (exact + broad)
 # ======================================================================================
-oews_raw = pd.read_csv(DATA / "oews" / "national_M2022_dl.csv")
+oews_path = DATA / "oews" / f"national_M{ARGS.oews_year}_dl.csv"
+if not oews_path.exists():
+    raise FileNotFoundError(f"Missing OEWS file: {oews_path}")
+
+oews_raw = pd.read_csv(oews_path)
 oews = oews_raw[oews_raw["o_group"] == "detailed"][
     ["occ_code", "occ_title", "tot_emp", "a_mean", "a_median"]
 ].copy()
 oews = oews.rename(columns={"occ_code": "soc_2018"})
 for col in ["tot_emp", "a_mean", "a_median"]:
     oews[col] = pd.to_numeric(oews[col], errors="coerce")
-log.info("OEWS 2022: %d detailed occupations", len(oews))
+log.info("OEWS %d: %d detailed occupations", ARGS.oews_year, len(oews))
 
 # Exact matches
 universe_codes = set(soc_2018["soc_2018"])
@@ -331,12 +377,12 @@ df_eloundou = df_eloundou[
 ]
 
 # Save checkpoint
-df_eloundou.to_csv(OUT / "occupations_eloundou_et_al.csv", index=False)
-log.info(
-    "Saved checkpoint: %s (%d rows)",
-    OUT / "occupations_eloundou_et_al.csv",
-    len(df_eloundou),
-)
+eloundou_output = output_csv("occupations_eloundou_et_al")
+if not ARGS.aei_only:
+    df_eloundou.to_csv(eloundou_output, index=False)
+    log.info("Saved checkpoint: %s (%d rows)", eloundou_output, len(df_eloundou))
+else:
+    log.info("Skipped auxiliary output: %s", eloundou_output)
 
 # ======================================================================================
 # Step 4: Load AEI data and merge onto O*NET task statements
@@ -508,8 +554,9 @@ log.info(
     (df_aei["equal_claude_ai_task_count"] > 0).sum(),
 )
 
-df_aei.to_csv(OUT / "occupations_aei.csv", index=False)
-log.info("Saved checkpoint: %s (%d rows)", OUT / "occupations_aei.csv", len(df_aei))
+aei_output = output_csv("occupations_aei")
+df_aei.to_csv(aei_output, index=False)
+log.info("Saved checkpoint: %s (%d rows)", aei_output, len(df_aei))
 
 # ======================================================================================
 # Step 8: Load AEI occupation automation/augmentation data (2025-03-27 release)
@@ -618,9 +665,9 @@ df_aei_occ = df_aei_occ[
     + ["pct_occ_scaled_pc"]
 ]
 
-df_aei_occ.to_csv(OUT / "occupations_aei_auto_aug_2025_03_27.csv", index=False)
-log.info(
-    "Saved: %s (%d rows)",
-    OUT / "occupations_aei_auto_aug_2025_03_27.csv",
-    len(df_aei_occ),
-)
+aei_occ_output = output_csv("occupations_aei_auto_aug_2025_03_27")
+if not ARGS.aei_only:
+    df_aei_occ.to_csv(aei_occ_output, index=False)
+    log.info("Saved: %s (%d rows)", aei_occ_output, len(df_aei_occ))
+else:
+    log.info("Skipped auxiliary output: %s", aei_occ_output)
