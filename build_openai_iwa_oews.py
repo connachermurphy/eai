@@ -972,7 +972,7 @@ Generated {date.today().isoformat()}.
 ## Method
 
 1. Collapse the existing O*NET 30.2 task-DWA-IWA detail mapping to one row per `iwa_id` x six-digit `soc_2018`. This avoids duplicating OEWS employment across multiple O*NET-SOC suboccupations under the same SOC code.
-2. Merge OEWS to SOC 2018 using the same exact plus broad-code handling used in the existing occupational characteristics pipeline. Exact detailed SOC matches are used first. When OEWS only reports a broader detailed-family code ending in `0`, employment is divided equally across matching SOC 2018 detailed occupations in the repo's SOC universe.
+2. Merge OEWS to SOC 2018 using exact SOC matches plus the repo's simple trailing-zero broad-code fallback. Exact detailed SOC matches are used first. When OEWS only reports a broader detailed-family code ending in `0`, employment is divided equally across matching SOC 2018 detailed occupations in the repo's SOC universe. Other OEWS aggregate reporting codes are not allocated through the SOC 2010 to SOC 2018 crosswalk or `group_id`; for example, `25-2052` is not split across `25-2055` and `25-2056` in this pipeline.
 3. Impute missing linked SOC 2018 employment to the median employment among unique linked SOC 2018 occupations with OEWS employment. This avoids letting occupations with more IWA links receive extra weight in the imputation statistic.
 4. Within each IWA, compute `employment_weight_within_iwa = oews_tot_emp_imputed / sum(oews_tot_emp_imputed)`.
 5. For each OpenAI measure/month/IWA, allocate only by employment: `soc_2018_apportioned_share_of_messages = openai_iwa_share_of_messages * employment_weight_within_iwa`.
@@ -1129,6 +1129,7 @@ assumption.
 - OEWS is SOC 2018 while O*NET 30.2 is O*NET-SOC 2019. This script allocates at six-digit SOC 2018 and keeps the contributing O*NET-SOC suboccupation codes as diagnostics.
 - The occupation-level exposure measure is sensitive to how IWA-level OpenAI shares are apportioned across occupations linked to the same IWA. Employment apportionment is the active choice here, but sensitivity to this choice should be kept in mind when interpreting levels or wage correlations.
 - Median employment imputation now uses unique linked SOC 2018 occupations rather than link-expanded IWA-SOC rows. The imputed SOCs should still be reviewed if these outputs become inputs to a production apportionment.
+- The OEWS merge intentionally does not use the SOC 2010 to SOC 2018 crosswalk or `group_id` to allocate non-trailing-zero aggregate reporting codes. Known cases such as `25-2052` are left unmatched to SOC 2018 children and handled by the median-imputation rule above.
 - The OpenAI shares are differentially private rounded shares, so monthly source totals can be close to, but not exactly, 1.
 """
     path = output_dir / "iwa_openai_oews_report.md"

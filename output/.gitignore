@@ -1,6 +1,16 @@
-# Generated intermediate data — regenerate with conversion/build scripts
+# Generated outputs are ignored by default. The exceptions below are committed
+# review/release artifacts that should be available from a clean checkout.
 *
 !.gitignore
 !occupations_*.csv
+
 !onet/
 !onet/soc_*.csv
+!onet/iwa_mapping/
+!onet/iwa_mapping/**
+
+!net_automation_wages/
+!net_automation_wages/**
+
+!openai_iwa_oews/
+!openai_iwa_oews/openai_soc2018_mean_summary.csv
