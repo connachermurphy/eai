@@ -38,6 +38,11 @@ OPENAI_IWA_FILES = [
     },
 ]
 
+MEAN_SUMMARY_MEASURE_COLUMNS = {
+    "us_all_messages_iwa_share": "mean_us_all_messages_iwa_share",
+    "us_work_related_messages_iwa_share": "mean_us_work_related_messages_iwa_share",
+}
+
 LINK_COUNT_COLUMNS = [
     "link_task_count",
     "link_task_dwa_link_count",
@@ -593,19 +598,43 @@ def build_month_checks(
 
 
 def build_mean_summary(summary: pd.DataFrame) -> pd.DataFrame:
-    """Average the monthly SOC 2018 apportioned shares across all available months."""
-    mean_summary = (
-        summary.groupby(["openai_measure", "soc_2018"], as_index=False)
+    """Average monthly SOC 2018 shares and return one row per occupation."""
+    usage_long = summary.groupby(["soc_2018", "openai_measure"], as_index=False).agg(
+        mean_share=(
+            "soc_2018_apportioned_share_of_messages",
+            "mean",
+        ),
+        n_months=("month", "nunique"),
+        first_month=("month", "min"),
+        last_month=("month", "max"),
+    )
+
+    expected_months = summary["month"].nunique()
+    incomplete = usage_long[usage_long["n_months"] != expected_months]
+    if not incomplete.empty:
+        raise ValueError(
+            "Mean summary expected balanced monthly coverage; incomplete rows: "
+            f"{incomplete.head().to_dict(orient='records')}"
+        )
+
+    usage_wide = usage_long.pivot(
+        index="soc_2018",
+        columns="openai_measure",
+        values="mean_share",
+    ).reset_index()
+    usage_wide = usage_wide.rename(columns=MEAN_SUMMARY_MEASURE_COLUMNS)
+    expected_usage_cols = list(MEAN_SUMMARY_MEASURE_COLUMNS.values())
+    missing_cols = [col for col in expected_usage_cols if col not in usage_wide.columns]
+    if missing_cols:
+        raise ValueError(
+            f"Mean summary is missing expected measure columns: {missing_cols}"
+        )
+
+    metadata = (
+        summary.groupby("soc_2018", as_index=False)
         .agg(
             title_2018=("title_2018", "first"),
             group_id=("group_id", "first"),
-            mean_soc_2018_apportioned_share_of_messages=(
-                "soc_2018_apportioned_share_of_messages",
-                "mean",
-            ),
-            n_months=("month", "nunique"),
-            first_month=("month", "min"),
-            last_month=("month", "max"),
             oews_tot_emp_imputed=("oews_tot_emp_imputed", "first"),
             oews_tot_emp_adjusted=("oews_tot_emp_adjusted", "first"),
             oews_a_mean=("oews_a_mean", "first"),
@@ -613,19 +642,15 @@ def build_mean_summary(summary: pd.DataFrame) -> pd.DataFrame:
             oews_broad_match=("oews_broad_match", "first"),
             oews_soc_2018_broad=("oews_soc_2018_broad", "first"),
         )
-        .sort_values(["openai_measure", "soc_2018"])
         .reset_index(drop=True)
     )
+    mean_summary = metadata.merge(usage_wide, on="soc_2018", how="left", validate="1:1")
     return mean_summary[
         [
-            "openai_measure",
             "soc_2018",
             "title_2018",
             "group_id",
-            "mean_soc_2018_apportioned_share_of_messages",
-            "n_months",
-            "first_month",
-            "last_month",
+            *expected_usage_cols,
             "oews_tot_emp_imputed",
             "oews_tot_emp_adjusted",
             "oews_a_mean",
@@ -633,7 +658,7 @@ def build_mean_summary(summary: pd.DataFrame) -> pd.DataFrame:
             "oews_broad_match",
             "oews_soc_2018_broad",
         ]
-    ]
+    ].sort_values("soc_2018")
 
 
 def write_report(
@@ -735,6 +760,15 @@ def write_report(
         )
         .sort_values("openai_measure")
     )
+    mean_summary_window = pd.DataFrame(
+        [
+            {
+                "months": summary["month"].nunique(),
+                "first_month": summary["month"].min(),
+                "last_month": summary["month"].max(),
+            }
+        ]
+    )
 
     report = f"""# OpenAI IWA to OEWS Employment Apportionment
 
@@ -788,7 +822,7 @@ No alternate apportionment schemes are implemented. The link count columns remai
                     {
                         "artifact": paths["mean_summary"].name,
                         "rows": len(mean_summary),
-                        "description": "SOC 2018 summary with mean apportioned share across all available months.",
+                        "description": "SOC 2018 summary with separate mean usage columns for each OpenAI IWA measure.",
                     },
                     {
                         "artifact": paths["unmatched"].name,
@@ -846,6 +880,15 @@ No alternate apportionment schemes are implemented. The link count columns remai
                 "unmatched_share_mean",
                 "max_abs_allocation_residual",
             ],
+        )
+    }
+
+### Mean Summary Window
+
+{
+        markdown_table(
+            mean_summary_window,
+            ["months", "first_month", "last_month"],
         )
     }
 

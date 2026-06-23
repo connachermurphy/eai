@@ -39,6 +39,11 @@ MEASURE_LABELS = {
     "us_work_related_messages_iwa_share": "Work-related U.S. messages",
 }
 
+MEASURE_COLUMNS = {
+    "us_all_messages_iwa_share": "mean_us_all_messages_iwa_share",
+    "us_work_related_messages_iwa_share": "mean_us_work_related_messages_iwa_share",
+}
+
 USAGE_VARIANTS = {
     USAGE_COL: {
         "label": "Mean apportioned share",
@@ -83,6 +88,47 @@ def parse_args() -> argparse.Namespace:
         help=f"Upper winsorization quantile (default: {DEFAULT_WINSOR_UPPER}).",
     )
     return parser.parse_args()
+
+
+def reshape_wide_panel(df: pd.DataFrame) -> pd.DataFrame:
+    """Reshape the wide mean summary to long form for analysis."""
+    missing = [col for col in MEASURE_COLUMNS.values() if col not in df.columns]
+    if missing:
+        raise ValueError(f"Input panel is missing expected usage columns: {missing}")
+
+    id_cols = [
+        "soc_2018",
+        "title_2018",
+        "group_id",
+        "oews_tot_emp_imputed",
+        "oews_tot_emp_adjusted",
+        "oews_a_mean",
+        "oews_a_median",
+        "oews_broad_match",
+        "oews_soc_2018_broad",
+    ]
+    rows = []
+    for measure, column in MEASURE_COLUMNS.items():
+        sub = df[id_cols].copy()
+        sub["openai_measure"] = measure
+        sub[USAGE_COL] = df[column]
+        rows.append(sub)
+    panel = pd.concat(rows, ignore_index=True)
+    return panel[
+        [
+            "openai_measure",
+            "soc_2018",
+            "title_2018",
+            "group_id",
+            USAGE_COL,
+            "oews_tot_emp_imputed",
+            "oews_tot_emp_adjusted",
+            "oews_a_mean",
+            "oews_a_median",
+            "oews_broad_match",
+            "oews_soc_2018_broad",
+        ]
+    ]
 
 
 def validate_winsor_bounds(lower: float, upper: float) -> None:
@@ -416,10 +462,7 @@ def write_report(
         panel.groupby("openai_measure", as_index=False)
         .agg(
             occupations=("soc_2018", "nunique"),
-            min_months=("n_months", "min"),
-            max_months=("n_months", "max"),
-            first_month=("first_month", "min"),
-            last_month=("last_month", "max"),
+            occupations_with_wage=(WAGE_COL, "count"),
         )
         .replace({"openai_measure": MEASURE_LABELS})
     )
@@ -444,9 +487,10 @@ def write_report(
 
 Input panel: `{panel_path}`
 
-This analysis uses the across-month mean OpenAI IWA occupation usage file and compares
-usage with 2024 OEWS annual mean wages. It reports both employment-weighted and
-unweighted Pearson/Spearman correlations.
+This analysis reads the wide across-month mean OpenAI IWA occupation usage file,
+reshapes the two usage columns internally, and compares usage with 2024 OEWS annual
+mean wages. It reports both employment-weighted and unweighted Pearson/Spearman
+correlations.
 
 ## Coverage
 
@@ -485,8 +529,14 @@ def main() -> None:
     if not args.panel.exists():
         raise FileNotFoundError(f"Missing input panel: {args.panel}")
 
-    panel = pd.read_csv(args.panel)
-    log.info("Loaded %s: %d rows", args.panel, len(panel))
+    wide_panel = pd.read_csv(args.panel)
+    panel = reshape_wide_panel(wide_panel)
+    log.info(
+        "Loaded %s: %d occupations, %d analysis rows",
+        args.panel,
+        len(wide_panel),
+        len(panel),
+    )
 
     panel, winsor_bounds = add_usage_columns(
         panel,
