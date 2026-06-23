@@ -1,59 +1,162 @@
 # eai
-Combining various data sources related to the economics of AI
 
-## Data sources
+Combining data sources related to the economics of AI, occupational tasks,
+employment, wages, and usage/exposure measures.
 
-- Anthropic Economic Index: https://huggingface.co/datasets/Anthropic/EconomicIndex
-  - Reference code: https://huggingface.co/datasets/Anthropic/EconomicIndex/tree/main/release_2025_09_15
-  - Download: `uv run anthropic/download.py` (update `RELEASE` in the script when a new release drops).
-  - Clean: `uv run anthropic/clean.py` filters to GLOBAL + `onet_task::collaboration`, pivots wide (one column per collaboration type), and merges onto O*NET task statements. Outputs `data/<release>/aei_cleaned_claude_ai.csv`.
-  - Method note: each AEI release-platform file is treated as a random sample of one million conversations.
-- O*NET task statements: https://www.onetcenter.org/dictionary/20.1/excel/task_statements.html
-- SOC 2010→2018 crosswalk: https://www.bls.gov/soc/2018/home.htm
-- OEWS (Occupational Employment and Wage Statistics): https://www.bls.gov/oes/tables.htm
-  - Current input file: 2022 national OEWS (`output/oews/national_M2022_dl.csv`)
+## Data Sources
 
-## Occupational characteristics
+- Anthropic Economic Index (AEI): task-level usage releases from Hugging Face.
+  The repo currently handles September 2025, January 2026, and March 2026
+  releases for both Claude.ai and first-party API.
+- OpenAI Signals release: local CSVs under
+  `input/oai_260616/data-download-csv`, including monthly O*NET IWA shares for
+  all U.S. messages and work-related U.S. messages.
+- O*NET 20.1 task statements: used for the AEI task-to-occupation pipeline.
+- O*NET 30.2 database: used for Intermediate Work Activity (IWA), Detailed Work
+  Activity (DWA), and task-to-DWA mappings.
+- SOC 2010 to SOC 2018 crosswalk: used to build direct crosswalk edges and
+  connected-component occupation groups.
+- OEWS national files: converted CSVs under `output/oews`. The older
+  occupational-characteristics outputs default to May 2022 OEWS; newer wage and
+  OpenAI apportionment analyses use May 2024 OEWS.
+- Eloundou et al. occupation-level exposure data from "GPTs are GPTs".
 
-`occupational_characteristics.py` builds three merged outputs:
+Raw downloaded inputs are local and mostly ignored under `input/`. Derived CSVs,
+figures, and reports are written under `output/`.
 
-- `output/occupations_eloundou_et_al.csv`
-  - identifiers: `soc_2018`, `title_2018`, `group_id`
-  - Eloundou columns: all aggregated numeric `dv_*` and `human_*` columns from `input/eloundou_occ_level.csv`
-  - OEWS columns: `oews_occ_title`, `oews_tot_emp`, `oews_a_mean`, `oews_a_median`, `oews_broad_match`, `oews_soc_2018_broad`, `oews_tot_emp_adjusted`, `oews_tot_emp_imputed`
-- `output/occupations_aei.csv`
-  - identifiers: `soc_2010`, `title_2010`, `group_id`
-  - OEWS columns: `oews_tot_emp_allocated`, `oews_tot_emp_imputed`, `oews_a_mean`
-  - AEI columns: equal-weighted, employment-weighted, and employment-weighted per-capita counts for each platform and total across `task_count`, `automation_count`, and `augmentation_count`
-- `output/occupations_aei_auto_aug_2025_03_27.csv`
-  - identifiers: `soc_2010`, `title_2010`, `group_id`
-  - OEWS columns: `oews_tot_emp_allocated`, `oews_tot_emp_imputed`, `oews_a_mean`
-  - AEI auto/aug columns: `pct_occ_scaled`, `augmentation_weighted_ratio`, `automation_weighted_ratio`, `pct_occ_scaled_pc`
+## Main Commands
 
-Crosswalk handling:
+Use `uv` for Python scripts.
 
-- `build_crosswalk.py` writes direct SOC 2010↔2018 edges to `output/onet/soc_crosswalk_edges.csv`
-- it also writes connected-component lookups to `output/onet/soc_2010_to_group.csv` and `output/onet/soc_2018_to_group.csv`
-- OEWS employment is moved from SOC 2018 to SOC 2010 by equal-splitting each SOC 2018 occupation across its direct SOC 2010 crosswalk links
-- `group_id` is used for harmonized occupation grouping and diagnostics; employment allocation uses direct crosswalk edges, not connected-component totals
-- `oews_tot_emp_allocated` is a modeled allocation to SOC 2010 occupations rather than a directly observed OEWS occupation count
+```bash
+uv run convert_onet.py
+uv run build_crosswalk.py
+uv run convert_oews.py
+uv run download_aei.py
+uv run clean_aei.py
+```
+
+Build the main occupational-characteristics panels:
+
+```bash
+uv run occupational_characteristics.py
+uv run occupational_characteristics.py --oews-year 2024 --aei-only
+```
+
+Build the O*NET 30.2 IWA mapping and the OpenAI IWA/OEWS occupation measures:
+
+```bash
+uv run build_iwa_onet_mapping.py
+uv run build_openai_iwa_oews.py
+```
+
+Run analysis scripts:
+
+```bash
+uv run analysis/net_automation_wages.py
+uv run analysis/openai_iwa_wages.py
+uv run analysis/cross_release_correlation.py
+```
+
+## Key Outputs
+
+### Occupational Characteristics
+
+- `output/occupations_eloundou_et_al.csv`: SOC 2018 panel with Eloundou et al.
+  exposure scores and OEWS fields.
+- `output/occupations_aei.csv`: SOC 2010 panel with AEI task, automation, and
+  augmentation counts apportioned by equal and employment weights. This default
+  output uses May 2022 OEWS.
+- `output/occupations_aei_oews_2024.csv`: same AEI task panel rebuilt with May
+  2024 OEWS for wage analysis.
+- `output/occupations_aei_auto_aug_2025_03_27.csv`: SOC 2010 panel using the
+  AEI occupation-level automation/augmentation release. The current unsuffixed
+  file is from the default May 2022 OEWS run; use `--oews-year`/`--output-tag`
+  to write year-tagged variants.
+
+### O*NET IWA Mapping
+
+- `output/onet/iwa_mapping/iwa_to_onet_soc_via_tasks.csv`: IWA to O*NET-SOC
+  2019 mapping via `IWA Reference -> DWA Reference -> Tasks to DWAs`.
+- `output/onet/iwa_mapping/iwa_to_onet_soc_via_tasks_detail.csv`: task-DWA-IWA
+  audit table.
+- `output/onet/iwa_mapping/iwa_occupation_links.csv`: slim IWA-occupation edge
+  table with DWA counts, task counts, and IWA/occupation coverage counts.
+- `output/onet/iwa_mapping/iwa_occupation_counts.csv` and
+  `output/onet/iwa_mapping/occupation_iwa_counts.csv`: coverage summaries from
+  both sides of the link table.
+- `output/onet/iwa_mapping/iwa_weight_*.csv` and `iwa_weight_*.png`: diagnostic
+  summaries and correlations for possible within-IWA link weights.
+- `output/onet/iwa_mapping/iwa_onet_mapping_report.md`: mapping method,
+  validation checks, coverage, and weight-correlation diagnostics.
+
+### OpenAI IWA/OEWS Occupation Measures
+
+- `output/openai_iwa_oews/iwa_soc2018_employment_links.csv`: static IWA by SOC
+  2018 link table with OEWS employment weights. O*NET-SOC 2019 codes are
+  collapsed to six-digit SOC 2018 for this merge.
+- `output/openai_iwa_oews/openai_iwa_month.csv`: stacked OpenAI IWA/month data
+  with mapping coverage fields.
+- `output/openai_iwa_oews/openai_iwa_soc2018_month_panel.csv`: IWA by SOC 2018
+  by month link panel.
+- `output/openai_iwa_oews/openai_soc2018_month_summary.csv`: SOC 2018 by month
+  panel with employment-apportioned OpenAI IWA shares.
+- `output/openai_iwa_oews/openai_soc2018_mean_summary.csv`: one row per SOC
+  2018 occupation, with mean all-message and work-related OpenAI IWA shares
+  across all available months.
+- `output/openai_iwa_oews/openai_iwa_unmatched.csv`: unallocated OpenAI IWA
+  rows, currently the `Other IWA` privacy bucket.
+- `output/openai_iwa_oews/openai_iwa_oews_month_checks.csv` and
+  `output/openai_iwa_oews/openai_iwa_oews_weight_checks.csv`: allocation
+  validation tables.
+- `output/openai_iwa_oews/iwa_openai_oews_report.md`: source coverage,
+  allocation checks, zero-usage counts, and apportionment-sensitivity
+  diagnostics.
+
+### Wage And Cross-Release Analyses
+
+- `output/net_automation_wages/occupation_net_automation_usage.csv`,
+  `net_automation_wage_correlations.csv`, and `figures/`: wage correlations and
+  figures for AEI net automation usage using the 2024 OEWS panel.
+- `output/openai_iwa_wages/openai_usage_wage_analysis_panel.csv`,
+  `openai_usage_wage_correlations.csv`, `winsor_bounds.csv`,
+  `openai_usage_wage_report.md`, and `figures/`: wage correlations and figures
+  for OpenAI IWA occupation usage, including both raw apportioned share and
+  per-million-worker variants.
+- `output/cross_release_panel_task.csv` and
+  `output/cross_release_panel_occupation.csv`: AEI cross-release panels.
+- `output/cross_release/task/` and `output/cross_release/occupation/`: current
+  task- and occupation-level cross-release comparison tables and figures. Older
+  top-level `output/cross_release/tables/` and `figures/` files may still exist
+  from earlier runs.
+
+## Method Notes
+
+- OEWS uses SOC 2018. AEI task outputs are built on O*NET-SOC 2010, so the repo
+  allocates OEWS employment from SOC 2018 to SOC 2010 across direct crosswalk
+  edges.
+- O*NET 30.2 is O*NET-SOC 2019, which is based on SOC 2018. The OpenAI IWA
+  pipeline collapses O*NET-SOC codes to six-digit SOC 2018 codes before merging
+  OEWS.
+- OpenAI IWA shares are allocated to occupations by employment within each IWA.
+  Link-count columns are retained as diagnostics, but no alternate OpenAI
+  exposure outputs are produced.
+- The OpenAI `Other IWA` privacy bucket is not allocated to occupations because
+  it does not identify a specific O*NET IWA.
+
+More detail is in `docs/eai.md`.
 
 ## Development
 
-### Linting
-
-Check for lint issues:
+Lint and format:
 
 ```bash
 uvx ruff check .
 uvx ruff format --check .
 ```
 
-Auto-fix lint issues:
+Auto-format:
 
 ```bash
-uvx ruff check --fix .
 uvx ruff format .
 ```
-
-If `uvx` is unavailable, use `ruff` directly (after `pip install ruff`).

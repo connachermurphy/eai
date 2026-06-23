@@ -1,0 +1,333 @@
+iwa_id,iwa_title,occupation_count,task_count,task_dwa_link_count,dwa_count,core_task_count,supplemental_task_count,unclassified_task_count,classified_task_count
+4.A.3.b.6.I08,Maintain operational records.,409,533,547,455,417,101,15,518
+4.A.4.b.4.I01,Supervise personnel activities.,272,326,339,298,234,72,20,306
+4.A.4.b.4.I12,"Direct organizational operations, activities, or procedures.",271,438,466,350,276,145,17,421
+4.A.2.b.3.I01,Maintain current knowledge in area of expertise.,257,371,422,356,313,28,30,341
+4.A.3.a.1.I03,"Clean tools, equipment, facilities, or work areas.",232,352,394,310,264,77,11,341
+4.A.4.c.3.I05,Purchase goods or services.,195,213,216,201,156,47,10,203
+4.A.4.b.3.I04,Train others on operational or work procedures.,193,226,234,207,169,50,7,219
+4.A.4.a.2.I03,Communicate with others about operational plans or activities.,185,272,274,213,212,45,15,257
+4.A.1.a.1.I02,Read documents or materials to inform work processes.,179,200,234,221,171,25,4,196
+4.A.3.b.4.I02,Maintain tools or equipment.,166,234,249,214,169,62,3,231
+4.A.1.b.3.I01,"Measure physical characteristics of materials, products, or equipment.",158,216,237,213,144,69,3,213
+4.A.3.a.2.I09,Adjust equipment to ensure adequate performance.,148,254,273,209,178,65,11,243
+4.A.1.b.2.I07,"Inspect commercial, industrial, or production systems or equipment.",146,192,195,163,156,27,9,183
+4.A.2.b.1.I10,Select materials or equipment for operations or projects.,142,160,163,149,122,30,8,152
+4.A.3.b.6.I03,Present research or technical information.,125,170,177,141,135,18,17,153
+4.A.4.b.6.I05,Advise others on business or operational matters.,110,149,151,122,100,40,9,140
+4.A.4.a.6.I03,"Promote products, services, or programs.",108,144,150,130,103,36,5,139
+4.A.4.c.1.I01,Perform administrative or clerical activities.,108,151,154,125,105,37,9,142
+4.A.1.b.2.I12,Test performance of equipment or systems.,107,164,165,132,128,27,9,155
+4.A.1.b.2.I06,Inspect completed work or finished products.,102,130,134,110,98,31,1,129
+4.A.2.b.4.I03,Develop operational or technical procedures or standards.,102,170,170,124,110,40,20,150
+4.A.3.a.1.I06,"Load products, materials, or equipment for transportation or further processing.",101,151,158,128,79,68,4,147
+4.A.4.c.3.I01,"Replenish inventories of materials, equipment, or products.",101,119,119,103,80,37,2,117
+4.A.1.a.2.I02,Monitor operations to ensure adequate performance.,100,141,141,108,111,23,7,134
+4.A.2.a.4.I07,Analyze data to improve operations.,100,165,168,120,121,37,7,158
+4.A.1.a.2.I01,Monitor equipment operation.,99,150,152,134,133,17,0,150
+4.A.3.b.6.I12,Prepare informational or instructional materials.,99,155,158,140,126,18,11,144
+4.A.3.a.1.I10,"Move materials, equipment, or supplies.",98,134,138,111,83,49,2,132
+4.A.2.a.2.I03,"Compile records, documentation, or other data.",96,117,118,99,74,38,5,112
+4.A.2.b.2.I18,Create visual designs or displays.,96,195,198,125,135,44,16,179
+4.A.3.b.6.I11,Maintain health or medical records.,95,138,142,107,118,12,8,130
+4.A.4.a.3.I03,"Provide information to guests, clients, or customers.",94,158,165,121,110,36,12,146
+4.A.4.b.3.I02,Teach academic or vocational subjects.,94,172,181,162,152,19,1,171
+4.A.3.a.2.I12,Cut materials.,93,153,157,125,103,50,0,153
+4.A.3.b.6.I15,Prepare reports of operational or procedural activities.,93,98,99,96,81,10,7,91
+4.A.1.b.2.I05,Inspect facilities or equipment.,92,121,128,109,91,26,4,117
+4.A.4.a.1.I02,"Explain regulations, policies, or procedures.",91,117,120,94,86,24,7,110
+4.A.3.a.2.I04,Assemble equipment or components.,88,158,162,123,108,44,6,152
+4.A.2.a.2.I01,Evaluate the quality or accuracy of data.,86,119,122,97,87,26,6,113
+4.A.3.a.4.I01,Operate transportation equipment or vehicles.,86,136,138,100,92,37,7,129
+4.A.4.b.3.I06,Train others on health or medical topics.,86,137,145,114,118,14,5,132
+4.A.3.a.2.I41,Position materials or components for assembly.,85,142,142,114,103,39,0,142
+4.A.2.b.2.I15,"Develop educational programs, plans, or procedures.",83,194,196,138,170,16,8,186
+4.A.3.b.4.I06,Repair tools or equipment.,83,120,145,117,92,25,3,117
+4.A.3.b.6.I07,Prepare proposals or grant applications.,83,87,96,93,63,23,1,86
+4.A.4.a.2.I05,Confer with healthcare or other professionals about patient care.,83,134,136,108,117,8,9,125
+4.A.4.a.2.I11,"Coordinate activities with clients, agencies, or organizations.",82,105,109,96,73,22,10,95
+4.A.4.a.2.I08,Notify others of emergencies or problems.,78,109,115,97,93,12,4,105
+4.A.4.a.8.I03,Respond to customer problems or inquiries.,78,93,94,84,73,9,11,82
+4.A.4.b.6.I07,Advise others on educational or vocational matters.,78,225,229,127,154,65,6,219
+4.A.1.a.2.I05,Monitor health conditions of humans or animals.,77,108,112,94,90,14,4,104
+4.A.2.b.1.I08,Determine resource needs of projects or operations.,77,92,99,88,68,20,4,88
+4.A.3.a.1.I01,Prepare mixtures or solutions.,77,94,95,78,56,35,3,91
+4.A.4.a.2.I09,Communicate with others about specifications or project details.,76,113,116,87,89,15,9,104
+4.A.2.a.1.I02,"Evaluate programs, practices, or processes.",74,87,90,77,73,7,7,80
+4.A.4.a.3.I02,Provide information or assistance to the public.,74,103,105,84,82,16,5,98
+4.A.4.c.1.I03,Execute financial transactions.,74,130,140,98,82,45,3,127
+4.A.2.b.6.I02,Plan work activities.,73,88,89,77,68,15,5,83
+4.A.4.b.3.I05,Train others to use equipment or products.,73,83,85,75,63,17,3,80
+4.A.1.a.2.I11,Monitor operations to ensure compliance with regulations or standards.,71,104,104,75,82,18,4,100
+4.A.2.a.4.I06,Analyze health or medical data.,71,111,114,90,92,9,10,101
+4.A.3.a.3.I06,Operate industrial processing or production equipment.,71,143,145,77,87,55,1,142
+4.A.4.b.4.I09,Manage budgets or finances.,71,95,98,82,70,23,2,93
+4.A.2.b.1.I04,Determine operational methods or procedures.,70,99,99,71,71,25,3,96
+4.A.3.b.6.I13,"Prepare documentation for contracts, applications, or permits.",69,87,87,70,60,22,5,82
+4.A.1.a.1.I12,Collect information about patients or clients.,67,81,87,78,65,11,5,76
+4.A.3.a.2.I01,Build structures.,67,190,198,117,143,46,1,189
+4.A.3.b.1.I06,Process digital or online data.,67,112,117,81,78,21,13,99
+4.A.3.a.2.I19,Disassemble equipment.,66,85,88,80,62,21,2,83
+4.A.4.a.5.I01,Assist others to access additional services or resources.,64,85,90,77,70,12,3,82
+4.A.3.a.2.I33,Apply protective solutions or coatings.,63,100,101,72,48,50,2,98
+4.A.1.a.1.I23,Interview people to obtain information.,62,79,79,63,65,14,0,79
+4.A.2.a.1.I04,Evaluate personnel capabilities or performance.,62,75,76,64,47,22,6,69
+4.A.3.a.3.I08,Operate lifting or moving equipment.,62,78,78,62,58,20,0,78
+4.A.2.b.4.I01,"Develop organizational policies, systems, or processes.",61,95,109,91,71,18,6,89
+4.A.4.a.7.I02,Negotiate contracts or agreements.,61,88,93,72,61,23,4,84
+4.A.2.a.1.I03,"Assess student capabilities, needs, or performance.",60,142,237,166,131,6,5,137
+4.A.3.a.2.I06,Position workpieces or materials on equipment.,60,136,138,115,74,62,0,136
+4.A.4.a.5.I03,Administer basic health care or medical treatments.,60,108,124,98,75,29,4,104
+4.A.2.a.1.I07,"Evaluate the characteristics, usefulness, or performance of products or technologies.",59,74,75,65,57,9,8,66
+4.A.3.a.2.I46,Set up equipment.,59,86,86,64,42,39,5,81
+4.A.4.c.3.I03,"Distribute materials, supplies, or resources.",59,72,72,62,52,18,2,70
+4.A.2.b.1.I01,Determine values or prices of goods or services.,58,81,85,67,45,27,9,72
+4.A.4.b.4.I02,Serve on organizational committees.,58,60,60,58,57,2,1,59
+4.A.1.b.1.I01,Mark materials or objects for identification.,57,61,61,57,33,28,0,61
+4.A.1.b.3.I02,Estimate project development or operational costs.,57,62,62,57,41,16,5,57
+4.A.4.c.2.I01,Perform recruiting or hiring activities.,57,81,98,82,49,24,8,73
+4.A.2.a.3.I01,Examine materials or documentation for accuracy or compliance.,56,79,80,67,59,20,0,79
+4.A.2.b.1.I09,Implement procedures or processes.,55,95,97,60,75,13,7,88
+4.A.4.a.2.I04,Coordinate with others to resolve problems.,55,73,73,55,61,6,6,67
+4.A.4.a.2.I13,Confer with clients to determine needs or order specifications.,55,60,60,56,47,12,1,59
+4.A.1.a.2.I06,Monitor individual behavior or performance.,54,102,118,96,78,20,4,98
+4.A.2.b.2.I02,Design computer or information systems or applications.,54,113,118,74,82,21,10,103
+4.A.3.b.6.I09,"Document technical designs, procedures, or activities.",54,81,82,69,70,8,3,78
+4.A.1.a.2.I07,"Monitor safety or security of work areas, facilities, or properties.",53,80,82,70,67,11,2,78
+4.A.1.b.2.I03,Test characteristics of materials or products.,53,70,75,66,39,31,0,70
+4.A.3.a.1.I07,Perform general construction or extraction activities.,53,128,142,104,89,36,3,125
+4.A.3.a.2.I15,Smooth surfaces of objects or equipment.,53,77,80,62,54,21,2,75
+4.A.4.b.4.I06,Direct scientific or technical activities.,53,80,80,59,59,18,3,77
+4.A.3.b.6.I16,Write material for artistic or commercial purposes.,52,68,68,53,44,19,5,63
+4.A.4.a.1.I05,Explain medical information to patients or family members.,52,65,66,60,58,4,3,62
+4.A.4.b.4.I13,Assign work to others.,52,57,60,57,42,11,4,53
+4.A.4.c.3.I04,Collect fares or payments.,52,59,59,53,32,23,4,55
+4.A.1.a.1.I20,Research technology designs or applications.,51,81,81,55,61,16,4,77
+4.A.2.b.5.I02,Schedule operational activities.,51,60,60,52,36,22,2,58
+4.A.3.a.1.I05,Dispose of waste or debris.,51,69,70,59,54,14,1,68
+4.A.4.a.1.I01,Explain technical details of products or services.,51,60,61,53,48,7,5,55
+4.A.1.a.1.I04,Gather information from physical or electronic sources.,50,65,66,52,52,10,3,62
+4.A.2.a.4.I05,"Evaluate designs, specifications, or other technical data.",50,75,76,64,58,11,6,69
+4.A.3.b.4.I04,"Maintain electronic, computer, or other technical equipment.",50,65,65,51,44,17,4,61
+4.A.1.a.1.I14,Collect data about consumer needs or opinions.,49,58,60,52,40,13,5,53
+4.A.2.b.6.I01,Plan events or programs.,49,57,57,50,32,25,0,57
+4.A.3.b.6.I01,"Prepare financial documents, reports, or budgets.",49,62,62,51,44,13,5,57
+4.A.4.a.5.I10,"Provide general assistance to others, such as customers, patrons, or motorists.",49,97,100,69,69,22,6,91
+4.A.2.b.2.I01,Develop patient or client care or treatment plans.,48,82,82,56,76,5,1,81
+4.A.3.a.2.I22,Position tools or equipment.,48,65,65,54,43,20,2,63
+4.A.4.a.6.I02,Sell products or services.,48,68,68,50,33,34,1,67
+4.A.1.b.2.I09,Examine people or animals to assess health conditions or physical characteristics.,47,65,70,53,57,4,4,61
+4.A.2.b.2.I23,Develop research plans or methodologies.,47,71,71,56,60,11,0,71
+4.A.3.a.1.I08,"Clean workpieces, finished products, or other objects.",47,68,69,48,36,32,0,68
+4.A.3.a.2.I34,Connect components or supply lines to equipment or tools.,47,75,78,64,49,23,3,72
+4.A.3.b.6.I14,Prepare legal or regulatory documents.,47,78,84,58,59,17,2,76
+4.A.4.b.5.I02,Provide support or encouragement to others.,47,54,54,48,43,5,6,48
+4.A.4.a.5.I12,"Treat injuries, illnesses, or diseases.",46,113,119,73,93,13,7,106
+4.A.3.a.2.I35,"Join parts using soldering, welding, or brazing techniques.",45,66,72,55,41,24,1,65
+4.A.3.a.2.I38,Collect environmental or biological samples.,45,62,64,50,41,17,4,58
+4.A.4.a.5.I09,Assist individuals with special needs.,45,80,82,60,55,22,3,77
+4.A.3.a.2.I20,Install commercial or production equipment.,44,66,67,46,46,18,2,64
+4.A.3.a.3.I12,Operate cutting or grinding equipment.,44,89,96,57,56,32,1,88
+4.A.4.b.6.I01,Advise patients or clients on medical issues.,44,56,57,50,48,6,2,54
+4.A.3.a.2.I37,Stock supplies or products.,43,64,67,51,49,15,0,64
+4.A.4.c.3.I07,Monitor resources or inventories.,43,57,57,43,43,14,0,57
+4.A.2.b.2.I07,Develop technical specifications for products or operations.,42,58,59,46,43,9,6,52
+4.A.2.b.5.I03,Schedule appointments.,42,47,49,44,31,12,4,43
+4.A.3.a.1.I11,Maintain safety or security.,42,80,85,75,70,8,2,78
+4.A.3.a.2.I13,Prepare industrial materials for processing or use.,42,78,79,51,32,46,0,78
+4.A.4.b.6.I04,Advise others on the design or use of technologies.,42,71,73,60,58,6,7,64
+4.A.1.a.1.I03,Investigate criminal or legal matters.,41,93,97,56,65,20,8,85
+4.A.1.a.1.I19,Research healthcare issues.,41,46,46,41,26,17,3,43
+4.A.3.b.6.I10,Maintain sales or financial records.,41,61,61,43,41,17,3,58
+4.A.4.b.4.I10,Direct construction or extraction activities.,41,63,65,48,44,17,2,61
+4.A.1.a.1.I10,Investigate the environmental impact of industrial or development activities.,40,79,80,50,50,28,1,78
+4.A.1.b.2.I10,Inspect characteristics or conditions of materials or products.,40,59,59,43,40,18,1,58
+4.A.2.a.1.I06,Evaluate patient or client condition or treatment options.,40,52,52,47,47,3,2,50
+4.A.2.a.2.I02,Sort materials or products.,40,49,49,41,31,18,0,49
+4.A.3.a.2.I42,Package objects.,40,54,56,42,27,27,0,54
+4.A.3.a.3.I04,Operate medical equipment.,40,80,91,64,69,7,4,76
+4.A.3.b.6.I06,Prepare health or medical documents.,40,51,53,43,45,5,1,50
+4.A.4.a.5.I11,Assist healthcare practitioners during medical procedures.,40,84,91,67,65,15,4,80
+4.A.1.b.1.I02,Identify business or organizational opportunities.,39,51,51,40,38,11,2,49
+4.A.3.b.4.I08,Maintain vehicles in working condition.,39,69,70,43,47,17,5,64
+4.A.4.a.4.I01,Develop professional relationships or networks.,39,45,46,40,34,7,4,41
+4.A.4.b.4.I11,"Coordinate group, community, or public activities.",39,56,56,43,36,17,3,53
+4.A.4.b.6.I02,Advise others on products or services.,39,54,55,46,44,7,3,51
+4.A.1.b.2.I01,Administer diagnostic tests to assess patient health.,38,73,74,42,63,6,4,69
+4.A.3.a.2.I30,Drill holes in earth or materials.,38,40,40,38,29,10,1,39
+4.A.3.b.1.I01,Program computer systems or production equipment.,38,67,71,44,41,20,6,61
+4.A.3.b.4.I09,Maintain medical equipment or instruments.,38,47,50,43,43,3,1,46
+4.A.4.b.6.I06,Advise others on healthcare or wellness issues.,38,63,65,44,44,15,4,59
+4.A.4.c.3.I06,Prescribe medical treatments or devices.,38,56,69,60,47,4,5,51
+4.A.3.a.2.I27,Fabricate devices or components.,37,46,46,38,30,14,2,44
+4.A.3.a.2.I36,Assemble products or work aids.,37,70,70,45,36,33,1,69
+4.A.3.a.2.I40,Remove workpieces from production equipment.,37,50,50,44,24,26,0,50
+4.A.4.a.5.I07,Administer emergency medical treatment.,37,49,55,44,35,5,9,40
+4.A.3.a.3.I02,Operate pumping systems or equipment.,35,50,50,35,38,12,0,50
+4.A.3.b.4.I01,Maintain facilities or equipment.,35,50,53,41,33,15,2,48
+4.A.4.a.2.I10,Signal others to coordinate work activities.,35,42,42,35,28,12,2,40
+4.A.4.a.3.I01,Present information in legal proceedings.,35,42,42,35,24,17,1,41
+4.A.4.b.6.I08,Advise others on legal or regulatory matters.,35,45,45,35,30,13,2,43
+4.A.1.b.2.I04,Inspect vehicles.,34,68,70,41,59,7,2,66
+4.A.2.a.4.I11,Analyze business or financial data.,34,66,69,47,43,12,11,55
+4.A.2.a.1.I05,Evaluate production inputs or outputs.,33,45,45,34,37,7,1,44
+4.A.2.a.4.I12,Analyze performance of systems or equipment.,33,39,39,37,30,4,5,34
+4.A.2.b.1.I06,Diagnose health conditions or disorders.,33,49,49,33,43,3,3,46
+4.A.2.b.2.I05,"Develop safety standards, policies, or procedures.",33,41,41,33,33,6,2,39
+4.A.4.c.1.I05,Process shipments or mail.,33,53,54,43,26,27,0,53
+4.A.2.b.2.I14,Design industrial systems or equipment.,32,53,54,41,25,21,7,46
+4.A.2.b.2.I21,"Develop models of systems, processes, or products.",32,43,43,33,34,6,3,40
+4.A.3.a.2.I11,Prepare medical equipment or work areas for use.,32,37,38,35,31,6,0,37
+4.A.3.a.2.I08,Arrange displays or decorations.,31,49,49,33,35,14,0,49
+4.A.2.a.4.I02,Analyze market or industry conditions.,30,53,56,38,41,6,6,47
+4.A.2.b.2.I03,Develop business or marketing plans.,30,47,47,32,31,12,4,43
+4.A.3.a.2.I39,Apply materials to fill gaps or imperfections.,30,44,44,31,30,13,1,43
+4.A.4.a.2.I07,Collaborate in the development of educational programs.,30,48,48,31,40,5,3,45
+4.A.1.a.2.I03,Monitor financial data or activities.,29,32,33,30,22,8,2,30
+4.A.1.a.2.I08,"Monitor external affairs, trends, or events.",29,33,33,29,26,2,5,28
+4.A.1.b.3.I04,Assess characteristics of land or property.,29,50,50,34,35,9,6,44
+4.A.2.a.4.I10,Analyze biological or chemical substances or related data.,29,62,63,35,45,17,0,62
+4.A.3.a.1.I09,Clean medical equipment or facilities.,28,36,41,34,28,5,3,33
+4.A.3.a.2.I02,Collect samples of products or materials.,28,28,29,29,20,8,0,28
+4.A.3.b.6.I02,Record information about legal matters.,28,44,46,33,36,8,0,44
+4.A.4.a.5.I02,Administer therapeutic treatments.,28,39,40,29,34,5,0,39
+4.A.4.b.6.I10,Counsel others about personal matters.,28,58,64,48,51,5,2,56
+4.A.1.a.1.I06,Gather data about operational or development activities.,27,35,35,27,23,8,4,31
+4.A.2.a.3.I03,"Examine financial activities, operations, or systems.",27,45,48,32,30,12,3,42
+4.A.2.b.1.I02,Diagnose system or equipment problems.,27,29,30,28,25,3,1,28
+4.A.3.a.3.I05,Operate audiovisual or related equipment.,27,52,52,30,35,12,5,47
+4.A.3.b.4.I03,Repair electrical or electronic equipment.,27,46,46,37,29,13,4,42
+4.A.4.a.2.I06,Communicate with others about business strategies.,27,41,41,30,33,4,4,37
+4.A.2.a.4.I01,Analyze environmental or geospatial data.,26,52,53,37,37,10,5,47
+4.A.2.b.2.I20,Develop sustainable organizational or business policies or practices.,26,37,37,27,25,12,0,37
+4.A.2.b.2.I27,Develop organizational or program goals or objectives.,26,31,32,27,24,6,1,30
+4.A.3.a.2.I07,Shape materials to create products.,26,37,37,29,27,10,0,37
+4.A.4.a.5.I05,Intervene in crisis situations or emergencies.,26,31,31,28,27,2,2,29
+4.A.4.b.3.I01,Teach life skills.,26,43,45,28,39,3,1,42
+4.A.4.c.2.I02,Perform human resources activities.,26,32,34,29,21,9,2,30
+4.A.1.a.2.I09,Monitor environmental conditions.,25,32,33,28,24,5,3,29
+4.A.2.b.2.I06,Design databases.,25,37,38,27,28,6,3,34
+4.A.2.b.2.I16,Develop systems or practices to mitigate or resolve environmental problems.,25,40,40,29,25,11,4,36
+4.A.3.a.2.I03,Prepare foods or beverages.,25,95,107,65,68,27,0,95
+4.A.2.b.2.I24,Design electrical or electronic systems or equipment.,24,46,46,25,29,14,3,43
+4.A.3.a.3.I03,Operate construction or excavation equipment.,24,67,70,35,40,27,0,67
+4.A.4.b.4.I07,Manage human resources activities.,24,42,43,26,36,4,2,40
+4.A.1.a.1.I16,Research biological or ecological phenomena.,23,56,59,38,39,17,0,56
+4.A.1.b.2.I08,Test performance of computer or information systems.,23,42,47,33,35,1,6,36
+4.A.2.a.3.I02,Assess compliance with environmental standards or regulations.,23,27,27,24,19,7,1,26
+4.A.2.a.4.I04,Analyze scientific or applied data using mathematical principles.,23,38,39,28,33,2,3,35
+4.A.2.b.1.I03,Authorize business activities or transactions.,23,29,29,23,22,4,3,26
+4.A.3.b.1.I05,Operate computer systems or computerized equipment.,23,25,26,24,20,5,0,25
+4.A.4.b.6.I03,Advise others on environmental sustainability or green practices.,23,40,40,26,30,8,2,38
+4.A.1.b.3.I03,Calculate financial data.,22,31,31,22,20,8,3,28
+4.A.2.b.2.I11,Design structures or facilities.,22,36,36,26,31,4,1,35
+4.A.2.b.2.I12,Develop marketing or promotional materials.,22,37,37,22,23,10,4,33
+4.A.3.a.1.I12,Escort others.,22,29,31,25,21,8,0,29
+4.A.3.b.1.I03,"Set up computer systems, networks, or other information systems.",22,36,43,32,26,8,2,34
+4.A.4.a.2.I02,"Assist scientists, scholars, or technical specialists with projects or research.",22,24,27,25,16,8,0,24
+4.A.2.b.2.I17,Develop public or community health programs.,21,31,32,23,21,10,0,31
+4.A.3.a.2.I47,Prepare specimens or materials for testing.,21,40,45,27,29,11,0,40
+4.A.3.b.4.I05,Repair workpieces or products.,21,30,30,21,21,8,1,29
+4.A.4.a.2.I01,Communicate environmental or sustainability information.,21,21,22,22,18,1,2,19
+4.A.4.c.3.I02,Order medical tests or procedures.,21,22,22,21,18,2,2,20
+4.A.2.a.2.I05,Verify personal information.,20,25,26,21,18,4,3,22
+4.A.2.b.1.I07,Edit written materials or documents.,20,31,35,24,16,11,4,27
+4.A.2.b.2.I13,Design materials or devices.,20,32,32,21,20,12,0,32
+4.A.2.b.2.I25,Create artistic designs or performances.,20,53,53,22,40,13,0,53
+4.A.3.a.3.I10,Operate communications equipment or systems.,20,37,37,20,27,10,0,37
+4.A.4.b.4.I08,Manage control systems or activities.,20,28,28,20,23,4,1,27
+4.A.4.b.4.I14,Coordinate regulatory compliance activities.,20,23,24,21,17,6,0,23
+4.A.4.b.4.I15,Direct security or safety activities or operations.,20,40,41,22,32,7,1,39
+4.A.2.a.4.I09,Assess characteristics or impacts of regulations or policies.,19,26,26,20,15,8,3,23
+4.A.2.b.5.I01,Prepare schedules for services or facilities.,19,22,22,20,13,9,0,22
+4.A.3.a.2.I32,"Set up classrooms, facilities, educational materials, or equipment.",19,35,37,31,32,1,2,33
+4.A.3.b.1.I04,Resolve computer problems.,19,23,27,23,19,3,1,22
+4.A.1.a.1.I01,Study details of artistic productions.,18,28,28,20,25,2,1,27
+4.A.2.a.4.I03,Analyze business or financial risks.,18,30,30,20,17,2,11,19
+4.A.2.b.2.I26,Develop scientific or mathematical theories or models.,18,25,25,19,20,3,2,23
+4.A.3.a.3.I09,Operate laboratory or field equipment.,18,21,21,18,13,8,0,21
+4.A.4.a.7.I03,Resolve personnel or operational problems.,18,20,20,19,18,1,1,19
+4.A.4.b.4.I03,Coordinate artistic or entertainment activities.,18,42,43,25,25,16,1,41
+4.A.1.a.1.I17,Obtain formal documentation or authorization.,17,19,19,18,9,9,1,18
+4.A.2.a.2.I04,Reconcile financial data.,17,27,29,21,13,14,0,27
+4.A.2.b.2.I08,Develop plans for managing or preserving natural resources.,17,46,46,26,35,11,0,46
+4.A.3.a.2.I17,Fabricate medical devices.,17,32,33,20,26,6,0,32
+4.A.3.b.4.I07,Repair vehicle components.,17,51,54,28,43,8,0,51
+4.A.1.a.1.I22,Investigate organizational or operational problems.,16,20,20,16,18,2,0,20
+4.A.2.a.1.I01,"Assess living, work, or social needs or status of individuals or communities.",16,22,23,20,15,7,0,22
+4.A.2.a.1.I09,"Evaluate condition of financial assets, property, or other resources.",16,33,34,19,23,7,3,30
+4.A.2.b.2.I19,Develop contingency or emergency response plans.,16,26,26,17,22,2,2,24
+4.A.4.a.7.I01,Mediate disputes.,16,18,18,16,12,5,1,17
+4.A.4.b.6.I09,Advise others on workplace health or safety issues.,16,20,20,16,16,2,2,18
+4.A.1.a.1.I18,Research historical or social issues.,15,30,30,17,24,6,0,30
+4.A.1.a.2.I10,Monitor operation of computer or information technologies.,15,18,18,15,13,4,1,17
+4.A.2.a.3.I04,Follow standard healthcare safety procedures to protect patient and staff members.,15,17,17,15,15,0,2,15
+4.A.3.a.2.I28,Create decorative objects or parts of objects.,15,23,23,15,13,10,0,23
+4.A.3.a.2.I45,Apply decorative finishes.,15,28,28,15,16,12,0,28
+4.A.3.b.1.I02,Implement security measures for computer or information systems.,15,27,29,20,20,4,3,24
+4.A.3.b.6.I05,Record images with photographic or audiovisual equipment.,15,16,16,15,13,2,1,15
+4.A.1.a.1.I09,"Research organizational behavior, processes, or performance.",14,18,18,14,14,4,0,18
+4.A.1.a.1.I21,Investigate incidents or accidents.,14,18,18,14,13,5,0,18
+4.A.3.a.1.I13,Transport patients or clients.,14,14,14,14,12,2,0,14
+4.A.3.a.1.I15,Provide food or beverage services.,14,35,36,21,31,4,0,35
+4.A.3.a.1.I17,Perform agricultural activities.,14,32,34,22,12,19,1,31
+4.A.3.a.2.I43,Install plumbing or piping equipment or systems.,14,30,30,15,21,9,0,30
+4.A.4.b.6.I11,Advise others on financial matters.,14,26,26,17,17,5,4,22
+4.A.2.a.1.I10,Evaluate project feasibility.,13,15,15,14,14,1,0,15
+4.A.3.a.1.I14,Climb equipment or structures.,13,14,14,13,8,5,1,13
+4.A.3.a.3.I01,Operate office equipment.,13,21,21,13,14,7,0,21
+4.A.3.a.3.I07,Operate energy production or distribution equipment.,13,48,48,18,36,11,1,47
+4.A.4.a.8.I01,Present arts or entertainment performances.,13,44,45,21,33,9,2,42
+4.A.4.b.4.I16,Direct legal activities.,13,23,23,16,15,7,1,22
+4.A.3.a.3.I11,Operate agricultural or forestry equipment.,12,42,42,14,25,17,0,42
+4.A.4.a.1.I04,Explain financial information.,12,27,27,16,19,6,2,25
+4.A.4.a.5.I04,Care for plants or animals.,12,36,37,16,16,20,0,36
+4.A.4.b.3.I03,Teach safety procedures or standards to others.,12,14,15,14,13,0,1,13
+4.A.4.c.1.I04,Issue documentation.,12,16,16,14,12,3,1,15
+4.A.1.a.1.I15,"Investigate individuals' background, behavior, or activities.",11,16,17,13,9,7,0,16
+4.A.2.b.2.I09,Develop financial or business plans.,11,15,15,11,11,1,3,12
+4.A.3.a.1.I04,Set up protective structures or coverings near work areas.,11,13,13,11,10,3,0,13
+4.A.3.a.2.I05,Sew garments or materials.,11,39,48,21,24,15,0,39
+4.A.1.b.2.I02,Evaluate green technologies or processes.,10,20,20,10,13,6,1,19
+4.A.2.b.2.I04,Develop recipes or menus.,10,14,16,15,6,8,0,14
+4.A.2.b.2.I22,"Develop news, entertainment, or artistic content.",10,21,21,11,17,3,1,20
+4.A.1.a.1.I05,Consult legal materials or public records.,9,24,29,15,17,5,2,22
+4.A.2.b.2.I10,Develop health assessment methods or programs.,9,10,10,9,9,1,0,10
+4.A.3.a.1.I16,"Perform athletic activities for fitness, competition, or artistic purposes.",9,18,18,10,14,3,1,17
+4.A.3.a.2.I14,Cut trees or other vegetation.,9,23,23,11,14,9,0,23
+4.A.3.a.2.I18,Direct vehicle traffic.,9,15,15,9,12,3,0,15
+4.A.3.a.2.I21,Apply hygienic or cosmetic agents to skin or hair.,9,40,42,18,34,5,1,39
+4.A.3.a.2.I24,Adjust medical equipment to ensure adequate performance.,9,13,13,10,12,1,0,13
+4.A.4.a.1.I03,"Interpret language, cultural, or religious information for others.",9,15,15,9,5,9,1,14
+4.A.4.b.4.I04,Manage agricultural or forestry operations.,9,29,29,12,18,9,2,27
+4.A.1.a.1.I08,Research issues related to earth sciences.,8,21,21,12,17,3,1,20
+4.A.1.a.1.I13,Research agricultural processes or practices.,8,19,19,11,14,5,0,19
+4.A.1.b.2.I11,Test sites or materials for environmental hazards.,8,13,13,8,7,6,0,13
+4.A.2.a.1.I08,Evaluate scholarly work.,8,8,8,8,6,2,0,8
+4.A.2.b.1.I11,Alter audio or video recordings.,8,20,21,10,12,7,1,19
+4.A.4.c.1.I02,Perform court-related or other legal administrative activities.,8,9,9,9,6,3,0,9
+4.A.1.a.1.I07,Obtain information about goods or services.,7,9,9,7,6,3,0,9
+4.A.3.a.1.I02,Protect people or property from threats such as fires or flooding.,7,16,16,9,13,2,1,15
+4.A.3.a.2.I16,Install energy or heating equipment.,7,27,27,8,18,9,0,27
+4.A.3.a.2.I25,Engrave objects.,7,14,14,7,3,11,0,14
+4.A.4.a.2.I12,"Discuss legal matters with clients, disputants, or legal professionals or staff.",7,13,16,11,11,2,0,13
+4.A.4.a.6.I01,Advocate for individual or community needs.,7,8,8,7,6,2,0,8
+4.A.1.a.2.I04,Monitor traffic conditions.,6,7,7,6,4,2,1,6
+4.A.2.a.4.I08,"Research laws, precedents, or other legal data.",6,10,10,6,10,0,0,10
+4.A.4.a.5.I06,Fit assistive devices to patients or clients.,6,7,7,6,4,3,0,7
+4.A.4.a.5.I08,Assist individuals with paperwork.,6,7,7,6,2,5,0,7
+4.A.4.c.1.I06,Process forensic or legal evidence.,6,9,9,6,9,0,0,9
+4.A.1.b.3.I05,Take physical measurements of patients or clients.,5,7,7,5,5,2,0,7
+4.A.4.b.5.I01,Coach others.,5,8,8,5,8,0,0,8
+4.A.3.a.2.I26,Embalm corpses.,4,13,13,4,10,2,1,12
+4.A.4.a.8.I02,Conduct amusement or gaming activities.,4,22,22,7,12,8,2,20
+4.A.2.b.1.I05,Make legal decisions.,3,11,11,6,9,2,0,11
+4.A.2.b.4.I02,Draft legislation or regulations.,3,3,3,3,0,2,1,2
+4.A.3.a.2.I23,Tend watercraft.,3,4,4,3,3,1,0,4
+4.A.3.a.2.I29,Process animal carcasses.,3,17,17,4,0,17,0,17
+4.A.3.a.2.I31,Groom or style hair.,3,10,11,4,8,2,0,10
+4.A.3.b.6.I04,Record information about environmental conditions.,3,4,4,3,3,1,0,4
+4.A.1.a.1.I11,Gather information for news stories.,2,9,9,2,9,0,0,9
+4.A.3.a.2.I10,Train animals.,2,7,7,2,2,5,0,7
+4.A.4.b.4.I05,Supervise activities in correctional facilities.,2,7,7,4,6,1,0,7
+4.A.3.a.2.I44,Hunt animals.,1,7,7,2,2,5,0,7

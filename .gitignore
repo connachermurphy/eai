@@ -1,6 +1,9 @@
 # Scratch work
 scratch/
 
+# Local Codex instructions; this repo tracks shared agent guidance in CLAUDE.md
+AGENTS.md
+
 # System files
 *.DS_Store
 
