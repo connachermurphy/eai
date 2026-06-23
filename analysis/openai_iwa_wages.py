@@ -152,7 +152,14 @@ def add_usage_columns(
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Add employment-normalized usage and winsorized analysis columns."""
     df = df.copy()
-    df[PER_MILLION_WORKERS_COL] = df[USAGE_COL] / df[EMP_COL] * 1_000_000
+    emp_for_rate = df[EMP_COL].replace(0, np.nan)
+    n_zero_emp = int((df[EMP_COL] == 0).sum())
+    if n_zero_emp:
+        log.info(
+            "Per-worker usage: %d occupations with zero employment recoded to NA",
+            n_zero_emp,
+        )
+    df[PER_MILLION_WORKERS_COL] = df[USAGE_COL] / emp_for_rate * 1_000_000
 
     rows = []
     for measure, sub in df.groupby("openai_measure"):

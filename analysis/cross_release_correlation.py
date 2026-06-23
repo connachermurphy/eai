@@ -58,14 +58,21 @@ def confusion_matrix_md(em: dict, label_a: str, label_b: str) -> str:
     row_a1 = em["a_only"] + em["both_nonzero"]
     col_b0 = em["both_zero"] + em["a_only"]
     col_b1 = em["b_only"] + em["both_nonzero"]
+    agreement_n = em["both_zero"] + em["both_nonzero"]
     lines = [
         f"| | {label_b} = 0 | {label_b} > 0 | **Total** |",
         "|---|---:|---:|---:|",
-        f"| **{label_a} = 0** | {em['both_zero']:,} | {em['b_only']:,} | {row_a0:,} |",
-        f"| **{label_a} > 0** | {em['a_only']:,} | {em['both_nonzero']:,} | {row_a1:,} |",
+        (
+            f"| **{label_a} = 0** | {em['both_zero']:,} | "
+            f"{em['b_only']:,} | {row_a0:,} |"
+        ),
+        (
+            f"| **{label_a} > 0** | {em['a_only']:,} | "
+            f"{em['both_nonzero']:,} | {row_a1:,} |"
+        ),
         f"| **Total** | {col_b0:,} | {col_b1:,} | {em['total']:,} |",
         "",
-        f"Agreement: {em['agreement']:.1%} ({em['both_zero'] + em['both_nonzero']:,} / {em['total']:,})",
+        f"Agreement: {em['agreement']:.1%} ({agreement_n:,} / {em['total']:,})",
     ]
     return "\n".join(lines)
 
@@ -110,9 +117,21 @@ def correlations_md(corrs: dict) -> str:
         [
             "| Subset | Pearson | Spearman | n |",
             "|---|---:|---:|---:|",
-            f"| All units | {fmt(corrs['pearson_all'])} | {fmt(corrs['spearman_all'])} | — |",
-            f"| Both nonzero | {fmt(corrs['pearson_both_nonzero'])} | {fmt(corrs['spearman_both_nonzero'])} | {corrs['n_both_nonzero']:,} |",
-            f"| Both nonzero, p95 trimmed | {fmt(corrs['pearson_trimmed'])} | {fmt(corrs['spearman_trimmed'])} | {corrs['n_trimmed']:,} |",
+            (
+                f"| All units | {fmt(corrs['pearson_all'])} | "
+                f"{fmt(corrs['spearman_all'])} | — |"
+            ),
+            (
+                f"| Both nonzero | {fmt(corrs['pearson_both_nonzero'])} | "
+                f"{fmt(corrs['spearman_both_nonzero'])} | "
+                f"{corrs['n_both_nonzero']:,} |"
+            ),
+            (
+                "| Both nonzero, p95 trimmed | "
+                f"{fmt(corrs['pearson_trimmed'])} | "
+                f"{fmt(corrs['spearman_trimmed'])} | "
+                f"{corrs['n_trimmed']:,} |"
+            ),
         ]
     )
 
@@ -243,16 +262,19 @@ def save_comparison(
     md_path.write_text(md)
 
     # CSV
-    csv_df = pd.DataFrame(
-        [em | corrs | {"label_a": label_a, "label_b": label_b}]
-    )
+    csv_df = pd.DataFrame([em | corrs | {"label_a": label_a, "label_b": label_b}])
     csv_df.to_csv(table_dir / f"{name}.csv", index=False)
 
     # Scatters
     title = f"{label_a} vs {label_b}"
     scatter_pair(a, b, label_a, label_b, title, fig_dir / f"{name}.png")
     scatter_rank(
-        a, b, label_a, label_b, title, fig_dir / f"{name}_rank.png",
+        a,
+        b,
+        label_a,
+        label_b,
+        title,
+        fig_dir / f"{name}_rank.png",
         corrs["spearman_both_nonzero"],
     )
 

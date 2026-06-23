@@ -358,8 +358,12 @@ def add_employment_weights(
     linked["oews_broad_match"] = linked["oews_broad_match"].fillna(False)
     linked["oews_missing_employment"] = linked["oews_tot_emp_adjusted"].isna()
 
-    median_emp = linked.loc[
-        linked["oews_tot_emp_adjusted"].notna(), "oews_tot_emp_adjusted"
+    linked_soc_employment = linked[
+        ["soc_2018", "oews_tot_emp_adjusted"]
+    ].drop_duplicates()
+    median_emp = linked_soc_employment.loc[
+        linked_soc_employment["oews_tot_emp_adjusted"].notna(),
+        "oews_tot_emp_adjusted",
     ].median()
     linked["oews_tot_emp_imputed"] = linked["oews_tot_emp_adjusted"].fillna(median_emp)
 
@@ -382,7 +386,7 @@ def add_employment_weights(
         )
 
     log.info(
-        "Employment coverage: %d/%d IWA-SOC links have OEWS data; imputed median %.0f for %d links",
+        "Employment coverage: %d/%d IWA-SOC links have OEWS data; imputed unique-SOC median %.0f for %d links",
         linked["oews_tot_emp_adjusted"].notna().sum(),
         len(linked),
         median_emp,
@@ -711,6 +715,128 @@ def build_mean_summary(summary: pd.DataFrame) -> pd.DataFrame:
     ].sort_values("soc_2018")
 
 
+def build_apportionment_sensitivity(
+    panel: pd.DataFrame,
+    summary: pd.DataFrame,
+) -> pd.DataFrame:
+    """Compare employment apportionment with diagnostic non-output alternatives."""
+    baseline = summary[
+        [
+            "openai_measure",
+            "month",
+            "soc_2018",
+            "soc_2018_apportioned_share_of_messages",
+        ]
+    ].copy()
+    full_grid = baseline[["openai_measure", "month", "soc_2018"]].drop_duplicates()
+    baseline_mean = baseline.groupby(
+        ["openai_measure", "soc_2018"], as_index=False
+    ).agg(
+        employment_mean_share=(
+            "soc_2018_apportioned_share_of_messages",
+            "mean",
+        )
+    )
+
+    diagnostics = [
+        {
+            "diagnostic_apportionment": "equal",
+            "weight_basis": "Equal weight across linked SOC 2018 occupations",
+            "count_column": None,
+        },
+        {
+            "diagnostic_apportionment": "link_task_count",
+            "weight_basis": "Distinct O*NET task count on each IWA-SOC link",
+            "count_column": "link_task_count",
+        },
+        {
+            "diagnostic_apportionment": "link_task_dwa_link_count",
+            "weight_basis": "O*NET task-DWA edge count on each IWA-SOC link",
+            "count_column": "link_task_dwa_link_count",
+        },
+        {
+            "diagnostic_apportionment": "link_dwa_count",
+            "weight_basis": "Distinct DWA count on each IWA-SOC link",
+            "count_column": "link_dwa_count",
+        },
+    ]
+
+    rows = []
+    group_cols = ["openai_measure", "month", "iwa_id"]
+    for diagnostic in diagnostics:
+        working = panel[
+            [
+                "openai_measure",
+                "month",
+                "iwa_id",
+                "soc_2018",
+                "openai_iwa_share_of_messages",
+                *LINK_COUNT_COLUMNS,
+            ]
+        ].copy()
+        n_soc = working.groupby(group_cols)["soc_2018"].transform("nunique")
+        equal_weight = np.where(n_soc > 0, 1.0 / n_soc, np.nan)
+        count_column = diagnostic["count_column"]
+        if count_column is None:
+            working["diagnostic_weight"] = equal_weight
+        else:
+            denominator = working.groupby(group_cols)[count_column].transform("sum")
+            working["diagnostic_weight"] = np.where(
+                denominator > 0,
+                working[count_column] / denominator,
+                equal_weight,
+            )
+
+        working["diagnostic_share"] = (
+            working["openai_iwa_share_of_messages"] * working["diagnostic_weight"]
+        )
+        alt_month = working.groupby(
+            ["openai_measure", "month", "soc_2018"], as_index=False
+        ).agg(diagnostic_share=("diagnostic_share", "sum"))
+        alt_month = full_grid.merge(
+            alt_month,
+            on=["openai_measure", "month", "soc_2018"],
+            how="left",
+            validate="1:1",
+        )
+        alt_month["diagnostic_share"] = alt_month["diagnostic_share"].fillna(0)
+        alt_mean = alt_month.groupby(
+            ["openai_measure", "soc_2018"], as_index=False
+        ).agg(diagnostic_mean_share=("diagnostic_share", "mean"))
+        comparison = baseline_mean.merge(
+            alt_mean,
+            on=["openai_measure", "soc_2018"],
+            how="left",
+            validate="1:1",
+        )
+        comparison["abs_difference"] = (
+            comparison["employment_mean_share"] - comparison["diagnostic_mean_share"]
+        ).abs()
+        for measure, sub in comparison.groupby("openai_measure"):
+            rows.append(
+                {
+                    "openai_measure": measure,
+                    "diagnostic_apportionment": diagnostic["diagnostic_apportionment"],
+                    "weight_basis": diagnostic["weight_basis"],
+                    "n_occupations": len(sub),
+                    "pearson_vs_employment": sub["employment_mean_share"].corr(
+                        sub["diagnostic_mean_share"],
+                        method="pearson",
+                    ),
+                    "spearman_vs_employment": sub["employment_mean_share"].corr(
+                        sub["diagnostic_mean_share"],
+                        method="spearman",
+                    ),
+                    "mean_abs_difference": sub["abs_difference"].mean(),
+                    "max_abs_difference": sub["abs_difference"].max(),
+                }
+            )
+
+    return pd.DataFrame(rows).sort_values(
+        ["openai_measure", "diagnostic_apportionment"]
+    )
+
+
 def write_report(
     output_dir: Path,
     paths: dict[str, Path],
@@ -724,6 +850,7 @@ def write_report(
     summary: pd.DataFrame,
     mean_summary: pd.DataFrame,
     month_checks: pd.DataFrame,
+    apportionment_sensitivity: pd.DataFrame,
 ) -> Path:
     """Write a concise Markdown report."""
     coverage_rows = []
@@ -846,12 +973,12 @@ Generated {date.today().isoformat()}.
 
 1. Collapse the existing O*NET 30.2 task-DWA-IWA detail mapping to one row per `iwa_id` x six-digit `soc_2018`. This avoids duplicating OEWS employment across multiple O*NET-SOC suboccupations under the same SOC code.
 2. Merge OEWS to SOC 2018 using the same exact plus broad-code handling used in the existing occupational characteristics pipeline. Exact detailed SOC matches are used first. When OEWS only reports a broader detailed-family code ending in `0`, employment is divided equally across matching SOC 2018 detailed occupations in the repo's SOC universe.
-3. Impute missing linked SOC 2018 employment to the median linked SOC 2018 employment, matching the existing pipeline's median-imputation convention for employment-weighted allocation.
+3. Impute missing linked SOC 2018 employment to the median employment among unique linked SOC 2018 occupations with OEWS employment. This avoids letting occupations with more IWA links receive extra weight in the imputation statistic.
 4. Within each IWA, compute `employment_weight_within_iwa = oews_tot_emp_imputed / sum(oews_tot_emp_imputed)`.
 5. For each OpenAI measure/month/IWA, allocate only by employment: `soc_2018_apportioned_share_of_messages = openai_iwa_share_of_messages * employment_weight_within_iwa`.
 6. Average the monthly SOC 2018 apportioned shares across all available months to produce the mean summary.
 
-No alternate apportionment schemes are implemented. The link count columns remain in the static link and panel outputs as diagnostics for later methodological changes.
+No alternate exposure outputs are implemented. The link count columns remain in the static link and panel outputs as diagnostics for later methodological changes.
 
 ## Outputs
 
@@ -943,6 +1070,32 @@ No alternate apportionment schemes are implemented. The link count columns remai
         )
     }
 
+### Apportionment Sensitivity Diagnostic
+
+The exposure outputs use employment apportionment only. As a diagnostic, the table
+below compares the resulting occupation-level mean shares with equal allocation
+and three link-count-based ways of distributing IWA shares across linked
+occupations. These diagnostic allocations are not saved as exposure outputs. The
+Spearman correlations suggest that rank order is fairly stable, while the lower
+Pearson correlations and maximum absolute differences show that the level of the
+occupation exposure measure is meaningfully sensitive to the apportionment
+assumption.
+
+{
+        markdown_table(
+            apportionment_sensitivity,
+            [
+                "openai_measure",
+                "diagnostic_apportionment",
+                "n_occupations",
+                "pearson_vs_employment",
+                "spearman_vs_employment",
+                "mean_abs_difference",
+                "max_abs_difference",
+            ],
+        )
+    }
+
 ### Zero Usage In Mean Summary
 
 {
@@ -974,7 +1127,8 @@ No alternate apportionment schemes are implemented. The link count columns remai
 
 - The OpenAI release groups rare IWA labels under `Other IWA`; this bucket is intentionally left unallocated because it does not correspond to a specific O*NET IWA.
 - OEWS is SOC 2018 while O*NET 30.2 is O*NET-SOC 2019. This script allocates at six-digit SOC 2018 and keeps the contributing O*NET-SOC suboccupation codes as diagnostics.
-- Median employment imputation follows the existing repo convention, but the imputed SOCs should be reviewed if these outputs become inputs to a production apportionment.
+- The occupation-level exposure measure is sensitive to how IWA-level OpenAI shares are apportioned across occupations linked to the same IWA. Employment apportionment is the active choice here, but sensitivity to this choice should be kept in mind when interpreting levels or wage correlations.
+- Median employment imputation now uses unique linked SOC 2018 occupations rather than link-expanded IWA-SOC rows. The imputed SOCs should still be reviewed if these outputs become inputs to a production apportionment.
 - The OpenAI shares are differentially private rounded shares, so monthly source totals can be close to, but not exactly, 1.
 """
     path = output_dir / "iwa_openai_oews_report.md"
@@ -1005,6 +1159,7 @@ def main() -> None:
     )
     mean_summary = build_mean_summary(summary)
     month_checks = build_month_checks(openai, panel, unmatched)
+    apportionment_sensitivity = build_apportionment_sensitivity(panel, summary)
 
     paths = {
         "linked": args.output_dir / "iwa_soc2018_employment_links.csv",
@@ -1037,6 +1192,7 @@ def main() -> None:
         summary,
         mean_summary,
         month_checks,
+        apportionment_sensitivity,
     )
 
     log.info("Saved report: %s", report_path)

@@ -3,7 +3,6 @@
 import locale
 
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
 import seaborn as sns
 
 locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
