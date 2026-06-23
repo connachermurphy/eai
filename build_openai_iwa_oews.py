@@ -391,6 +391,49 @@ def add_employment_weights(
     return linked, float(median_emp)
 
 
+def build_soc_2018_employment_universe(
+    soc_2018: pd.DataFrame,
+    oews_lookup: pd.DataFrame,
+    median_emp: float,
+) -> pd.DataFrame:
+    """Build one row per SOC 2018 occupation with OEWS fields for summary outputs."""
+    oews_cols = [
+        "soc_2018",
+        "oews_occ_title",
+        "oews_tot_emp",
+        "oews_a_mean",
+        "oews_a_median",
+        "oews_broad_match",
+        "oews_soc_2018_broad",
+        "oews_tot_emp_adjusted",
+    ]
+    universe = soc_2018[["soc_2018", "title_2018", "group_id"]].merge(
+        oews_lookup[oews_cols],
+        on="soc_2018",
+        how="left",
+        validate="1:1",
+    )
+    universe["oews_broad_match"] = universe["oews_broad_match"].fillna(False)
+    universe["oews_missing_employment"] = universe["oews_tot_emp_adjusted"].isna()
+    universe["oews_tot_emp_imputed"] = universe["oews_tot_emp_adjusted"].fillna(
+        median_emp
+    )
+    return universe[
+        [
+            "soc_2018",
+            "title_2018",
+            "group_id",
+            "oews_tot_emp_imputed",
+            "oews_tot_emp_adjusted",
+            "oews_a_mean",
+            "oews_a_median",
+            "oews_broad_match",
+            "oews_soc_2018_broad",
+            "oews_missing_employment",
+        ]
+    ]
+
+
 def load_openai_iwa_files() -> pd.DataFrame:
     """Load and stack the OpenAI Signals IWA month files."""
     rows = []
@@ -463,7 +506,9 @@ def build_iwa_month(
 
 
 def build_apportioned_panel(
-    openai: pd.DataFrame, linked: pd.DataFrame
+    openai: pd.DataFrame,
+    linked: pd.DataFrame,
+    soc_2018_employment: pd.DataFrame,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Apportion OpenAI IWA shares across linked SOC 2018 occupations."""
     mapped_openai = openai[openai["iwa_id"].isin(set(linked["iwa_id"]))].copy()
@@ -499,25 +544,30 @@ def build_apportioned_panel(
             f"{bad_iwa.head().to_dict(orient='records')}"
         )
 
-    summary = (
-        panel.groupby(["openai_measure", "month", "soc_2018"], as_index=False)
-        .agg(
-            soc_2018_apportioned_share_of_messages=(
-                "soc_2018_apportioned_share_of_messages",
-                "sum",
-            ),
-            iwa_count_contributing=("iwa_id", "nunique"),
-            oews_tot_emp_imputed=("oews_tot_emp_imputed", "first"),
-            oews_tot_emp_adjusted=("oews_tot_emp_adjusted", "first"),
-            oews_a_mean=("oews_a_mean", "first"),
-            oews_a_median=("oews_a_median", "first"),
-            oews_broad_match=("oews_broad_match", "first"),
-            oews_soc_2018_broad=("oews_soc_2018_broad", "first"),
-            title_2018=("title_2018", "first"),
-            group_id=("group_id", "first"),
-        )
-        .sort_values(["openai_measure", "month", "soc_2018"])
-        .reset_index(drop=True)
+    observed_summary = panel.groupby(
+        ["openai_measure", "month", "soc_2018"], as_index=False
+    ).agg(
+        soc_2018_apportioned_share_of_messages=(
+            "soc_2018_apportioned_share_of_messages",
+            "sum",
+        ),
+        iwa_count_contributing=("iwa_id", "nunique"),
+    )
+    measure_months = openai[["openai_measure", "month"]].drop_duplicates()
+    summary = measure_months.merge(soc_2018_employment, how="cross").merge(
+        observed_summary,
+        on=["openai_measure", "month", "soc_2018"],
+        how="left",
+        validate="1:1",
+    )
+    summary["soc_2018_apportioned_share_of_messages"] = summary[
+        "soc_2018_apportioned_share_of_messages"
+    ].fillna(0)
+    summary["iwa_count_contributing"] = (
+        summary["iwa_count_contributing"].fillna(0).astype(int)
+    )
+    summary = summary.sort_values(["openai_measure", "month", "soc_2018"]).reset_index(
+        drop=True
     )
     summary = summary[
         [
@@ -760,6 +810,16 @@ def write_report(
         )
         .sort_values("openai_measure")
     )
+    zero_usage_summary = pd.DataFrame(
+        [
+            {
+                "usage_column": column,
+                "zero_occupation_count": int((mean_summary[column] == 0).sum()),
+                "nonzero_occupation_count": int((mean_summary[column] != 0).sum()),
+            }
+            for column in MEAN_SUMMARY_MEASURE_COLUMNS.values()
+        ]
+    )
     mean_summary_window = pd.DataFrame(
         [
             {
@@ -883,6 +943,15 @@ No alternate apportionment schemes are implemented. The link count columns remai
         )
     }
 
+### Zero Usage In Mean Summary
+
+{
+        markdown_table(
+            zero_usage_summary,
+            ["usage_column", "zero_occupation_count", "nonzero_occupation_count"],
+        )
+    }
+
 ### Mean Summary Window
 
 {
@@ -922,9 +991,18 @@ def main() -> None:
     oews_lookup = build_oews_lookup(args.oews_year, soc_2018)
     links = build_iwa_soc_links(soc_2018)
     linked, median_emp = add_employment_weights(links, oews_lookup)
+    soc_2018_employment = build_soc_2018_employment_universe(
+        soc_2018,
+        oews_lookup,
+        median_emp,
+    )
     openai = load_openai_iwa_files()
     iwa_month, unmatched = build_iwa_month(openai, linked)
-    panel, summary, weight_check = build_apportioned_panel(openai, linked)
+    panel, summary, weight_check = build_apportioned_panel(
+        openai,
+        linked,
+        soc_2018_employment,
+    )
     mean_summary = build_mean_summary(summary)
     month_checks = build_month_checks(openai, panel, unmatched)
 
