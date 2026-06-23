@@ -137,7 +137,9 @@ uv run analysis/cross_release_correlation.py
   edges.
 - O*NET 30.2 is O*NET-SOC 2019, which is based on SOC 2018. The OpenAI IWA
   pipeline collapses O*NET-SOC codes to six-digit SOC 2018 codes before merging
-  OEWS.
+  OEWS. The OEWS merge uses exact SOC matches plus a simple trailing-zero
+  broad-code fallback; it does not allocate other reported aggregate codes such
+  as `25-2052` to SOC 2018 child occupations.
 - OpenAI IWA shares are allocated to occupations by employment within each IWA.
   Link-count columns are retained as diagnostics, but no alternate OpenAI
   exposure outputs are produced.

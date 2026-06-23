@@ -265,8 +265,11 @@ The script combines:
 
 1. Collapse the O*NET 30.2 IWA mapping to one row per `iwa_id` by six-digit
    `soc_2018`.
-2. Merge May 2024 OEWS to SOC 2018 using the same exact plus broad-code handling
-   used elsewhere in the repo.
+2. Merge May 2024 OEWS to SOC 2018 using exact SOC matches plus the repo's
+   simple trailing-zero broad-code fallback. This does not allocate every OEWS
+   aggregate reporting code to SOC 2018 child occupations; for example,
+   `25-2052` is not split across `25-2055` and `25-2056` in the current OpenAI
+   pipeline.
 3. Impute missing linked SOC 2018 employment to the median employment among
    unique linked SOC 2018 occupations with OEWS employment. The current
    imputation value is 43,105.
@@ -453,9 +456,11 @@ outputs contain dates, figures, or generated report text.
 - Employment apportionment is the only active OpenAI IWA allocation rule. The
   sensitivity diagnostics should be revisited before treating levels as
   production measures.
-- OEWS broad-code matching assigns the same reported wage values to detailed SOC
-  occupations split from a broad OEWS row. This is a standard practical handling
-  in the repo, but it is still an assumption.
+- OEWS matching in the OpenAI IWA pipeline uses exact SOC matches plus a simple
+  trailing-zero broad-code fallback. It does not use the SOC 2010 to SOC 2018
+  crosswalk or `group_id` to allocate other OEWS aggregate reporting codes, so
+  known aggregates such as `25-2052` remain unmatched to `25-2055` and
+  `25-2056` and are handled by median employment imputation.
 - SOC 2010 and SOC 2018 panels are not directly interchangeable. Use `group_id`
   for harmonized grouping and diagnostics, but do not treat connected components
   as the employment-allocation rule.
