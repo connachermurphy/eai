@@ -1,6 +1,6 @@
 # IWA to O*NET-SOC Mapping - O*NET 30.2
 
-Generated 2026-06-16 from `input/db_30_2_excel`. This report is restricted to `O*NET-SOC Code` occupation identifiers and stays pinned to O*NET 30.2.
+Generated 2026-07-06 from `input/db_30_2_excel`. This report is restricted to `O*NET-SOC Code` occupation identifiers and stays pinned to O*NET 30.2.
 
 ## Mapping Path
 

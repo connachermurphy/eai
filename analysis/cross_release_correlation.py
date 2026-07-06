@@ -22,6 +22,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from eai.aei import RELEASES, load_aei_tasks
+from eai.codebook import update_codebook
 from eai.plot import apply_theme
 from eai.utils import get_logger
 
@@ -441,3 +442,108 @@ log.info("Saved occupation panel: %s", DATA / "cross_release_panel_occupation.cs
 # ==========================================================================
 run_comparisons(tasks, "task")
 run_comparisons(occupations, "occupation")
+
+# ==========================================================================
+# Update codebooks
+# ==========================================================================
+COUNT_PATTERN_COLS = [
+    (
+        "task_count_{platform}_{release}",
+        "Raw AEI conversation count for the unit in the given platform "
+        "(1p_api or claude_ai) and release (2025_09, 2026_01, or 2026_03). "
+        "Units unobserved in a release are filled with 0.",
+    ),
+    (
+        "task_count_{platform}_pooled",
+        "Sum of the platform's counts across the three releases.",
+    ),
+]
+update_codebook(
+    DATA / "codebook.md",
+    section="cross_release_panels",
+    title="Cross-release panels",
+    source="analysis/cross_release_correlation.py",
+    files=[
+        {
+            "name": "cross_release_panel_task.csv",
+            "description": (
+                "Wide task-level panel of AEI conversation counts, one row "
+                "per O*NET task, one column per platform-release."
+            ),
+            "columns": [
+                (
+                    "task_key",
+                    "O*NET task statement text, lowercased and stripped; the "
+                    "key used to match tasks across releases.",
+                )
+            ]
+            + COUNT_PATTERN_COLS,
+        },
+        {
+            "name": "cross_release_panel_occupation.csv",
+            "description": (
+                "The task panel aggregated to O*NET-SOC occupations by "
+                "equal-split apportionment: a task in N occupations "
+                "contributes 1/N of its count to each."
+            ),
+            "columns": [
+                ("O*NET-SOC Code", "Eight-character O*NET-SOC occupation code.")
+            ]
+            + COUNT_PATTERN_COLS,
+        },
+    ],
+)
+update_codebook(
+    OUT / "codebook.md",
+    section="cross_release_tables",
+    title="Cross-release comparison tables",
+    source="analysis/cross_release_correlation.py",
+    intro=(
+        "The task/ and occupation/ subdirectories hold the same comparisons "
+        "at the two aggregation levels. Each comparison writes a one-row CSV "
+        "(columns below), a markdown rendering, and scatter figures."
+    ),
+    files=[
+        {
+            "name": "{task,occupation}/tables/*.csv",
+            "description": (
+                "One row per comparison of two count series (release vs "
+                "release or platform vs platform)."
+            ),
+            "columns": [
+                (
+                    "both_zero / a_only / b_only / both_nonzero",
+                    "Extensive-margin cell counts: units with zero counts in "
+                    "both series, only in series A, only in series B, or "
+                    "nonzero in both.",
+                ),
+                ("total", "Total units compared."),
+                (
+                    "agreement",
+                    "(both_zero + both_nonzero) / total: share of units where "
+                    "the two series agree on observed vs unobserved.",
+                ),
+                ("n_both_nonzero", "Units in the both-nonzero subset."),
+                (
+                    "n_trimmed",
+                    "Units in the both-nonzero subset after trimming values "
+                    "above either series' 95th percentile.",
+                ),
+                (
+                    "pearson_all / spearman_all",
+                    "Correlations over all units, including zeros.",
+                ),
+                (
+                    "pearson_both_nonzero / spearman_both_nonzero",
+                    "Correlations over the both-nonzero subset.",
+                ),
+                (
+                    "pearson_trimmed / spearman_trimmed",
+                    "Correlations over the p95-trimmed both-nonzero subset.",
+                ),
+                ("label_a / label_b", "Display labels of the two series."),
+            ],
+        }
+    ],
+)
+log.info("Updated codebooks: %s, %s", DATA / "codebook.md", OUT / "codebook.md")

@@ -14,6 +14,7 @@ import matplotlib.ticker as ticker
 import numpy as np
 import pandas as pd
 
+from eai.codebook import update_codebook
 from eai.plot import apply_theme
 from eai.utils import get_logger
 
@@ -529,6 +530,152 @@ correlations.
     return path
 
 
+def write_output_codebook(out_dir: Path, winsor_lower: float, winsor_upper: float):
+    """Write the codebook for the outputs in this directory."""
+    winsor_def = f"winsorized at the {winsor_lower:g}/{winsor_upper:g} quantiles"
+    update_codebook(
+        out_dir / "codebook.md",
+        section="openai_iwa_wages",
+        title="OpenAI usage wage analysis",
+        source="analysis/openai_iwa_wages.py",
+        intro=(
+            "Built from openai_soc2018_mean_summary.csv (see "
+            "output/openai_iwa_oews/codebook.md for the input's variables). "
+            "Usage shares are proportions in [0, 1]. Note the scale "
+            "difference from the AEI panels: mean_share_per_million_workers "
+            "is scaled per million workers, while the AEI `_pc` columns are "
+            "per worker."
+        ),
+        files=[
+            {
+                "name": "openai_usage_wage_analysis_panel.csv",
+                "description": (
+                    "Long-form SOC 2018 panel, one row per occupation and "
+                    "OpenAI measure."
+                ),
+                "columns": [
+                    (
+                        "openai_measure",
+                        "OpenAI Signals series: us_all_messages_iwa_share or "
+                        "us_work_related_messages_iwa_share.",
+                    ),
+                    ("soc_2018", "Six-digit SOC 2018 occupation code."),
+                    ("title_2018", "SOC 2018 occupation title."),
+                    (
+                        "group_id",
+                        "Connected-component ID of the SOC 2010<->2018 "
+                        "crosswalk graph.",
+                    ),
+                    (
+                        USAGE_COL,
+                        "Mean employment-apportioned OpenAI message share for "
+                        "the occupation across available months.",
+                    ),
+                    (
+                        EMP_COL,
+                        "OEWS employment after broad-code adjustment, with "
+                        "missing values filled with the median (from the "
+                        "input summary).",
+                    ),
+                    (
+                        "oews_tot_emp_adjusted",
+                        "OEWS employment after the broad-code adjustment, "
+                        "before imputation.",
+                    ),
+                    (WAGE_COL, "OEWS annual mean wage (May 2024)."),
+                    ("oews_a_median", "OEWS annual median wage."),
+                    (
+                        "oews_broad_match",
+                        "True when OEWS matched via the broad-code fallback.",
+                    ),
+                    (
+                        "oews_soc_2018_broad",
+                        "Broad code used for the fallback; NA for exact matches.",
+                    ),
+                    (
+                        PER_MILLION_WORKERS_COL,
+                        f"{USAGE_COL} divided by {EMP_COL}, times 1,000,000 "
+                        "(usage share per million workers).",
+                    ),
+                    (
+                        f"{USAGE_COL}_winsorized",
+                        f"{USAGE_COL} {winsor_def} within each OpenAI measure.",
+                    ),
+                    (
+                        f"{PER_MILLION_WORKERS_COL}_winsorized",
+                        f"{PER_MILLION_WORKERS_COL} {winsor_def} within each "
+                        "OpenAI measure.",
+                    ),
+                ],
+            },
+            {
+                "name": "openai_usage_wage_correlations.csv",
+                "description": (
+                    "Correlations between winsorized usage and the annual "
+                    "mean wage, one row per OpenAI measure and usage variant."
+                ),
+                "columns": [
+                    ("openai_measure", "OpenAI Signals series."),
+                    ("measure_label", "Display label for the measure."),
+                    (
+                        "usage_variant",
+                        f"Usage column analyzed: {USAGE_COL} or "
+                        f"{PER_MILLION_WORKERS_COL}.",
+                    ),
+                    ("usage_label", "Display label for the usage variant."),
+                    (
+                        "usage_column",
+                        "Winsorized usage column the correlations use.",
+                    ),
+                    ("weight_column", f"Employment weight column ({EMP_COL})."),
+                    ("wage_column", f"Wage column ({WAGE_COL}, levels)."),
+                    ("n", "Occupations in the sample."),
+                    (
+                        "weighted_pearson / weighted_spearman",
+                        "Employment-weighted correlations between the "
+                        "winsorized usage column and the wage (Spearman is "
+                        "weighted Pearson on ranks).",
+                    ),
+                    ("pearson / spearman", "Unweighted counterparts."),
+                    (
+                        "mean_usage / median_usage",
+                        "Unweighted mean and median of the winsorized usage column.",
+                    ),
+                    (
+                        "winsor_lower_quantile / winsor_upper_quantile",
+                        "Quantile levels used for winsorization.",
+                    ),
+                    (
+                        "winsor_lower_value / winsor_upper_value",
+                        "Data values at the winsorization quantiles.",
+                    ),
+                ],
+            },
+            {
+                "name": "winsor_bounds.csv",
+                "description": (
+                    "Winsorization bounds applied to each usage column, per "
+                    "OpenAI measure."
+                ),
+                "columns": [
+                    ("openai_measure", "OpenAI Signals series."),
+                    ("usage_column", "Raw usage column winsorized."),
+                    ("winsorized_column", "Name of the winsorized column."),
+                    (
+                        "winsor_lower_quantile / winsor_upper_quantile",
+                        "Quantile levels used for winsorization.",
+                    ),
+                    (
+                        "winsor_lower_value / winsor_upper_value",
+                        "Data values at the winsorization quantiles.",
+                    ),
+                ],
+            },
+        ],
+    )
+    log.info("Updated codebook: %s", out_dir / "codebook.md")
+
+
 def main() -> None:
     """Run the analysis."""
     args = parse_args()
@@ -562,6 +709,8 @@ def main() -> None:
     log.info("Saved analysis panel: %s", panel_path)
     log.info("Saved correlations: %s", corr_path)
     log.info("Saved winsor bounds: %s", bounds_path)
+
+    write_output_codebook(args.out, args.winsor_lower, args.winsor_upper)
 
     figure_dir = args.out / "figures"
     figure_paths = [

@@ -1,16 +1,28 @@
-# Generated outputs are ignored by default. The exceptions below are committed
-# review/release artifacts that should be available from a clean checkout.
+# Generated outputs are ignored by default. The exceptions below are small
+# committed review/release artifacts kept available from a clean checkout,
+# without needing Python to regenerate them. Large regenerable tables are not
+# committed; rebuild them with the pipeline commands in the README.
 *
+!*/
 !.gitignore
+
+# Codebooks are always committed (any directory)
+!codebook.md
+
+# Occupation panels
 !occupations_*.csv
 
-!onet/
+# Crosswalk and O*NET reference tables
 !onet/soc_*.csv
-!onet/iwa_mapping/
-!onet/iwa_mapping/**
 
-!net_automation_wages/
+# IWA mapping outputs, except the large regenerable link/audit tables
+!onet/iwa_mapping/**
+onet/iwa_mapping/iwa_to_onet_soc_via_tasks.csv
+onet/iwa_mapping/iwa_to_onet_soc_via_tasks_detail.csv
+onet/iwa_mapping/iwa_occupation_links.csv
+
+# Wage analysis outputs
 !net_automation_wages/**
 
-!openai_iwa_oews/
+# OpenAI occupation-level mean summary
 !openai_iwa_oews/openai_soc2018_mean_summary.csv

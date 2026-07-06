@@ -16,6 +16,7 @@ import matplotlib.ticker as ticker
 import numpy as np
 import pandas as pd
 
+from eai.codebook import update_codebook
 from eai.plot import apply_theme
 from eai.utils import get_logger
 
@@ -476,6 +477,112 @@ def save_notes(out_dir: Path) -> Path:
     return path
 
 
+def write_output_codebook(out_dir: Path, winsor_lower: float, winsor_upper: float):
+    """Write the codebook for the outputs in this directory."""
+    net_cols = []
+    for platform in PLATFORMS:
+        net_cols.append(
+            (
+                net_col(platform),
+                f"emp_{platform}_automation_count_pc minus "
+                f"emp_{platform}_augmentation_count_pc from the 2024-OEWS AEI "
+                "panel: net automation usage per worker, employment-"
+                "apportioned.",
+            )
+        )
+        net_cols.append(
+            (
+                winsor_col(platform),
+                f"{net_col(platform)} winsorized at the "
+                f"{winsor_lower:g}/{winsor_upper:g} quantiles.",
+            )
+        )
+    update_codebook(
+        out_dir / "codebook.md",
+        section="net_automation_wages",
+        title="Net automation wage analysis",
+        source="analysis/net_automation_wages.py",
+        intro=(
+            "Built from occupations_aei_oews_2024.csv (see output/codebook.md "
+            "for the input panel's variables)."
+        ),
+        files=[
+            {
+                "name": "occupation_net_automation_usage.csv",
+                "description": (
+                    "SOC 2010 panel of net automation usage (automation minus "
+                    "augmentation, per worker)."
+                ),
+                "columns": [
+                    ("soc_2010", "Six-digit SOC 2010 occupation code."),
+                    ("title_2010", "SOC 2010 occupation title."),
+                    (
+                        "group_id",
+                        "Connected-component ID of the SOC 2010<->2018 "
+                        "crosswalk graph.",
+                    ),
+                    (
+                        EMP_COL,
+                        "OEWS employment allocated to SOC 2010, with missing "
+                        "values filled with the median (from the input panel).",
+                    ),
+                    (WAGE_COL, "OEWS annual mean wage (May 2024)."),
+                ]
+                + net_cols,
+            },
+            {
+                "name": "net_automation_wage_correlations.csv",
+                "description": (
+                    "Correlations between winsorized net automation usage and "
+                    "the annual mean wage, one row per platform and sample."
+                ),
+                "columns": [
+                    ("platform", "AEI platform: 1p_api, claude_ai, or total."),
+                    ("platform_label", "Display label for the platform."),
+                    ("net_column", "Winsorized net usage column analyzed."),
+                    (
+                        "nonzero_only",
+                        "True when the sample is restricted to occupations "
+                        "with nonzero net usage.",
+                    ),
+                    (
+                        "weight_column",
+                        f"Employment weight column ({EMP_COL}).",
+                    ),
+                    (
+                        "winsor_lower_quantile / winsor_upper_quantile",
+                        "Quantile levels used for winsorization.",
+                    ),
+                    (
+                        "winsor_lower_value / winsor_upper_value",
+                        "Data values at the winsorization quantiles.",
+                    ),
+                    ("n", "Occupations in the sample."),
+                    (
+                        "pearson / spearman",
+                        "Employment-weighted correlations between the net "
+                        f"column and {WAGE_COL} (Spearman is weighted Pearson "
+                        "on ranks).",
+                    ),
+                    (
+                        "pearson_unweighted / spearman_unweighted",
+                        "Unweighted counterparts.",
+                    ),
+                    (
+                        "mean_net / median_net",
+                        "Unweighted mean and median of the winsorized net column.",
+                    ),
+                    (
+                        "n_positive / n_negative / n_zero",
+                        "Occupation counts by sign of the winsorized net column.",
+                    ),
+                ],
+            },
+        ],
+    )
+    log.info("Updated codebook: %s", out_dir / "codebook.md")
+
+
 def main() -> None:
     """Run the analysis."""
     args = parse_args()
@@ -510,6 +617,8 @@ def main() -> None:
     corr_path = args.out / "net_automation_wage_correlations.csv"
     corr.to_csv(corr_path, index=False)
     log.info("Saved correlations: %s", corr_path)
+
+    write_output_codebook(args.out, args.winsor_lower, args.winsor_upper)
 
     notes_path = save_notes(args.out / "figures")
     log.info("Saved figure notes: %s", notes_path)
