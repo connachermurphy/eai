@@ -8,9 +8,8 @@ import shutil
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-OUTPUT_DIR = REPO_ROOT / "output"
-DISTRIBUTION_DIR = REPO_ROOT / "distribution"
+OUTPUT_DIR = Path("output")
+DISTRIBUTION_DIR = Path("distribution")
 
 DISTRIBUTION_FILES = (
     "occupations_aei.csv",
@@ -42,17 +41,13 @@ def check_distribution() -> int:
     errors: list[str] = []
     for source, destination in distribution_pairs():
         if not source.exists():
-            errors.append(f"missing source: {source.relative_to(REPO_ROOT)}")
+            errors.append(f"missing source: {source}")
             continue
         if not destination.exists():
-            errors.append(
-                f"missing distribution file: {destination.relative_to(REPO_ROOT)}"
-            )
+            errors.append(f"missing distribution file: {destination}")
             continue
         if not filecmp.cmp(source, destination, shallow=False):
-            errors.append(
-                f"stale distribution file: {destination.relative_to(REPO_ROOT)}"
-            )
+            errors.append(f"stale distribution file: {destination}")
 
     if errors:
         for error in errors:
@@ -66,9 +61,7 @@ def check_distribution() -> int:
 def sync_distribution() -> int:
     DISTRIBUTION_DIR.mkdir(parents=True, exist_ok=True)
     missing_sources = [
-        source.relative_to(REPO_ROOT)
-        for source, _ in distribution_pairs()
-        if not source.exists()
+        source for source, _ in distribution_pairs() if not source.exists()
     ]
     if missing_sources:
         for source in missing_sources:
@@ -77,9 +70,7 @@ def sync_distribution() -> int:
 
     for source, destination in distribution_pairs():
         shutil.copy2(source, destination)
-        source_label = source.relative_to(REPO_ROOT)
-        destination_label = destination.relative_to(REPO_ROOT)
-        print(f"copied {source_label} -> {destination_label}")
+        print(f"copied {source} -> {destination}")
     return 0
 
 
