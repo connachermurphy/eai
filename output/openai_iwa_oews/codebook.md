@@ -112,6 +112,7 @@ IWA by SOC 2018 by month link panel with apportioned shares.
 | `apportionment_method` | Constant 'employment'; the only allocation rule produced. |
 | `oews_tot_emp_imputed` | oews_tot_emp_adjusted with missing employment filled with the median across unique linked SOC 2018 occupations. Used for the employment weights. |
 | `oews_tot_emp_adjusted` | Employment after the broad-code fallback: the exact-match value, or the broad code's employment split equally across its detailed child codes without their own OEWS row. |
+| `oews_emp_was_imputed` | True when oews_tot_emp_adjusted is missing, so oews_tot_emp_imputed holds the median-employment fill value. |
 | `oews_a_mean` | OEWS annual mean wage. |
 | `oews_a_median` | OEWS annual median wage. |
 | `oews_broad_match` | True when employment came from the trailing-zero broad-code fallback rather than an exact SOC 2018 match. |
@@ -147,6 +148,7 @@ SOC 2018 by month panel: apportioned OpenAI shares summed across IWAs, on the fu
 | `iwa_count_contributing` | Number of distinct IWAs contributing to the occupation-month cell. |
 | `oews_tot_emp_imputed` | oews_tot_emp_adjusted with missing employment filled with the median across unique linked SOC 2018 occupations. Used for the employment weights. |
 | `oews_tot_emp_adjusted` | Employment after the broad-code fallback: the exact-match value, or the broad code's employment split equally across its detailed child codes without their own OEWS row. |
+| `oews_emp_was_imputed` | True when oews_tot_emp_adjusted is missing, so oews_tot_emp_imputed holds the median-employment fill value. |
 | `oews_a_mean` | OEWS annual mean wage. |
 | `oews_a_median` | OEWS annual median wage. |
 | `oews_broad_match` | True when employment came from the trailing-zero broad-code fallback rather than an exact SOC 2018 match. |
@@ -165,6 +167,7 @@ One row per SOC 2018 occupation with mean apportioned OpenAI shares across all a
 | `mean_us_work_related_messages_iwa_share` | Mean of soc_2018_apportioned_share_of_messages across months for the work-related-U.S.-messages measure. |
 | `oews_tot_emp_imputed` | oews_tot_emp_adjusted with missing employment filled with the median across unique linked SOC 2018 occupations. Used for the employment weights. |
 | `oews_tot_emp_adjusted` | Employment after the broad-code fallback: the exact-match value, or the broad code's employment split equally across its detailed child codes without their own OEWS row. |
+| `oews_emp_was_imputed` | True when oews_tot_emp_adjusted is missing, so oews_tot_emp_imputed holds the median-employment fill value. |
 | `oews_a_mean` | OEWS annual mean wage. |
 | `oews_a_median` | OEWS annual median wage. |
 | `oews_broad_match` | True when employment came from the trailing-zero broad-code fallback rather than an exact SOC 2018 match. |

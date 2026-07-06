@@ -103,6 +103,7 @@ def reshape_wide_panel(df: pd.DataFrame) -> pd.DataFrame:
         "group_id",
         "oews_tot_emp_imputed",
         "oews_tot_emp_adjusted",
+        "oews_emp_was_imputed",
         "oews_a_mean",
         "oews_a_median",
         "oews_broad_match",
@@ -124,6 +125,7 @@ def reshape_wide_panel(df: pd.DataFrame) -> pd.DataFrame:
             USAGE_COL,
             "oews_tot_emp_imputed",
             "oews_tot_emp_adjusted",
+            "oews_emp_was_imputed",
             "oews_a_mean",
             "oews_a_median",
             "oews_broad_match",
@@ -581,6 +583,11 @@ def write_output_codebook(out_dir: Path, winsor_lower: float, winsor_upper: floa
                         "oews_tot_emp_adjusted",
                         "OEWS employment after the broad-code adjustment, "
                         "before imputation.",
+                    ),
+                    (
+                        "oews_emp_was_imputed",
+                        "True when oews_tot_emp_adjusted is missing, so "
+                        f"{EMP_COL} holds the median-employment fill value.",
                     ),
                     (WAGE_COL, "OEWS annual mean wage (May 2024)."),
                     ("oews_a_median", "OEWS annual median wage."),

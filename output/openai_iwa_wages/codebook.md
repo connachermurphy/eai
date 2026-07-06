@@ -22,6 +22,7 @@ Long-form SOC 2018 panel, one row per occupation and OpenAI measure.
 | `mean_soc_2018_apportioned_share_of_messages` | Mean employment-apportioned OpenAI message share for the occupation across available months. |
 | `oews_tot_emp_imputed` | OEWS employment after broad-code adjustment, with missing values filled with the median (from the input summary). |
 | `oews_tot_emp_adjusted` | OEWS employment after the broad-code adjustment, before imputation. |
+| `oews_emp_was_imputed` | True when oews_tot_emp_adjusted is missing, so oews_tot_emp_imputed holds the median-employment fill value. |
 | `oews_a_mean` | OEWS annual mean wage (May 2024). |
 | `oews_a_median` | OEWS annual median wage. |
 | `oews_broad_match` | True when OEWS matched via the broad-code fallback. |
