@@ -1,5 +1,7 @@
-# Raw AEI data (large CSVs downloaded from Hugging Face)
-release_*/aei_raw_*.csv
+# Downloaded AEI release files (re-fetched by pipeline/download_aei.py);
+# keep only the release metadata
+release_*/*
+!release_*/metadata.json
 
 # Large OEWS file
 all_data_M_2024.xlsx
