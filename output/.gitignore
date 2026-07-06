@@ -1,16 +1,15 @@
 # Generated outputs are ignored by default. The exceptions below are small
-# committed review/release artifacts kept available from a clean checkout,
-# without needing Python to regenerate them. Large regenerable tables are not
-# committed; rebuild them with the pipeline commands in the README.
+# committed review artifacts kept available from a clean checkout, without
+# needing Python to regenerate them. User-facing CSVs for distribution live in
+# distribution/ and are synced from output/ with pipeline/sync_distribution.py.
+# Large regenerable tables are not committed; rebuild them with the pipeline
+# commands in the README.
 *
 !*/
 !.gitignore
 
 # Codebooks are always committed (any directory)
 !codebook.md
-
-# Occupation panels
-!occupations_*.csv
 
 # Crosswalk and O*NET reference tables
 !onet/soc_*.csv
