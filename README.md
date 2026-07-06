@@ -79,6 +79,19 @@ codebook file.
 
 ## Key Outputs
 
+### Distribution Files (`distribution/`)
+
+These CSVs are committed as the user-facing distribution set and synced from
+the generated files in `output/`:
+
+- `distribution/occupations_aei.csv`
+- `distribution/occupations_eloundou_et_al.csv`
+- `distribution/occupations_aei_auto_aug_2025_03_27.csv`
+
+After regenerating outputs, run `uv run python pipeline/sync_distribution.py`
+to refresh them, or `uv run python pipeline/sync_distribution.py --check` to
+verify they are current.
+
 ### Occupational Characteristics (`output/`, see `output/codebook.md`)
 
 - `output/occupations_eloundou_et_al.csv`: SOC 2018 panel with Eloundou et al.
@@ -150,12 +163,13 @@ codebook file.
 ## File Storage
 
 Generated outputs are ignored by default; `output/.gitignore` allowlists a
-small set of committed review artifacts (the occupation panels, crosswalk
-tables, small IWA-mapping outputs, wage-analysis outputs, the OpenAI mean
-summary, and every `codebook.md`) so they are available from a clean checkout
-without running Python. Large regenerable tables — the multi-megabyte IWA
-mapping link and audit CSVs — are not committed; rebuild them with
-`uv run pipeline/build_iwa_onet_mapping.py`.
+small set of committed review artifacts (crosswalk tables, small IWA-mapping
+outputs, wage-analysis outputs, the OpenAI mean summary, and every
+`codebook.md`) so they are available from a clean checkout without running
+Python. User-facing occupation CSVs are committed under `distribution/` and
+synced from `output/` with `uv run python pipeline/sync_distribution.py`. Large
+regenerable tables — the multi-megabyte IWA mapping link and audit CSVs — are
+not committed; rebuild them with `uv run python pipeline/build_iwa_onet_mapping.py`.
 
 ## Method Notes
 

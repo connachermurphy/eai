@@ -458,10 +458,14 @@ the OpenAI Signals release folder, and downloaded AEI release files (except
 each release's `metadata.json`).
 
 Generated outputs are ignored by default. `output/.gitignore` allowlists a
-small set of committed review artifacts — the occupation panels, crosswalk
-tables, small IWA-mapping outputs, wage-analysis outputs, the OpenAI mean
-summary, and every `codebook.md` — so they are available from a clean checkout
-without running Python. Large regenerable tables (the multi-megabyte IWA
+small set of committed review artifacts — crosswalk tables, small IWA-mapping
+outputs, wage-analysis outputs, the OpenAI mean summary, and every
+`codebook.md` — so they are available from a clean checkout without running
+Python. User-facing occupation CSVs are committed under `distribution/` and
+synced from the generated `output/` files with
+`uv run python pipeline/sync_distribution.py`. Run
+`uv run python pipeline/sync_distribution.py --check` to verify the distribution
+copies are current. Large regenerable tables (the multi-megabyte IWA
 mapping link/audit CSVs) are not committed; rebuild them with the commands
 above.
 
