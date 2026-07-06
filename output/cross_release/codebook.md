@@ -15,14 +15,21 @@ One row per comparison of two count series (release vs release or platform vs pl
 
 | Variable | Definition |
 | --- | --- |
-| `both_zero / a_only / b_only / both_nonzero` | Extensive-margin cell counts: units with zero counts in both series, only in series A, only in series B, or nonzero in both. |
+| `both_zero` | Units with zero counts in both series. |
+| `a_only` | Units with nonzero counts only in series A. |
+| `b_only` | Units with nonzero counts only in series B. |
+| `both_nonzero` | Units with nonzero counts in both series. |
 | `total` | Total units compared. |
 | `agreement` | (both_zero + both_nonzero) / total: share of units where the two series agree on observed vs unobserved. |
 | `n_both_nonzero` | Units in the both-nonzero subset. |
 | `n_trimmed` | Units in the both-nonzero subset after trimming values above either series' 95th percentile. |
-| `pearson_all / spearman_all` | Correlations over all units, including zeros. |
-| `pearson_both_nonzero / spearman_both_nonzero` | Correlations over the both-nonzero subset. |
-| `pearson_trimmed / spearman_trimmed` | Correlations over the p95-trimmed both-nonzero subset. |
-| `label_a / label_b` | Display labels of the two series. |
+| `pearson_all` | Pearson correlation over all units, including zeros. |
+| `spearman_all` | Spearman correlation over all units, including zeros. |
+| `pearson_both_nonzero` | Pearson correlation over the both-nonzero subset. |
+| `spearman_both_nonzero` | Spearman correlation over the both-nonzero subset. |
+| `pearson_trimmed` | Pearson correlation over the p95-trimmed both-nonzero subset. |
+| `spearman_trimmed` | Spearman correlation over the p95-trimmed both-nonzero subset. |
+| `label_a` | Display label of series A. |
+| `label_b` | Display label of series B. |
 
 <!-- END CODEBOOK SECTION: cross_release_tables -->

@@ -19,7 +19,7 @@ Static IWA by SOC 2018 link table with OEWS employment weights. O*NET-SOC 2019 c
 | `iwa_title` | IWA title. |
 | `soc_2018` | Six-digit SOC 2018 occupation code. |
 | `title_2018` | SOC 2018 occupation title. |
-| `group_id` | Connected-component ID of the bipartite SOC 2010<->2018 crosswalk graph; non-singleton groups mark one-to-many or many-to-many crosswalk relationships. |
+| `group_id` | Connected-component ID of the bipartite SOC 2010<->2018 crosswalk graph; each component can be one-to-one, one-to-many, many-to-one, or many-to-many. |
 | `soc_2018_count_for_iwa` | Number of distinct SOC 2018 codes linked to the IWA. |
 | `iwa_count_for_soc_2018` | Number of distinct IWAs linked to the SOC 2018 code. |
 | `onet_soc_count` | Number of O*NET-SOC 2019 occupation codes collapsed into this six-digit SOC 2018 link. |
@@ -36,11 +36,11 @@ Static IWA by SOC 2018 link table with OEWS employment weights. O*NET-SOC 2019 c
 | `latest_mapping_update` | Latest O*NET Tasks-to-DWAs mapping date contributing to the link (YYYY-MM). |
 | `domain_sources` | Joined unique O*NET domain sources contributing to the link. |
 | `oews_occ_title` | OEWS national occupation title for the matched code. |
-| `oews_tot_emp` | Raw OEWS national total employment for the exact SOC 2018 code (NA when missing or suppressed). |
+| `oews_tot_emp` | Raw OEWS national total employment for the matched SOC 2018 code. For broad fallback rows, this is the raw broad-code employment before splitting; NA when missing or suppressed. |
 | `oews_a_mean` | OEWS annual mean wage. |
 | `oews_a_median` | OEWS annual median wage. |
 | `oews_broad_match` | True when employment came from the trailing-zero broad-code fallback rather than an exact SOC 2018 match. |
-| `oews_soc_2018_broad` | SOC 2018 broad code (fifth digit zeroed) used for the employment fallback; NA for exact matches. |
+| `oews_soc_2018_broad` | SOC 2018 broad code (final SOC digit zeroed) used for the employment fallback; NA for exact matches. |
 | `oews_tot_emp_adjusted` | Employment after the broad-code fallback: the exact-match value, or the broad code's employment split equally across its detailed child codes without their own OEWS row. |
 | `oews_emp_was_imputed` | True when oews_tot_emp_adjusted is missing, so oews_tot_emp_imputed holds the median-employment fill value. |
 | `oews_tot_emp_imputed` | oews_tot_emp_adjusted with missing employment filled with the median across unique linked SOC 2018 occupations. Used for the employment weights. |
@@ -67,7 +67,7 @@ Stacked OpenAI IWA-month rows with mapping and employment coverage fields.
 | `oews_missing_soc_2018_count` | Number of linked SOC 2018 codes whose employment was imputed (no exact or broad OEWS match). |
 | `link_task_count` | Distinct O*NET task IDs across the IWA's links. |
 | `link_task_dwa_link_count` | Task-to-DWA link rows across the IWA's links. |
-| `link_dwa_count` | Distinct DWA IDs across the IWA's links. |
+| `link_dwa_count` | Sum of per-IWA-SOC distinct DWA counts across the IWA's links. |
 | `is_mapped_to_onet_iwa` | True when the OpenAI IWA label matches an O*NET 30.2 IWA; False for the `Other IWA` privacy bucket, which is left unallocated. |
 
 ### `openai_iwa_unmatched.csv`
@@ -90,7 +90,7 @@ OpenAI IWA-month rows not allocated to occupations (currently only the `Other IW
 | `oews_missing_soc_2018_count` | Number of linked SOC 2018 codes whose employment was imputed (no exact or broad OEWS match). |
 | `link_task_count` | Distinct O*NET task IDs across the IWA's links. |
 | `link_task_dwa_link_count` | Task-to-DWA link rows across the IWA's links. |
-| `link_dwa_count` | Distinct DWA IDs across the IWA's links. |
+| `link_dwa_count` | Sum of per-IWA-SOC distinct DWA counts across the IWA's links. |
 | `is_mapped_to_onet_iwa` | True when the OpenAI IWA label matches an O*NET 30.2 IWA; False for the `Other IWA` privacy bucket, which is left unallocated. |
 
 ### `openai_iwa_soc2018_month_panel.csv`
@@ -105,7 +105,7 @@ IWA by SOC 2018 by month link panel with apportioned shares.
 | `iwa_title` | IWA title. |
 | `soc_2018` | Six-digit SOC 2018 occupation code. |
 | `title_2018` | SOC 2018 occupation title. |
-| `group_id` | Connected-component ID of the bipartite SOC 2010<->2018 crosswalk graph; non-singleton groups mark one-to-many or many-to-many crosswalk relationships. |
+| `group_id` | Connected-component ID of the bipartite SOC 2010<->2018 crosswalk graph; each component can be one-to-one, one-to-many, many-to-one, or many-to-many. |
 | `openai_iwa_share_of_messages` | OpenAI-reported share of messages classified to the IWA in the month, as a proportion in [0, 1]. Shares are differentially private rounded values, so monthly totals are close to but not exactly 1. |
 | `employment_weight_within_iwa` | oews_tot_emp_imputed / total imputed employment across SOC 2018 codes linked to the IWA; sums to 1 within IWA. |
 | `soc_2018_apportioned_share_of_messages` | openai_iwa_share_of_messages * employment_weight_within_iwa: the occupation's employment-apportioned slice of the IWA share. |
@@ -116,7 +116,7 @@ IWA by SOC 2018 by month link panel with apportioned shares.
 | `oews_a_mean` | OEWS annual mean wage. |
 | `oews_a_median` | OEWS annual median wage. |
 | `oews_broad_match` | True when employment came from the trailing-zero broad-code fallback rather than an exact SOC 2018 match. |
-| `oews_soc_2018_broad` | SOC 2018 broad code (fifth digit zeroed) used for the employment fallback; NA for exact matches. |
+| `oews_soc_2018_broad` | SOC 2018 broad code (final SOC digit zeroed) used for the employment fallback; NA for exact matches. |
 | `soc_2018_count_for_iwa` | Number of distinct SOC 2018 codes linked to the IWA. |
 | `iwa_count_for_soc_2018` | Number of distinct IWAs linked to the SOC 2018 code. |
 | `onet_soc_count` | Number of O*NET-SOC 2019 occupation codes collapsed into this six-digit SOC 2018 link. |
@@ -129,9 +129,6 @@ IWA by SOC 2018 by month link panel with apportioned shares.
 | `link_supplemental_task_count` | Distinct linked tasks typed Supplemental in O*NET. |
 | `link_unclassified_task_count` | Distinct linked tasks with no O*NET task type. |
 | `link_classified_task_count` | Core plus supplemental linked task count. |
-| `first_mapping_update` | Earliest O*NET Tasks-to-DWAs mapping date contributing to the link (YYYY-MM). |
-| `latest_mapping_update` | Latest O*NET Tasks-to-DWAs mapping date contributing to the link (YYYY-MM). |
-| `domain_sources` | Joined unique O*NET domain sources contributing to the link. |
 
 ### `openai_soc2018_month_summary.csv`
 
@@ -143,7 +140,7 @@ SOC 2018 by month panel: apportioned OpenAI shares summed across IWAs, on the fu
 | `month` | Calendar month of the OpenAI observation (YYYY-MM-DD). |
 | `soc_2018` | Six-digit SOC 2018 occupation code. |
 | `title_2018` | SOC 2018 occupation title. |
-| `group_id` | Connected-component ID of the bipartite SOC 2010<->2018 crosswalk graph; non-singleton groups mark one-to-many or many-to-many crosswalk relationships. |
+| `group_id` | Connected-component ID of the bipartite SOC 2010<->2018 crosswalk graph; each component can be one-to-one, one-to-many, many-to-one, or many-to-many. |
 | `soc_2018_apportioned_share_of_messages` | Sum of the occupation's apportioned IWA shares for the measure-month; 0 when no linked IWA has usage. |
 | `iwa_count_contributing` | Number of distinct IWAs contributing to the occupation-month cell. |
 | `oews_tot_emp_imputed` | oews_tot_emp_adjusted with missing employment filled with the median across unique linked SOC 2018 occupations. Used for the employment weights. |
@@ -152,7 +149,7 @@ SOC 2018 by month panel: apportioned OpenAI shares summed across IWAs, on the fu
 | `oews_a_mean` | OEWS annual mean wage. |
 | `oews_a_median` | OEWS annual median wage. |
 | `oews_broad_match` | True when employment came from the trailing-zero broad-code fallback rather than an exact SOC 2018 match. |
-| `oews_soc_2018_broad` | SOC 2018 broad code (fifth digit zeroed) used for the employment fallback; NA for exact matches. |
+| `oews_soc_2018_broad` | SOC 2018 broad code (final SOC digit zeroed) used for the employment fallback; NA for exact matches. |
 
 ### `openai_soc2018_mean_summary.csv`
 
@@ -162,7 +159,7 @@ One row per SOC 2018 occupation with mean apportioned OpenAI shares across all a
 | --- | --- |
 | `soc_2018` | Six-digit SOC 2018 occupation code. |
 | `title_2018` | SOC 2018 occupation title. |
-| `group_id` | Connected-component ID of the bipartite SOC 2010<->2018 crosswalk graph; non-singleton groups mark one-to-many or many-to-many crosswalk relationships. |
+| `group_id` | Connected-component ID of the bipartite SOC 2010<->2018 crosswalk graph; each component can be one-to-one, one-to-many, many-to-one, or many-to-many. |
 | `mean_us_all_messages_iwa_share` | Mean of soc_2018_apportioned_share_of_messages across months for the all-U.S.-messages measure. |
 | `mean_us_work_related_messages_iwa_share` | Mean of soc_2018_apportioned_share_of_messages across months for the work-related-U.S.-messages measure. |
 | `oews_tot_emp_imputed` | oews_tot_emp_adjusted with missing employment filled with the median across unique linked SOC 2018 occupations. Used for the employment weights. |
@@ -171,7 +168,7 @@ One row per SOC 2018 occupation with mean apportioned OpenAI shares across all a
 | `oews_a_mean` | OEWS annual mean wage. |
 | `oews_a_median` | OEWS annual median wage. |
 | `oews_broad_match` | True when employment came from the trailing-zero broad-code fallback rather than an exact SOC 2018 match. |
-| `oews_soc_2018_broad` | SOC 2018 broad code (fifth digit zeroed) used for the employment fallback; NA for exact matches. |
+| `oews_soc_2018_broad` | SOC 2018 broad code (final SOC digit zeroed) used for the employment fallback; NA for exact matches. |
 
 ### `openai_iwa_oews_month_checks.csv`
 

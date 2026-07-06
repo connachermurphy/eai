@@ -77,8 +77,7 @@ print(f"wrote {len(df_2018)} rows -> {dest_2018}")
 # --- Codebook ---
 GROUP_ID_DEF = (
     "Connected-component ID of the bipartite SOC 2010<->2018 crosswalk graph; "
-    "non-singleton groups mark one-to-many or many-to-many crosswalk "
-    "relationships."
+    "each component can be one-to-one, one-to-many, many-to-one, or many-to-many."
 )
 update_codebook(
     OUT / "codebook.md",

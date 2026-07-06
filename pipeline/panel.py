@@ -1,4 +1,4 @@
-"""Build an OEWS panel across years and analyze occupational footprint changes."""
+"""Build an OEWS panel across years with a balanced-panel indicator."""
 
 from pathlib import Path
 
@@ -52,7 +52,7 @@ log.info(
 )
 
 # ======================================================================================
-# Step 2: Balanced panel indicator and footprint changes
+# Step 2: Balanced panel indicator
 # ======================================================================================
 years = sorted(panel["year"].unique())
 years_per_code = panel.groupby("occ_code")["year"].nunique()
@@ -98,10 +98,11 @@ update_codebook(
                 ("emp_prse", "Percent relative standard error of employment."),
                 ("a_mean", "Mean annual wage."),
                 ("mean_prse", "Percent relative standard error of the mean wage."),
-                (
-                    "a_pct10 / a_pct25 / a_median / a_pct75 / a_pct90",
-                    "Annual wage percentiles.",
-                ),
+                ("a_pct10", "10th-percentile annual wage."),
+                ("a_pct25", "25th-percentile annual wage."),
+                ("a_median", "Median annual wage."),
+                ("a_pct75", "75th-percentile annual wage."),
+                ("a_pct90", "90th-percentile annual wage."),
                 ("year", "OEWS reference year (May estimates)."),
                 (
                     "balanced_panel",

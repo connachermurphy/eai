@@ -13,7 +13,7 @@ O*NET 20.1 Task Statements workbook converted to CSV with columns unchanged.
 
 | Variable | Definition |
 | --- | --- |
-| `O*NET-SOC Code` | Eight-character O*NET-SOC occupation code. |
+| `O*NET-SOC Code` | Formatted O*NET-SOC occupation code (eight digits plus punctuation, e.g. 11-1011.00). |
 | `Title` | O*NET occupation title. |
 | `Task ID` | O*NET task identifier. |
 | `Task` | Task statement text. |
@@ -59,7 +59,7 @@ One row per SOC 2010 code with its crosswalk group.
 | --- | --- |
 | `soc_2010` | Six-digit SOC 2010 occupation code. |
 | `title_2010` | SOC 2010 occupation title. |
-| `group_id` | Connected-component ID of the bipartite SOC 2010<->2018 crosswalk graph; non-singleton groups mark one-to-many or many-to-many crosswalk relationships. |
+| `group_id` | Connected-component ID of the bipartite SOC 2010<->2018 crosswalk graph; each component can be one-to-one, one-to-many, many-to-one, or many-to-many. |
 
 ### `soc_2018_to_group.csv`
 
@@ -69,6 +69,6 @@ One row per SOC 2018 code with its crosswalk group.
 | --- | --- |
 | `soc_2018` | Six-digit SOC 2018 occupation code. |
 | `title_2018` | SOC 2018 occupation title. |
-| `group_id` | Connected-component ID of the bipartite SOC 2010<->2018 crosswalk graph; non-singleton groups mark one-to-many or many-to-many crosswalk relationships. |
+| `group_id` | Connected-component ID of the bipartite SOC 2010<->2018 crosswalk graph; each component can be one-to-one, one-to-many, many-to-one, or many-to-many. |
 
 <!-- END CODEBOOK SECTION: crosswalk -->

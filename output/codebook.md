@@ -19,7 +19,11 @@ Stacked OEWS national detailed occupations for 2021-2024, with numeric fields co
 | `emp_prse` | Percent relative standard error of employment. |
 | `a_mean` | Mean annual wage. |
 | `mean_prse` | Percent relative standard error of the mean wage. |
-| `a_pct10 / a_pct25 / a_median / a_pct75 / a_pct90` | Annual wage percentiles. |
+| `a_pct10` | 10th-percentile annual wage. |
+| `a_pct25` | 25th-percentile annual wage. |
+| `a_median` | Median annual wage. |
+| `a_pct75` | 75th-percentile annual wage. |
+| `a_pct90` | 90th-percentile annual wage. |
 | `year` | OEWS reference year (May estimates). |
 | `balanced_panel` | True when the occupation code appears in every year of the panel. |
 
@@ -40,14 +44,18 @@ SOC 2018 panel with Eloundou et al. (2023, 'GPTs are GPTs') occupation-level exp
 | --- | --- |
 | `soc_2018` | Six-digit SOC 2018 occupation code. |
 | `title_2018` | SOC 2018 occupation title. |
-| `group_id` | Connected-component ID of the bipartite SOC 2010<->2018 crosswalk graph; non-singleton groups mark one-to-many or many-to-many crosswalk relationships. |
-| `dv_rating_alpha / dv_rating_beta / dv_rating_gamma` | Model-generated (GPT-4) exposure ratings from Eloundou et al., averaged from 8-digit O*NET-SOC codes to six-digit SOC 2018. alpha counts only direct LLM exposure (E1); beta adds half weight on exposure via LLM-powered software (E1 + 0.5*E2); gamma adds full weight (E1 + E2). |
-| `human_rating_alpha / human_rating_beta / human_rating_gamma` | Human-annotator exposure ratings from Eloundou et al.; same alpha/beta/gamma aggregations and O*NET-SOC averaging as the dv_rating columns. |
+| `group_id` | Connected-component ID of the bipartite SOC 2010<->2018 crosswalk graph; each component can be one-to-one, one-to-many, many-to-one, or many-to-many. |
+| `dv_rating_alpha` | Model-generated (GPT-4) direct LLM exposure rating (E1), averaged from 8-digit O*NET-SOC codes to six-digit SOC 2018. |
+| `dv_rating_beta` | Model-generated exposure rating adding half weight on exposure via LLM-powered software (E1 + 0.5*E2), averaged from 8-digit O*NET-SOC codes to six-digit SOC 2018. |
+| `dv_rating_gamma` | Model-generated exposure rating adding full software exposure weight (E1 + E2), averaged from 8-digit O*NET-SOC codes to six-digit SOC 2018. |
+| `human_rating_alpha` | Human-annotator direct LLM exposure rating (E1), averaged from 8-digit O*NET-SOC codes to six-digit SOC 2018. |
+| `human_rating_beta` | Human-annotator exposure rating adding half software exposure weight (E1 + 0.5*E2), averaged from 8-digit O*NET-SOC codes to six-digit SOC 2018. |
+| `human_rating_gamma` | Human-annotator exposure rating adding full software exposure weight (E1 + E2), averaged from 8-digit O*NET-SOC codes to six-digit SOC 2018. |
 | `oews_occ_title` | OEWS national occupation title for the matched code. |
-| `oews_tot_emp` | Raw OEWS national total employment for the exact SOC 2018 code (NA when missing or suppressed). |
+| `oews_tot_emp` | Raw OEWS national total employment for the matched SOC 2018 code. For broad fallback rows, this is the raw broad-code employment before splitting; NA when missing or suppressed. |
 | `oews_a_mean` | OEWS annual mean wage. |
 | `oews_a_median` | OEWS annual median wage. |
-| `oews_soc_2018_broad` | SOC 2018 broad code (fifth digit zeroed) used for the employment fallback; NA for exact matches. |
+| `oews_soc_2018_broad` | SOC 2018 broad code (final SOC digit zeroed) used for the employment fallback; NA for exact matches. |
 | `oews_tot_emp_adjusted` | Employment after the broad-code fallback: the exact-match value, or the broad code's employment split equally across its detailed child codes without their own OEWS row. |
 | `oews_broad_match` | True when employment came from the broad-code fallback rather than an exact SOC 2018 match. |
 | `oews_tot_emp_imputed` | oews_tot_emp_adjusted with missing employment filled with the median across occupations, only for occupations that have exposure ratings. |
@@ -61,7 +69,7 @@ SOC 2010 panel of AEI task-level usage apportioned to occupations via O*NET task
 | --- | --- |
 | `soc_2010` | Six-digit SOC 2010 occupation code (8-digit O*NET-SOC 2010 codes truncated to the parent SOC code). |
 | `title_2010` | SOC 2010 occupation title. |
-| `group_id` | Connected-component ID of the bipartite SOC 2010<->2018 crosswalk graph; non-singleton groups mark one-to-many or many-to-many crosswalk relationships. |
+| `group_id` | Connected-component ID of the bipartite SOC 2010<->2018 crosswalk graph; each component can be one-to-one, one-to-many, many-to-one, or many-to-many. |
 | `oews_tot_emp_allocated` | OEWS SOC 2018 employment (after the broad-code adjustment) allocated to SOC 2010 by splitting each SOC 2018 code's employment equally across its SOC 2010 crosswalk partners, then summing by SOC 2010. NA when no crosswalk partner has OEWS employment. |
 | `oews_tot_emp_imputed` | oews_tot_emp_allocated with missing values filled with the median allocated employment across SOC 2010 occupations. Used as the employment weight and the per-capita denominator. |
 | `oews_emp_was_imputed` | True when oews_tot_emp_allocated was missing and oews_tot_emp_imputed holds the median-employment fill value. |
@@ -102,7 +110,7 @@ SOC 2010 panel built from the AEI occupation-level automation/augmentation relea
 | --- | --- |
 | `soc_2010` | Six-digit SOC 2010 occupation code (8-digit O*NET-SOC 2010 codes truncated to the parent SOC code). |
 | `title_2010` | SOC 2010 occupation title. |
-| `group_id` | Connected-component ID of the bipartite SOC 2010<->2018 crosswalk graph; non-singleton groups mark one-to-many or many-to-many crosswalk relationships. |
+| `group_id` | Connected-component ID of the bipartite SOC 2010<->2018 crosswalk graph; each component can be one-to-one, one-to-many, many-to-one, or many-to-many. |
 | `oews_tot_emp_allocated` | OEWS SOC 2018 employment (after the broad-code adjustment) allocated to SOC 2010 by splitting each SOC 2018 code's employment equally across its SOC 2010 crosswalk partners, then summing by SOC 2010. NA when no crosswalk partner has OEWS employment. |
 | `oews_tot_emp_imputed` | oews_tot_emp_allocated with missing values filled with the median allocated employment across SOC 2010 occupations. Used as the employment weight and the per-capita denominator. |
 | `oews_emp_was_imputed` | True when oews_tot_emp_allocated was missing and oews_tot_emp_imputed holds the median-employment fill value. |
@@ -135,8 +143,8 @@ The task panel aggregated to O*NET-SOC occupations by equal-split apportionment:
 
 | Variable | Definition |
 | --- | --- |
-| `O*NET-SOC Code` | Eight-character O*NET-SOC occupation code. |
-| `task_count_{platform}_{release}` | Raw AEI conversation count for the unit in the given platform (1p_api or claude_ai) and release (2025_09, 2026_01, or 2026_03). Units unobserved in a release are filled with 0. |
-| `task_count_{platform}_pooled` | Sum of the platform's counts across the three releases. |
+| `O*NET-SOC Code` | Formatted O*NET-SOC occupation code (eight digits plus punctuation, e.g. 11-1011.00). |
+| `task_count_{platform}_{release}` | AEI conversation count apportioned from tasks to O*NET-SOC occupations by equal-splitting shared tasks, for the given platform (1p_api or claude_ai) and release (2025_09, 2026_01, or 2026_03). Units unobserved in a release are filled with 0. |
+| `task_count_{platform}_pooled` | Sum of the platform's apportioned counts across the three releases. |
 
 <!-- END CODEBOOK SECTION: cross_release_panels -->

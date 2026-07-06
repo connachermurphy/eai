@@ -17,7 +17,7 @@ One row per IWA-occupation pair with link counts and candidate within-IWA alloca
 | --- | --- |
 | `iwa_id` | O*NET 30.2 Intermediate Work Activity (IWA) identifier. |
 | `iwa_title` | IWA title. |
-| `onet_soc_code` | Eight-character O*NET-SOC 2019 occupation code. |
+| `onet_soc_code` | Formatted O*NET-SOC 2019 occupation code (eight digits plus punctuation, e.g. 25-4013.00). |
 | `occupation_title` | O*NET-SOC occupation title. |
 | `task_count` | Distinct O*NET task IDs within the group. Counted over the Tasks-to-DWAs rows connecting the IWA to the occupation (join path: IWA Reference -> DWA Reference -> Tasks to DWAs). |
 | `task_dwa_link_count` | Task-to-DWA link rows within the group (a task can map to several DWAs under one IWA). |
@@ -45,7 +45,7 @@ Audit table: one row per task-DWA-IWA link before aggregation.
 | --- | --- |
 | `iwa_id` | O*NET 30.2 Intermediate Work Activity (IWA) identifier. |
 | `iwa_title` | IWA title. |
-| `onet_soc_code` | Eight-character O*NET-SOC 2019 occupation code. |
+| `onet_soc_code` | Formatted O*NET-SOC 2019 occupation code (eight digits plus punctuation, e.g. 25-4013.00). |
 | `occupation_title` | O*NET-SOC occupation title. |
 | `task_id` | O*NET task identifier. |
 | `task` | Task statement text. |
@@ -67,10 +67,8 @@ Slim IWA-occupation edge table with per-link counts, coverage counts, and the ca
 | --- | --- |
 | `iwa_id` | O*NET 30.2 Intermediate Work Activity (IWA) identifier. |
 | `iwa_title` | IWA title. |
-| `onet_soc_code` | Eight-character O*NET-SOC 2019 occupation code. |
+| `onet_soc_code` | Formatted O*NET-SOC 2019 occupation code (eight digits plus punctuation, e.g. 25-4013.00). |
 | `occupation_title` | O*NET-SOC occupation title. |
-| `iwa_count_for_occupation` | Number of distinct IWAs linked to the occupation. |
-| `occupation_count_for_iwa` | Number of distinct occupations linked to the IWA. |
 | `link_task_count` | Distinct O*NET task IDs for the IWA-occupation link. Counted over the Tasks-to-DWAs rows connecting the IWA to the occupation (join path: IWA Reference -> DWA Reference -> Tasks to DWAs). |
 | `link_task_dwa_link_count` | Task-to-DWA link rows for the IWA-occupation link (a task can map to several DWAs under one IWA). |
 | `link_dwa_count` | Distinct DWA IDs for the IWA-occupation link. |
@@ -78,6 +76,8 @@ Slim IWA-occupation edge table with per-link counts, coverage counts, and the ca
 | `link_supplemental_task_count` | Distinct tasks typed Supplemental for the IWA-occupation link. |
 | `link_unclassified_task_count` | Distinct tasks with blank Task Type for the IWA-occupation link. |
 | `link_classified_task_count` | Core plus supplemental task count. |
+| `iwa_count_for_occupation` | Number of distinct IWAs linked to the occupation. |
+| `occupation_count_for_iwa` | Number of distinct occupations linked to the IWA. |
 | `occupation_weight_within_iwa_task_count` | Candidate allocation weight: the occupation's distinct task count divided by the sum of that basis across all occupations linked to the IWA (sums to 1 within IWA; NA when the denominator is 0). |
 | `occupation_weight_within_iwa_task_dwa_links` | Candidate allocation weight: the occupation's task-DWA link row count divided by the sum of that basis across all occupations linked to the IWA (sums to 1 within IWA; NA when the denominator is 0). |
 | `occupation_weight_within_iwa_dwa_count` | Candidate allocation weight: the occupation's distinct DWA count divided by the sum of that basis across all occupations linked to the IWA (sums to 1 within IWA; NA when the denominator is 0). |
@@ -93,13 +93,13 @@ Coverage summary, one row per IWA.
 | `iwa_id` | O*NET 30.2 Intermediate Work Activity (IWA) identifier. |
 | `iwa_title` | IWA title. |
 | `occupation_count` | Number of distinct occupations linked to the IWA. |
-| `task_count` | Distinct O*NET task IDs within the group. Counted over the Tasks-to-DWAs rows connecting the IWA to the occupation (join path: IWA Reference -> DWA Reference -> Tasks to DWAs). |
-| `task_dwa_link_count` | Task-to-DWA link rows within the group (a task can map to several DWAs under one IWA). |
-| `dwa_count` | Distinct DWA IDs within the group. |
-| `core_task_count` | Distinct tasks typed Core within the group. O*NET Task Type: Core (relevance >= 67% and mean importance >= 3.0) or Supplemental; blank rows are retained as Unclassified. |
-| `supplemental_task_count` | Distinct tasks typed Supplemental within the group. |
-| `unclassified_task_count` | Distinct tasks with blank Task Type within the group. |
-| `classified_task_count` | Core plus supplemental task count. |
+| `task_count` | Sum of per-IWA-occupation distinct task counts across the covered links; tasks can be counted once per linked occupation or IWA. |
+| `task_dwa_link_count` | Sum of per-IWA-occupation task-to-DWA link rows across the covered links. |
+| `dwa_count` | Sum of per-IWA-occupation distinct DWA counts across the covered links; DWAs can be counted once per linked occupation or IWA. |
+| `core_task_count` | Sum of per-IWA-occupation distinct Core task counts across the covered links. |
+| `supplemental_task_count` | Sum of per-IWA-occupation distinct Supplemental task counts across the covered links. |
+| `unclassified_task_count` | Sum of per-IWA-occupation distinct unclassified task counts across the covered links. |
+| `classified_task_count` | Sum of per-IWA-occupation Core plus Supplemental task counts across the covered links. |
 
 ### `occupation_iwa_counts.csv`
 
@@ -107,16 +107,16 @@ Coverage summary, one row per occupation.
 
 | Variable | Definition |
 | --- | --- |
-| `onet_soc_code` | Eight-character O*NET-SOC 2019 occupation code. |
+| `onet_soc_code` | Formatted O*NET-SOC 2019 occupation code (eight digits plus punctuation, e.g. 25-4013.00). |
 | `occupation_title` | O*NET-SOC occupation title. |
 | `iwa_count` | Number of distinct IWAs linked to the occupation. |
-| `task_count` | Distinct O*NET task IDs within the group. Counted over the Tasks-to-DWAs rows connecting the IWA to the occupation (join path: IWA Reference -> DWA Reference -> Tasks to DWAs). |
-| `task_dwa_link_count` | Task-to-DWA link rows within the group (a task can map to several DWAs under one IWA). |
-| `dwa_count` | Distinct DWA IDs within the group. |
-| `core_task_count` | Distinct tasks typed Core within the group. O*NET Task Type: Core (relevance >= 67% and mean importance >= 3.0) or Supplemental; blank rows are retained as Unclassified. |
-| `supplemental_task_count` | Distinct tasks typed Supplemental within the group. |
-| `unclassified_task_count` | Distinct tasks with blank Task Type within the group. |
-| `classified_task_count` | Core plus supplemental task count. |
+| `task_count` | Sum of per-IWA-occupation distinct task counts across the covered links; tasks can be counted once per linked occupation or IWA. |
+| `task_dwa_link_count` | Sum of per-IWA-occupation task-to-DWA link rows across the covered links. |
+| `dwa_count` | Sum of per-IWA-occupation distinct DWA counts across the covered links; DWAs can be counted once per linked occupation or IWA. |
+| `core_task_count` | Sum of per-IWA-occupation distinct Core task counts across the covered links. |
+| `supplemental_task_count` | Sum of per-IWA-occupation distinct Supplemental task counts across the covered links. |
+| `unclassified_task_count` | Sum of per-IWA-occupation distinct unclassified task counts across the covered links. |
+| `classified_task_count` | Sum of per-IWA-occupation Core plus Supplemental task counts across the covered links. |
 
 ### `iwa_weight_summary.csv`
 
@@ -125,11 +125,17 @@ Distribution summary of each candidate within-IWA weight column.
 | Variable | Definition |
 | --- | --- |
 | `weight_column` | Candidate weight column name. |
-| `basis` | Count column the weight is built from. |
-| `n` | Number of IWA-occupation links. |
+| `basis` | Display label for the count basis the weight is built from. |
+| `n` | Number of non-missing weights for the candidate column. |
 | `missing` | Links with NA weight (zero denominator). |
 | `zero_count` | Links with weight exactly 0. |
-| `mean / std / min / p25 / median / p75 / max` | Distribution moments of the weight across links. |
+| `mean` | Mean weight across links with non-missing weights. |
+| `std` | Standard deviation across links with non-missing weights. |
+| `min` | Minimum non-missing weight. |
+| `p25` | 25th percentile of non-missing weights. |
+| `median` | Median non-missing weight. |
+| `p75` | 75th percentile of non-missing weights. |
+| `max` | Maximum non-missing weight. |
 
 ### `iwa_weight_correlations.csv`
 
@@ -142,13 +148,30 @@ Pairwise correlations between candidate weight columns across IWA-occupation lin
 | `weight_2` | Second weight column. |
 | `correlation` | Correlation between the two weights. |
 
-### `iwa_weight_correlations_pearson_matrix.csv / iwa_weight_correlations_spearman_matrix.csv`
+### `iwa_weight_correlations_pearson_matrix.csv`
 
-The same correlations in matrix form: one row and one column per weight variant.
+Pearson correlations in matrix form: one row and one column per weight variant.
 
 | Variable | Definition |
 | --- | --- |
 | `weight` | Weight column for the row. |
-| `occupation_weight_within_iwa_*` | Correlation with the column's weight variant. |
+| `occupation_weight_within_iwa_task_count` | Pearson correlation with occupation_weight_within_iwa_task_count. |
+| `occupation_weight_within_iwa_task_dwa_links` | Pearson correlation with occupation_weight_within_iwa_task_dwa_links. |
+| `occupation_weight_within_iwa_dwa_count` | Pearson correlation with occupation_weight_within_iwa_dwa_count. |
+| `occupation_weight_within_iwa_core_task_count` | Pearson correlation with occupation_weight_within_iwa_core_task_count. |
+| `occupation_weight_within_iwa_classified_task_count` | Pearson correlation with occupation_weight_within_iwa_classified_task_count. |
+
+### `iwa_weight_correlations_spearman_matrix.csv`
+
+Spearman correlations in matrix form: one row and one column per weight variant.
+
+| Variable | Definition |
+| --- | --- |
+| `weight` | Weight column for the row. |
+| `occupation_weight_within_iwa_task_count` | Spearman correlation with occupation_weight_within_iwa_task_count. |
+| `occupation_weight_within_iwa_task_dwa_links` | Spearman correlation with occupation_weight_within_iwa_task_dwa_links. |
+| `occupation_weight_within_iwa_dwa_count` | Spearman correlation with occupation_weight_within_iwa_dwa_count. |
+| `occupation_weight_within_iwa_core_task_count` | Spearman correlation with occupation_weight_within_iwa_core_task_count. |
+| `occupation_weight_within_iwa_classified_task_count` | Spearman correlation with occupation_weight_within_iwa_classified_task_count. |
 
 <!-- END CODEBOOK SECTION: iwa_mapping -->

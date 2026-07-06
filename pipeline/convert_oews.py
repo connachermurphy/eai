@@ -60,10 +60,13 @@ for f in FILES:
 # numeric themselves. See the BLS OEWS documentation for full detail:
 # https://www.bls.gov/oes/oes_doc.htm
 OEWS_COLUMNS = [
-    ("area", "BLS area code (US for national files)."),
+    ("area", "BLS area code (99 for U.S. national files)."),
     ("area_title", "Area name."),
     ("area_type", "Area type code (1 = national)."),
-    ("prim_state", "Primary state for the area."),
+    (
+        "prim_state",
+        "Primary state for the area; absent from some older national files.",
+    ),
     ("naics", "NAICS industry code for the estimate."),
     ("naics_title", "NAICS industry title."),
     ("i_group", "Industry level of the estimate (e.g., cross-industry)."),
@@ -72,19 +75,31 @@ OEWS_COLUMNS = [
     ("occ_title", "SOC occupation title."),
     (
         "o_group",
-        "SOC aggregation level of the row: major, minor, broad, or detailed.",
+        "SOC aggregation level of the row: total, major, minor, broad, or detailed.",
     ),
     ("tot_emp", "Estimated total employment (excludes self-employed)."),
     ("emp_prse", "Percent relative standard error of employment."),
     ("jobs_1000", "Jobs per 1,000 in the area (blank in national files)."),
     ("loc_quotient", "Location quotient (blank in national files)."),
     ("pct_total", "Percent of industry employment in the occupation."),
-    ("pct_rpt", "Percent of establishments reporting the occupation."),
+    (
+        "pct_rpt",
+        "Percent of establishments reporting the occupation; absent from some "
+        "older files.",
+    ),
     ("h_mean", "Mean hourly wage."),
     ("a_mean", "Mean annual wage."),
     ("mean_prse", "Percent relative standard error of the mean wage."),
-    ("h_pct10 / h_pct25 / h_median / h_pct75 / h_pct90", "Hourly wage percentiles."),
-    ("a_pct10 / a_pct25 / a_median / a_pct75 / a_pct90", "Annual wage percentiles."),
+    ("h_pct10", "10th-percentile hourly wage."),
+    ("h_pct25", "25th-percentile hourly wage."),
+    ("h_median", "Median hourly wage."),
+    ("h_pct75", "75th-percentile hourly wage."),
+    ("h_pct90", "90th-percentile hourly wage."),
+    ("a_pct10", "10th-percentile annual wage."),
+    ("a_pct25", "25th-percentile annual wage."),
+    ("a_median", "Median annual wage."),
+    ("a_pct75", "75th-percentile annual wage."),
+    ("a_pct90", "90th-percentile annual wage."),
     (
         "annual",
         "True when only an annual wage is published (no hourly equivalent).",

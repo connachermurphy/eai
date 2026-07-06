@@ -39,7 +39,11 @@ update_codebook(
                 "columns unchanged."
             ),
             "columns": [
-                ("O*NET-SOC Code", "Eight-character O*NET-SOC occupation code."),
+                (
+                    "O*NET-SOC Code",
+                    "Formatted O*NET-SOC occupation code (eight digits plus "
+                    "punctuation, e.g. 11-1011.00).",
+                ),
                 ("Title", "O*NET occupation title."),
                 ("Task ID", "O*NET task identifier."),
                 ("Task", "Task statement text."),

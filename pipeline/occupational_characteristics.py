@@ -481,9 +481,9 @@ log.info(
     n_occ_without,
 )
 
-# Impute missing employment with median (for employment-weighted apportionment)
-median_emp_2010 = df_2010.loc[
-    df_2010["oews_tot_emp_allocated"].notna(), "oews_tot_emp_allocated"
+# Impute missing employment with the median across unique SOC 2010 occupations.
+median_emp_2010 = oews_by_soc_2010.loc[
+    oews_by_soc_2010["oews_tot_emp_allocated"].notna(), "oews_tot_emp_allocated"
 ].median()
 log.info("SOC 2010 median employment: %.0f", median_emp_2010)
 
@@ -697,7 +697,7 @@ else:
 # ======================================================================================
 GROUP_ID_DEF = (
     "Connected-component ID of the bipartite SOC 2010<->2018 crosswalk graph; "
-    "non-singleton groups mark one-to-many or many-to-many crosswalk relationships."
+    "each component can be one-to-one, one-to-many, many-to-one, or many-to-many."
 )
 SOC_2010_ID_COLS = [
     (
@@ -809,19 +809,38 @@ update_codebook(
                 ("title_2018", "SOC 2018 occupation title."),
                 ("group_id", GROUP_ID_DEF),
                 (
-                    "dv_rating_alpha / dv_rating_beta / dv_rating_gamma",
-                    "Model-generated (GPT-4) exposure ratings from Eloundou "
-                    "et al., averaged from 8-digit O*NET-SOC codes to six-digit "
-                    "SOC 2018. alpha counts only direct LLM exposure (E1); "
-                    "beta adds half weight on exposure via LLM-powered "
-                    "software (E1 + 0.5*E2); gamma adds full weight "
-                    "(E1 + E2).",
+                    "dv_rating_alpha",
+                    "Model-generated (GPT-4) direct LLM exposure rating (E1), "
+                    "averaged from 8-digit O*NET-SOC codes to six-digit SOC 2018.",
                 ),
                 (
-                    "human_rating_alpha / human_rating_beta / human_rating_gamma",
-                    "Human-annotator exposure ratings from Eloundou et al.; "
-                    "same alpha/beta/gamma aggregations and O*NET-SOC "
-                    "averaging as the dv_rating columns.",
+                    "dv_rating_beta",
+                    "Model-generated exposure rating adding half weight on "
+                    "exposure via LLM-powered software (E1 + 0.5*E2), averaged "
+                    "from 8-digit O*NET-SOC codes to six-digit SOC 2018.",
+                ),
+                (
+                    "dv_rating_gamma",
+                    "Model-generated exposure rating adding full software "
+                    "exposure weight (E1 + E2), averaged from 8-digit O*NET-SOC "
+                    "codes to six-digit SOC 2018.",
+                ),
+                (
+                    "human_rating_alpha",
+                    "Human-annotator direct LLM exposure rating (E1), averaged "
+                    "from 8-digit O*NET-SOC codes to six-digit SOC 2018.",
+                ),
+                (
+                    "human_rating_beta",
+                    "Human-annotator exposure rating adding half software "
+                    "exposure weight (E1 + 0.5*E2), averaged from 8-digit "
+                    "O*NET-SOC codes to six-digit SOC 2018.",
+                ),
+                (
+                    "human_rating_gamma",
+                    "Human-annotator exposure rating adding full software "
+                    "exposure weight (E1 + E2), averaged from 8-digit O*NET-SOC "
+                    "codes to six-digit SOC 2018.",
                 ),
                 (
                     "oews_occ_title",
@@ -829,14 +848,15 @@ update_codebook(
                 ),
                 (
                     "oews_tot_emp",
-                    "Raw OEWS national total employment for the exact SOC "
-                    "2018 code (NA when missing or suppressed).",
+                    "Raw OEWS national total employment for the matched SOC "
+                    "2018 code. For broad fallback rows, this is the raw broad-code "
+                    "employment before splitting; NA when missing or suppressed.",
                 ),
                 ("oews_a_mean", "OEWS annual mean wage."),
                 ("oews_a_median", "OEWS annual median wage."),
                 (
                     "oews_soc_2018_broad",
-                    "SOC 2018 broad code (fifth digit zeroed) used for the "
+                    "SOC 2018 broad code (final SOC digit zeroed) used for the "
                     "employment fallback; NA for exact matches.",
                 ),
                 (

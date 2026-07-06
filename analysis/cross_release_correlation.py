@@ -446,7 +446,7 @@ run_comparisons(occupations, "occupation")
 # ==========================================================================
 # Update codebooks
 # ==========================================================================
-COUNT_PATTERN_COLS = [
+TASK_COUNT_PATTERN_COLS = [
     (
         "task_count_{platform}_{release}",
         "Raw AEI conversation count for the unit in the given platform "
@@ -456,6 +456,19 @@ COUNT_PATTERN_COLS = [
     (
         "task_count_{platform}_pooled",
         "Sum of the platform's counts across the three releases.",
+    ),
+]
+OCCUPATION_COUNT_PATTERN_COLS = [
+    (
+        "task_count_{platform}_{release}",
+        "AEI conversation count apportioned from tasks to O*NET-SOC occupations "
+        "by equal-splitting shared tasks, for the given platform (1p_api or "
+        "claude_ai) and release (2025_09, 2026_01, or 2026_03). Units "
+        "unobserved in a release are filled with 0.",
+    ),
+    (
+        "task_count_{platform}_pooled",
+        "Sum of the platform's apportioned counts across the three releases.",
     ),
 ]
 update_codebook(
@@ -477,7 +490,7 @@ update_codebook(
                     "key used to match tasks across releases.",
                 )
             ]
-            + COUNT_PATTERN_COLS,
+            + TASK_COUNT_PATTERN_COLS,
         },
         {
             "name": "cross_release_panel_occupation.csv",
@@ -487,9 +500,13 @@ update_codebook(
                 "contributes 1/N of its count to each."
             ),
             "columns": [
-                ("O*NET-SOC Code", "Eight-character O*NET-SOC occupation code.")
+                (
+                    "O*NET-SOC Code",
+                    "Formatted O*NET-SOC occupation code (eight digits plus "
+                    "punctuation, e.g. 11-1011.00).",
+                )
             ]
-            + COUNT_PATTERN_COLS,
+            + OCCUPATION_COUNT_PATTERN_COLS,
         },
     ],
 )
@@ -511,12 +528,10 @@ update_codebook(
                 "release or platform vs platform)."
             ),
             "columns": [
-                (
-                    "both_zero / a_only / b_only / both_nonzero",
-                    "Extensive-margin cell counts: units with zero counts in "
-                    "both series, only in series A, only in series B, or "
-                    "nonzero in both.",
-                ),
+                ("both_zero", "Units with zero counts in both series."),
+                ("a_only", "Units with nonzero counts only in series A."),
+                ("b_only", "Units with nonzero counts only in series B."),
+                ("both_nonzero", "Units with nonzero counts in both series."),
                 ("total", "Total units compared."),
                 (
                     "agreement",
@@ -529,19 +544,29 @@ update_codebook(
                     "Units in the both-nonzero subset after trimming values "
                     "above either series' 95th percentile.",
                 ),
+                ("pearson_all", "Pearson correlation over all units, including zeros."),
                 (
-                    "pearson_all / spearman_all",
-                    "Correlations over all units, including zeros.",
+                    "spearman_all",
+                    "Spearman correlation over all units, including zeros.",
                 ),
                 (
-                    "pearson_both_nonzero / spearman_both_nonzero",
-                    "Correlations over the both-nonzero subset.",
+                    "pearson_both_nonzero",
+                    "Pearson correlation over the both-nonzero subset.",
                 ),
                 (
-                    "pearson_trimmed / spearman_trimmed",
-                    "Correlations over the p95-trimmed both-nonzero subset.",
+                    "spearman_both_nonzero",
+                    "Spearman correlation over the both-nonzero subset.",
                 ),
-                ("label_a / label_b", "Display labels of the two series."),
+                (
+                    "pearson_trimmed",
+                    "Pearson correlation over the p95-trimmed both-nonzero subset.",
+                ),
+                (
+                    "spearman_trimmed",
+                    "Spearman correlation over the p95-trimmed both-nonzero subset.",
+                ),
+                ("label_a", "Display label of series A."),
+                ("label_b", "Display label of series B."),
             ],
         }
     ],

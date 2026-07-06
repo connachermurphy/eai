@@ -1144,8 +1144,7 @@ assumption.
 
 GROUP_ID_DEF = (
     "Connected-component ID of the bipartite SOC 2010<->2018 crosswalk graph; "
-    "non-singleton groups mark one-to-many or many-to-many crosswalk "
-    "relationships."
+    "each component can be one-to-one, one-to-many, many-to-one, or many-to-many."
 )
 SOC_2018_ID_COLS = [
     ("soc_2018", "Six-digit SOC 2018 occupation code."),
@@ -1160,8 +1159,9 @@ OEWS_SOC_2018_COLS = [
     ("oews_occ_title", "OEWS national occupation title for the matched code."),
     (
         "oews_tot_emp",
-        "Raw OEWS national total employment for the exact SOC 2018 code (NA "
-        "when missing or suppressed).",
+        "Raw OEWS national total employment for the matched SOC 2018 code. For "
+        "broad fallback rows, this is the raw broad-code employment before "
+        "splitting; NA when missing or suppressed.",
     ),
     ("oews_a_mean", "OEWS annual mean wage."),
     ("oews_a_median", "OEWS annual median wage."),
@@ -1172,7 +1172,7 @@ OEWS_SOC_2018_COLS = [
     ),
     (
         "oews_soc_2018_broad",
-        "SOC 2018 broad code (fifth digit zeroed) used for the employment "
+        "SOC 2018 broad code (final SOC digit zeroed) used for the employment "
         "fallback; NA for exact matches.",
     ),
     (
@@ -1285,6 +1285,13 @@ PANEL_OEWS_COLS = _oews_cols(
     "oews_soc_2018_broad",
 )
 
+# The month panel carries the link counts but not the mapping-vintage fields.
+PANEL_LINK_COLS = [
+    (name, definition)
+    for name, definition in IWA_LINK_COLS
+    if name not in ("first_mapping_update", "latest_mapping_update", "domain_sources")
+]
+
 IWA_MONTH_COLS = (
     OPENAI_MEASURE_COLS[:2]
     + [IWA_ID_COLS[0]]
@@ -1313,7 +1320,10 @@ IWA_MONTH_COLS = (
             "link_task_dwa_link_count",
             "Task-to-DWA link rows across the IWA's links.",
         ),
-        ("link_dwa_count", "Distinct DWA IDs across the IWA's links."),
+        (
+            "link_dwa_count",
+            "Sum of per-IWA-SOC distinct DWA counts across the IWA's links.",
+        ),
         (
             "is_mapped_to_onet_iwa",
             "True when the OpenAI IWA label matches an O*NET 30.2 IWA; False "
@@ -1405,7 +1415,7 @@ def write_output_codebook(output_dir: Path) -> None:
                     ),
                 ]
                 + PANEL_OEWS_COLS
-                + IWA_LINK_COLS,
+                + PANEL_LINK_COLS,
             },
             {
                 "name": "openai_soc2018_month_summary.csv",

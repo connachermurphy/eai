@@ -193,7 +193,9 @@ def write_codebook(release_dir: Path) -> None:
                     ),
                     (
                         "task_pct",
-                        "Task's percent share of classified conversations (0-100).",
+                        "Task's raw percent share in the source onet_task facet "
+                        "(0-100), before this script drops usage-only tasks that "
+                        "lack collaboration rows.",
                     ),
                     (
                         "{collab}_count",

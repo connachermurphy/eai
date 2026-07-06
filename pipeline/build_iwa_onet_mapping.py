@@ -872,7 +872,10 @@ IWA_ID_COLS = [
     ("iwa_title", "IWA title."),
 ]
 ONET_SOC_ID_COLS = [
-    ("onet_soc_code", "Eight-character O*NET-SOC 2019 occupation code."),
+    (
+        "onet_soc_code",
+        "Formatted O*NET-SOC 2019 occupation code (eight digits plus punctuation, e.g. 25-4013.00).",
+    ),
     ("occupation_title", "O*NET-SOC occupation title."),
 ]
 LINK_BASIS_DEF = (
@@ -929,6 +932,40 @@ def _count_cols(prefix: str = "") -> list[tuple[str, str]]:
         (
             f"{prefix}classified_task_count",
             "Core plus supplemental task count.",
+        ),
+    ]
+
+
+def _summed_link_count_cols() -> list[tuple[str, str]]:
+    """Definitions for coverage summaries that sum per-link count columns."""
+    return [
+        (
+            "task_count",
+            "Sum of per-IWA-occupation distinct task counts across the covered links; tasks can be counted once per linked occupation or IWA.",
+        ),
+        (
+            "task_dwa_link_count",
+            "Sum of per-IWA-occupation task-to-DWA link rows across the covered links.",
+        ),
+        (
+            "dwa_count",
+            "Sum of per-IWA-occupation distinct DWA counts across the covered links; DWAs can be counted once per linked occupation or IWA.",
+        ),
+        (
+            "core_task_count",
+            "Sum of per-IWA-occupation distinct Core task counts across the covered links.",
+        ),
+        (
+            "supplemental_task_count",
+            "Sum of per-IWA-occupation distinct Supplemental task counts across the covered links.",
+        ),
+        (
+            "unclassified_task_count",
+            "Sum of per-IWA-occupation distinct unclassified task counts across the covered links.",
+        ),
+        (
+            "classified_task_count",
+            "Sum of per-IWA-occupation Core plus Supplemental task counts across the covered links.",
         ),
     ]
 
@@ -1023,6 +1060,7 @@ def write_output_codebook() -> None:
                 ),
                 "columns": IWA_ID_COLS
                 + ONET_SOC_ID_COLS
+                + _count_cols("link_")
                 + [
                     (
                         "iwa_count_for_occupation",
@@ -1033,7 +1071,6 @@ def write_output_codebook() -> None:
                         "Number of distinct occupations linked to the IWA.",
                     ),
                 ]
-                + _count_cols("link_")
                 + WEIGHT_COLS,
             },
             {
@@ -1046,7 +1083,7 @@ def write_output_codebook() -> None:
                         "Number of distinct occupations linked to the IWA.",
                     )
                 ]
-                + _count_cols(),
+                + _summed_link_count_cols(),
             },
             {
                 "name": "occupation_iwa_counts.csv",
@@ -1058,7 +1095,7 @@ def write_output_codebook() -> None:
                         "Number of distinct IWAs linked to the occupation.",
                     )
                 ]
-                + _count_cols(),
+                + _summed_link_count_cols(),
             },
             {
                 "name": "iwa_weight_summary.csv",
@@ -1067,14 +1104,23 @@ def write_output_codebook() -> None:
                 ),
                 "columns": [
                     ("weight_column", "Candidate weight column name."),
-                    ("basis", "Count column the weight is built from."),
-                    ("n", "Number of IWA-occupation links."),
+                    (
+                        "basis",
+                        "Display label for the count basis the weight is built from.",
+                    ),
+                    ("n", "Number of non-missing weights for the candidate column."),
                     ("missing", "Links with NA weight (zero denominator)."),
                     ("zero_count", "Links with weight exactly 0."),
+                    ("mean", "Mean weight across links with non-missing weights."),
                     (
-                        "mean / std / min / p25 / median / p75 / max",
-                        "Distribution moments of the weight across links.",
+                        "std",
+                        "Standard deviation across links with non-missing weights.",
                     ),
+                    ("min", "Minimum non-missing weight."),
+                    ("p25", "25th percentile of non-missing weights."),
+                    ("median", "Median non-missing weight."),
+                    ("p75", "75th percentile of non-missing weights."),
+                    ("max", "Maximum non-missing weight."),
                 ],
             },
             {
@@ -1091,20 +1137,31 @@ def write_output_codebook() -> None:
                 ],
             },
             {
-                "name": (
-                    "iwa_weight_correlations_pearson_matrix.csv / "
-                    "iwa_weight_correlations_spearman_matrix.csv"
-                ),
+                "name": "iwa_weight_correlations_pearson_matrix.csv",
                 "description": (
-                    "The same correlations in matrix form: one row and one "
+                    "Pearson correlations in matrix form: one row and one "
                     "column per weight variant."
                 ),
                 "columns": [
                     ("weight", "Weight column for the row."),
-                    (
-                        "occupation_weight_within_iwa_*",
-                        "Correlation with the column's weight variant.",
-                    ),
+                ]
+                + [
+                    (column, f"Pearson correlation with {column}.")
+                    for column in WEIGHT_COLUMNS
+                ],
+            },
+            {
+                "name": "iwa_weight_correlations_spearman_matrix.csv",
+                "description": (
+                    "Spearman correlations in matrix form: one row and one "
+                    "column per weight variant."
+                ),
+                "columns": [
+                    ("weight", "Weight column for the row."),
+                ]
+                + [
+                    (column, f"Spearman correlation with {column}.")
+                    for column in WEIGHT_COLUMNS
                 ],
             },
         ],

@@ -45,11 +45,16 @@ Correlations between winsorized usage and the annual mean wage, one row per Open
 | `weight_column` | Employment weight column (oews_tot_emp_imputed). |
 | `wage_column` | Wage column (oews_a_mean, levels). |
 | `n` | Occupations in the sample. |
-| `weighted_pearson / weighted_spearman` | Employment-weighted correlations between the winsorized usage column and the wage (Spearman is weighted Pearson on ranks). |
-| `pearson / spearman` | Unweighted counterparts. |
-| `mean_usage / median_usage` | Unweighted mean and median of the winsorized usage column. |
-| `winsor_lower_quantile / winsor_upper_quantile` | Quantile levels used for winsorization. |
-| `winsor_lower_value / winsor_upper_value` | Data values at the winsorization quantiles. |
+| `weighted_pearson` | Employment-weighted Pearson correlation. |
+| `weighted_spearman` | Employment-weighted Pearson correlation on ranks. |
+| `pearson` | Unweighted Pearson correlation. |
+| `spearman` | Unweighted Spearman correlation. |
+| `mean_usage` | Unweighted mean of the raw usage column. |
+| `median_usage` | Unweighted median of the raw usage column. |
+| `winsor_lower_quantile` | Lower quantile used for winsorization. |
+| `winsor_upper_quantile` | Upper quantile used for winsorization. |
+| `winsor_lower_value` | Data value at the lower winsorization quantile. |
+| `winsor_upper_value` | Data value at the upper winsorization quantile. |
 
 ### `winsor_bounds.csv`
 
@@ -60,7 +65,9 @@ Winsorization bounds applied to each usage column, per OpenAI measure.
 | `openai_measure` | OpenAI Signals series. |
 | `usage_column` | Raw usage column winsorized. |
 | `winsorized_column` | Name of the winsorized column. |
-| `winsor_lower_quantile / winsor_upper_quantile` | Quantile levels used for winsorization. |
-| `winsor_lower_value / winsor_upper_value` | Data values at the winsorization quantiles. |
+| `winsor_lower_quantile` | Lower quantile used for winsorization. |
+| `winsor_upper_quantile` | Upper quantile used for winsorization. |
+| `winsor_lower_value` | Data value at the lower winsorization quantile. |
+| `winsor_upper_value` | Data value at the upper winsorization quantile. |
 
 <!-- END CODEBOOK SECTION: openai_iwa_wages -->

@@ -17,7 +17,7 @@ Task-level Claude usage for the release, for Claude.ai and first-party API traff
 | --- | --- |
 | `task` | O*NET task statement text. |
 | `task_count` | Total conversations classified to the task (from the onet_task facet). NA when the task appears in the collaboration facet only. |
-| `task_pct` | Task's percent share of classified conversations (0-100). |
+| `task_pct` | Task's raw percent share in the source onet_task facet (0-100), before this script drops usage-only tasks that lack collaboration rows. |
 | `{collab}_count` | Conversations for the task in the given collaboration mode, for collab in: directive, feedback_loop, learning, none, not_classified, task_iteration, validation. Missing modes are filled with 0. |
 | `{collab}_pct` | Percent share of the task's conversations in the given collaboration mode (0-100). |
 

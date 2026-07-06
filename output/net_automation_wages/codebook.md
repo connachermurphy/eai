@@ -38,12 +38,19 @@ Correlations between winsorized net automation usage and the annual mean wage, o
 | `net_column` | Winsorized net usage column analyzed. |
 | `nonzero_only` | True when the sample is restricted to occupations with nonzero net usage. |
 | `weight_column` | Employment weight column (oews_tot_emp_imputed). |
-| `winsor_lower_quantile / winsor_upper_quantile` | Quantile levels used for winsorization. |
-| `winsor_lower_value / winsor_upper_value` | Data values at the winsorization quantiles. |
+| `winsor_lower_quantile` | Lower quantile used for winsorization. |
+| `winsor_upper_quantile` | Upper quantile used for winsorization. |
+| `winsor_lower_value` | Data value at the lower winsorization quantile. |
+| `winsor_upper_value` | Data value at the upper winsorization quantile. |
 | `n` | Occupations in the sample. |
-| `pearson / spearman` | Employment-weighted correlations between the net column and oews_a_mean (Spearman is weighted Pearson on ranks). |
-| `pearson_unweighted / spearman_unweighted` | Unweighted counterparts. |
-| `mean_net / median_net` | Unweighted mean and median of the winsorized net column. |
-| `n_positive / n_negative / n_zero` | Occupation counts by sign of the winsorized net column. |
+| `pearson` | Employment-weighted Pearson correlation between the net column and oews_a_mean. |
+| `spearman` | Employment-weighted Pearson correlation on ranks. |
+| `pearson_unweighted` | Unweighted Pearson correlation. |
+| `spearman_unweighted` | Unweighted Spearman correlation. |
+| `mean_net` | Unweighted mean of the winsorized net column. |
+| `median_net` | Unweighted median of the winsorized net column. |
+| `n_positive` | Occupation count with positive winsorized net usage. |
+| `n_negative` | Occupation count with negative winsorized net usage. |
+| `n_zero` | Occupation count with zero winsorized net usage. |
 
 <!-- END CODEBOOK SECTION: net_automation_wages -->

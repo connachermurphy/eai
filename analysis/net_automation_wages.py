@@ -549,32 +549,38 @@ def write_output_codebook(out_dir: Path, winsor_lower: float, winsor_upper: floa
                         "weight_column",
                         f"Employment weight column ({EMP_COL}).",
                     ),
+                    ("winsor_lower_quantile", "Lower quantile used for winsorization."),
+                    ("winsor_upper_quantile", "Upper quantile used for winsorization."),
                     (
-                        "winsor_lower_quantile / winsor_upper_quantile",
-                        "Quantile levels used for winsorization.",
+                        "winsor_lower_value",
+                        "Data value at the lower winsorization quantile.",
                     ),
                     (
-                        "winsor_lower_value / winsor_upper_value",
-                        "Data values at the winsorization quantiles.",
+                        "winsor_upper_value",
+                        "Data value at the upper winsorization quantile.",
                     ),
                     ("n", "Occupations in the sample."),
                     (
-                        "pearson / spearman",
-                        "Employment-weighted correlations between the net "
-                        f"column and {WAGE_COL} (Spearman is weighted Pearson "
-                        "on ranks).",
+                        "pearson",
+                        "Employment-weighted Pearson correlation between the "
+                        f"net column and {WAGE_COL}.",
+                    ),
+                    ("spearman", "Employment-weighted Pearson correlation on ranks."),
+                    ("pearson_unweighted", "Unweighted Pearson correlation."),
+                    ("spearman_unweighted", "Unweighted Spearman correlation."),
+                    ("mean_net", "Unweighted mean of the winsorized net column."),
+                    ("median_net", "Unweighted median of the winsorized net column."),
+                    (
+                        "n_positive",
+                        "Occupation count with positive winsorized net usage.",
                     ),
                     (
-                        "pearson_unweighted / spearman_unweighted",
-                        "Unweighted counterparts.",
+                        "n_negative",
+                        "Occupation count with negative winsorized net usage.",
                     ),
                     (
-                        "mean_net / median_net",
-                        "Unweighted mean and median of the winsorized net column.",
-                    ),
-                    (
-                        "n_positive / n_negative / n_zero",
-                        "Occupation counts by sign of the winsorized net column.",
+                        "n_zero",
+                        "Occupation count with zero winsorized net usage.",
                     ),
                 ],
             },
