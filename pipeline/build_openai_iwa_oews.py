@@ -24,13 +24,10 @@ DATA_DIR = Path("output")
 
 IWA_DETAIL_PATH = IWA_MAPPING_DIR / "iwa_to_onet_soc_via_tasks_detail.csv"
 
+# Only the work-related series is processed. The all-U.S.-messages file
+# (usa_share_of_messages_by_onet_iwa_month.csv) is intentionally excluded
+# since we focus on apportioning work-related messages only.
 OPENAI_IWA_FILES = [
-    {
-        "file_name": "usa_share_of_messages_by_onet_iwa_month.csv",
-        "openai_measure": "us_all_messages_iwa_share",
-        "formal_definition": "P(iwa_cleaned | month)",
-        "denominator": "U.S. consumer ChatGPT messages",
-    },
     {
         "file_name": "usa_share_of_work_related_messages_by_onet_iwa_month.csv",
         "openai_measure": "us_work_related_messages_iwa_share",
@@ -40,7 +37,6 @@ OPENAI_IWA_FILES = [
 ]
 
 MEAN_SUMMARY_MEASURE_COLUMNS = {
-    "us_all_messages_iwa_share": "mean_us_all_messages_iwa_share",
     "us_work_related_messages_iwa_share": "mean_us_work_related_messages_iwa_share",
 }
 
@@ -970,7 +966,7 @@ Generated {date.today().isoformat()}.
 
 - OpenAI Signals CSVs in `{
         OPENAI_INPUT_DIR
-    }`. The bundled README defines `share_of_messages` as a differentially private weighted share in `[0, 1]`; the two O*NET IWA files are monthly U.S. IWA shares, one among all U.S. messages and one among work-related U.S. messages.
+    }`. The bundled README defines `share_of_messages` as a differentially private weighted share in `[0, 1]`. Only the work-related U.S. monthly IWA share file is processed; the all-U.S.-messages file is intentionally excluded since we focus on apportioning work-related messages only.
 - O*NET 30.2 files in `input/db_30_2_excel`. The O*NET 30.2 dictionary documents `IWA Reference`, `DWA Reference`, and `Tasks to DWAs`; it also states that the current O*NET-SOC 2019 taxonomy is based on the transition to the 2018 SOC.
 - OEWS May {oews_year} national data in `output/oews/national_M{oews_year}_dl.csv`.
 
@@ -1014,7 +1010,7 @@ No alternate exposure outputs are implemented. The link count columns remain in 
                     {
                         "artifact": paths["mean_summary"].name,
                         "rows": len(mean_summary),
-                        "description": "SOC 2018 summary with separate mean usage columns for each OpenAI IWA measure.",
+                        "description": "SOC 2018 summary with the mean work-related usage column averaged across months.",
                     },
                     {
                         "artifact": paths["unmatched"].name,
@@ -1248,9 +1244,9 @@ IWA_LINK_COLS = [
 OPENAI_MEASURE_COLS = [
     (
         "openai_measure",
-        "Which OpenAI Signals series the row comes from: "
-        "us_all_messages_iwa_share (all U.S. consumer ChatGPT messages) or "
-        "us_work_related_messages_iwa_share (work-related U.S. messages).",
+        "OpenAI Signals series the row comes from; only "
+        "us_work_related_messages_iwa_share (work-related U.S. consumer "
+        "ChatGPT messages) is processed.",
     ),
     ("month", "Calendar month of the OpenAI observation (YYYY-MM-DD)."),
     (
@@ -1342,8 +1338,11 @@ def write_output_codebook(output_dir: Path) -> None:
         source="pipeline/build_openai_iwa_oews.py",
         intro=(
             "OpenAI Signals IWA-level message shares allocated to SOC 2018 "
-            "occupations by employment within each IWA. All shares are "
-            "proportions in [0, 1]."
+            "occupations by employment within each IWA. Only the "
+            "work-related U.S. message series is included; the "
+            "all-U.S.-messages series is intentionally excluded since we "
+            "focus on apportioning work-related messages only. All shares "
+            "are proportions in [0, 1]."
         ),
         files=[
             {
@@ -1443,16 +1442,11 @@ def write_output_codebook(output_dir: Path) -> None:
             {
                 "name": "openai_soc2018_mean_summary.csv",
                 "description": (
-                    "One row per SOC 2018 occupation with mean apportioned "
-                    "OpenAI shares across all available months."
+                    "One row per SOC 2018 occupation with the mean apportioned "
+                    "OpenAI share across all available months."
                 ),
                 "columns": SOC_2018_ID_COLS
                 + [
-                    (
-                        "mean_us_all_messages_iwa_share",
-                        "Mean of soc_2018_apportioned_share_of_messages "
-                        "across months for the all-U.S.-messages measure.",
-                    ),
                     (
                         "mean_us_work_related_messages_iwa_share",
                         "Mean of soc_2018_apportioned_share_of_messages "

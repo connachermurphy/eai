@@ -15,7 +15,7 @@ Long-form SOC 2018 panel, one row per occupation and OpenAI measure.
 
 | Variable | Definition |
 | --- | --- |
-| `openai_measure` | OpenAI Signals series: us_all_messages_iwa_share or us_work_related_messages_iwa_share. |
+| `openai_measure` | OpenAI Signals series; only us_work_related_messages_iwa_share is included. |
 | `soc_2018` | Six-digit SOC 2018 occupation code. |
 | `title_2018` | SOC 2018 occupation title. |
 | `group_id` | Connected-component ID of the SOC 2010<->2018 crosswalk graph. |
