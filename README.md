@@ -21,8 +21,10 @@ employment, wages, and usage/exposure measures.
   The repo currently handles September 2025, January 2026, and March 2026
   releases for both Claude.ai and first-party API.
 - OpenAI Signals release: local CSVs under
-  `input/oai_260616/data-download-csv`, including monthly O*NET IWA shares for
-  all U.S. messages and work-related U.S. messages.
+  `input/oai_260616/data-download-csv`, including monthly O*NET IWA shares.
+  Only the work-related U.S. message series is used; the all-U.S.-messages
+  series is intentionally excluded since we focus on apportioning work-related
+  messages only.
 - O*NET 20.1 task statements: used for the AEI task-to-occupation pipeline.
 - O*NET 30.2 database: used for Intermediate Work Activity (IWA), Detailed Work
   Activity (DWA), and task-to-DWA mappings.
@@ -132,9 +134,8 @@ verify they are current.
 - `openai_iwa_soc2018_month_panel.csv`: IWA by SOC 2018 by month link panel.
 - `openai_soc2018_month_summary.csv`: SOC 2018 by month panel with
   employment-apportioned OpenAI IWA shares.
-- `openai_soc2018_mean_summary.csv`: one row per SOC 2018 occupation, with mean
-  all-message and work-related OpenAI IWA shares across all available months
-  (committed).
+- `openai_soc2018_mean_summary.csv`: one row per SOC 2018 occupation, with the
+  mean work-related OpenAI IWA share across all available months (committed).
 - `openai_iwa_unmatched.csv`: unallocated OpenAI IWA rows, currently the
   `Other IWA` privacy bucket.
 - `openai_iwa_oews_month_checks.csv` and `openai_iwa_oews_weight_checks.csv`:

@@ -35,13 +35,14 @@ POINT_SIZE_MAX = 80
 POINT_SIZE_LOWER = 0.05
 POINT_SIZE_UPPER = 0.95
 
+# Only the work-related series is analyzed; the all-U.S.-messages series is
+# intentionally excluded from the pipeline outputs since we focus on
+# apportioning work-related messages only.
 MEASURE_LABELS = {
-    "us_all_messages_iwa_share": "All U.S. messages",
     "us_work_related_messages_iwa_share": "Work-related U.S. messages",
 }
 
 MEASURE_COLUMNS = {
-    "us_all_messages_iwa_share": "mean_us_all_messages_iwa_share",
     "us_work_related_messages_iwa_share": "mean_us_work_related_messages_iwa_share",
 }
 
@@ -383,15 +384,23 @@ def save_scatter(
     usage_col: str,
     out_dir: Path,
 ) -> Path:
-    """Save a two-panel scatter of usage against wages."""
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4.8), sharey=True)
+    """Save a scatter of usage against wages, one panel per OpenAI measure."""
+    measures = list(df.groupby("openai_measure"))
+    fig_width = 6.4 * len(measures)
+    fig, axes = plt.subplots(
+        1,
+        len(measures),
+        figsize=(fig_width, 4.8),
+        sharey=True,
+        squeeze=False,
+    )
     size_bounds = employment_size_bounds(df)
     plot_col = winsor_col(usage_col)
     meta = USAGE_VARIANTS[usage_col]
 
     for ax, (measure, sub) in zip(
-        axes,
-        df.groupby("openai_measure"),
+        axes[0],
+        measures,
         strict=True,
     ):
         plot_df = sub[[plot_col, WAGE_COL, EMP_COL]].dropna()
@@ -430,10 +439,17 @@ def save_scatter(
             ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_per_million))
         ax.yaxis.set_major_formatter(ticker.FuncFormatter(format_wage))
 
-    axes[0].set_ylabel("2024 OEWS annual mean wage")
+    axes[0][0].set_ylabel("2024 OEWS annual mean wage")
     fig.suptitle(f"{meta['label']} and wages", fontsize=15)
-    fig.subplots_adjust(left=0.075, right=0.985, top=0.78, bottom=0.28, wspace=0.15)
-    fig.text(0.02, 0.035, figure_note(150), ha="left", va="bottom", fontsize=8)
+    fig.subplots_adjust(
+        left=0.9 / fig_width,
+        right=0.985,
+        top=0.78,
+        bottom=0.28,
+        wspace=0.15,
+    )
+    note_width = int(12.5 * fig_width)
+    fig.text(0.02, 0.035, figure_note(note_width), ha="left", va="bottom", fontsize=8)
 
     out_dir.mkdir(parents=True, exist_ok=True)
     stem = "mean_share" if usage_col == USAGE_COL else "mean_share_per_million_workers"
@@ -498,9 +514,9 @@ def write_report(
 Input panel: `{panel_path}`
 
 This analysis reads the wide across-month mean OpenAI IWA occupation usage file,
-reshapes the two usage columns internally, and compares usage with 2024 OEWS annual
-mean wages. It reports both employment-weighted and unweighted Pearson/Spearman
-correlations.
+reshapes the work-related usage column internally, and compares usage with 2024
+OEWS annual mean wages. It reports both employment-weighted and unweighted
+Pearson/Spearman correlations.
 
 ## Coverage
 
@@ -558,8 +574,8 @@ def write_output_codebook(out_dir: Path, winsor_lower: float, winsor_upper: floa
                 "columns": [
                     (
                         "openai_measure",
-                        "OpenAI Signals series: us_all_messages_iwa_share or "
-                        "us_work_related_messages_iwa_share.",
+                        "OpenAI Signals series; only "
+                        "us_work_related_messages_iwa_share is included.",
                     ),
                     ("soc_2018", "Six-digit SOC 2018 occupation code."),
                     ("title_2018", "SOC 2018 occupation title."),

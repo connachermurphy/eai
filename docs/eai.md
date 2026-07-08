@@ -28,10 +28,13 @@ occupation codes through the O*NET 20.1 task statements.
 The local OpenAI Signals files live under
 `input/oai_260616/data-download-csv`. The OpenAI IWA pipeline currently uses:
 
-- `usa_share_of_messages_by_onet_iwa_month.csv`
 - `usa_share_of_work_related_messages_by_onet_iwa_month.csv`
 
-Both files contain monthly `share_of_messages` values. The local release README
+The all-U.S.-messages file (`usa_share_of_messages_by_onet_iwa_month.csv`) is
+intentionally excluded since we focus on apportioning work-related messages
+only.
+
+The file contains monthly `share_of_messages` values. The local release README
 defines these shares as differentially private weighted shares in `[0, 1]`.
 The currently generated panel covers 21 months, from `2024-07-01` through
 `2026-03-01`.
@@ -292,16 +295,17 @@ exposure files.
 
 ### OpenAI Measures
 
-The two measures are:
+The single measure is:
 
-- `us_all_messages_iwa_share`: monthly IWA share among all U.S. consumer
-  ChatGPT messages.
 - `us_work_related_messages_iwa_share`: monthly IWA share among work-related
   U.S. consumer ChatGPT messages.
 
-The mean summary output keeps these as wide columns:
+The all-U.S.-messages series
+(`usa_share_of_messages_by_onet_iwa_month.csv`) is intentionally excluded
+since we focus on apportioning work-related messages only.
 
-- `mean_us_all_messages_iwa_share`
+The mean summary output keeps this as a wide column:
+
 - `mean_us_work_related_messages_iwa_share`
 
 ### Coverage And Interpretation
@@ -313,7 +317,6 @@ OpenAI's `Other IWA` privacy bucket is intentionally left unallocated because it
 does not identify a specific O*NET IWA. As a result, the summed occupation-level
 mean shares are slightly below one:
 
-- all U.S. messages: about 0.9826
 - work-related U.S. messages: about 0.9842
 
 Occupations with no allocated released-IWA usage are assigned zero in the monthly
@@ -321,10 +324,10 @@ and mean SOC 2018 summaries. These zeroes mean zero usage from the released,
 mapped IWA categories after allocation.
 
 The measurement is sensitive to the apportionment assumption. Current report
-diagnostics show employment-vs-diagnostic Spearman correlations around 0.82 to
-0.84, but Pearson correlations around 0.45 to 0.54. This suggests rank ordering
-is fairly stable, while the level of the occupation exposure measure is
-meaningfully affected by the allocation rule.
+diagnostics show employment-vs-diagnostic Spearman correlations around 0.83
+to 0.84, but Pearson correlations around 0.47 to 0.54. This suggests rank
+ordering is fairly stable, while the level of the occupation exposure measure
+is meaningfully affected by the allocation rule.
 
 ### Outputs
 
@@ -335,7 +338,7 @@ meaningfully affected by the allocation rule.
 - `output/openai_iwa_oews/openai_iwa_soc2018_month_panel.csv`: IWA by SOC 2018
   by month link panel.
 - `output/openai_iwa_oews/openai_soc2018_month_summary.csv`: SOC 2018 by month
-  summary, 36,414 rows.
+  summary, 18,207 rows.
 - `output/openai_iwa_oews/openai_soc2018_mean_summary.csv`: SOC 2018 mean
   summary, 867 rows.
 - `output/openai_iwa_oews/openai_iwa_unmatched.csv`: currently the unallocated
@@ -376,8 +379,8 @@ Script: `analysis/openai_iwa_wages.py`
 
 Default input: `output/openai_iwa_oews/openai_soc2018_mean_summary.csv`
 
-The script reshapes the two OpenAI mean-share columns internally and compares
-them with May 2024 OEWS annual mean wages. It reports:
+The script reshapes the work-related OpenAI mean-share column internally and
+compares it with May 2024 OEWS annual mean wages. It reports:
 
 - `Mean apportioned share`: the monthly IWA-to-SOC 2018 usage share averaged
   across months.
